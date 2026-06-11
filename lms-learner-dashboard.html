@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOPLearn — Dashboard Karyawan</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0B1628;
+    --accent: #2F7BFF;
+    --surface: #ffffff;
+    --surface2: #f5f7fa;
+    --surface3: #eef1f6;
+    --border: #e2e8f0;
+    --text1: #0f172a;
+    --text2: #475569;
+    --text3: #94a3b8;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --purple: #8b5cf6;
+    --sidebar-w: 220px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface2);
+    color: var(--text1);
+    display: flex;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--navy);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+  }
+  .logo-area {
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .logo {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 19px; font-weight: 700;
+    color: #fff; letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+  .logo-tag { font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+  .user-card {
+    margin: 14px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .user-av {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #2F7BFF, #8b5cf6);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .user-name { font-size: 13px; font-weight: 600; color: #fff; }
+  .user-dept { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+  .user-progress {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .up-label { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 5px; }
+  .up-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+  .up-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+
+  nav { padding: 8px 0; flex: 1; }
+  .nav-section {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.09em; text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+    padding: 12px 20px 5px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    margin-right: 10px;
+    border-radius: 0 6px 6px 0;
+    text-decoration: none;
+  }
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,0.07); }
+  .nav-item.active { color: #fff; background: rgba(47,123,255,0.15); border-left-color: var(--accent); }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff; font-size: 10px; font-weight: 700;
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sidebar-bot {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+  .company-badge {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: rgba(255,255,255,0.35);
+  }
+  .company-badge svg { width: 14px; height: 14px; }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 58px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .greeting { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; color: var(--text1); }
+  .greeting-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .tb-btn {
+    width: 36px; height: 36px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--text2); position: relative;
+  }
+  .tb-btn svg { width: 16px; height: 16px; }
+  .notif-dot { width: 7px; height: 7px; background: var(--red); border-radius: 50%; position: absolute; top: 6px; right: 6px; border: 1.5px solid white; }
+  .streak-pill {
+    display: flex; align-items: center; gap: 5px;
+    background: #fffbeb; border: 1px solid #fde68a;
+    border-radius: 99px; padding: 5px 12px;
+    font-size: 12px; font-weight: 600; color: #b45309;
+  }
+
+  /* CONTENT */
+  .content { padding: 22px 28px; flex: 1; }
+
+  /* HERO PROGRESS */
+  .hero-bar {
+    background: var(--navy);
+    border-radius: 14px;
+    padding: 22px 28px;
+    display: flex; align-items: center; gap: 28px;
+    margin-bottom: 20px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bar::before {
+    content: '';
+    position: absolute; right: -40px; top: -40px;
+    width: 200px; height: 200px;
+    background: rgba(47,123,255,0.08);
+    border-radius: 50%;
+  }
+  .hero-ring { position: relative; flex-shrink: 0; }
+  .ring-svg { width: 90px; height: 90px; transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 8; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 220; stroke-dashoffset: 48; transition: stroke-dashoffset 1s ease; }
+  .ring-label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .ring-pct { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: #fff; }
+  .ring-sub { font-size: 9px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+  .hero-info { flex: 1; }
+  .hero-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .hero-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 14px; }
+  .hero-pills { display: flex; gap: 10px; }
+  .h-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 7px 12px;
+    font-size: 12px; color: rgba(255,255,255,0.7);
+  }
+  .h-pill strong { color: #fff; font-weight: 600; }
+  .h-pill svg { width: 14px; height: 14px; }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 20px;
+  }
+  .stat-mini {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .stat-ic {
+    width: 38px; height: 38px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .stat-ic svg { width: 18px; height: 18px; }
+  .stat-ic.blue { background: #eff6ff; color: var(--accent); }
+  .stat-ic.green { background: #f0fdf4; color: var(--green); }
+  .stat-ic.amber { background: #fffbeb; color: var(--amber); }
+  .stat-ic.purple { background: #f5f3ff; color: var(--purple); }
+  .s-val { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; color: var(--text1); }
+  .s-lbl { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  /* MAIN GRID */
+  .grid2 { display: grid; grid-template-columns: 1fr 320px; gap: 16px; margin-bottom: 16px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 15px 20px; border-bottom: 1px solid var(--border);
+  }
+  .card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; color: var(--text1); }
+  .card-link { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
+
+  /* SOP WAJIB */
+  .sop-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 20px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .sop-item:hover { background: var(--surface2); }
+  .sop-item:last-child { border-bottom: none; }
+  .sop-thumb {
+    width: 72px; height: 46px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; position: relative; overflow: hidden;
+  }
+  .sop-thumb .play-ic {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sop-thumb .play-ic svg { width: 12px; height: 12px; color: #fff; margin-left: 2px; }
+  .sop-done-overlay {
+    position: absolute; inset: 0; background: rgba(16,185,129,0.55);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sop-done-overlay svg { width: 22px; height: 22px; color: #fff; }
+  .sop-info { flex: 1; min-width: 0; }
+  .sop-title { font-size: 13px; font-weight: 500; color: var(--text1); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sop-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .dept-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px; }
+  .dt-sales { background: #dbeafe; color: #1d4ed8; }
+  .dt-hrd { background: #dcfce7; color: #15803d; }
+  .dt-ops { background: #fef3c7; color: #b45309; }
+  .dt-fin { background: #ede9fe; color: #6d28d9; }
+  .dt-cs { background: #cffafe; color: #0e7490; }
+  .dt-it { background: #fce7f3; color: #9d174d; }
+  .sop-dur { font-size: 11px; color: var(--text3); }
+  .sop-prog { display: flex; align-items: center; gap: 8px; }
+  .prog-bar { flex: 1; height: 4px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 99px; }
+  .prog-pct { font-size: 11px; color: var(--text3); min-width: 26px; text-align: right; }
+  .sop-status { flex-shrink: 0; }
+  .status-pill {
+    font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 99px;
+  }
+  .sp-done { background: #dcfce7; color: #15803d; }
+  .sp-ongoing { background: #dbeafe; color: #1d4ed8; }
+  .sp-new { background: #fef3c7; color: #b45309; }
+  .sp-deadline { background: #fee2e2; color: #b91c1c; }
+
+  /* SERTIFIKAT */
+  .cert-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 20px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .cert-item:hover { background: var(--surface2); }
+  .cert-item:last-child { border-bottom: none; }
+  .cert-ic {
+    width: 38px; height: 38px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .cert-ic svg { width: 20px; height: 20px; }
+  .cert-name { font-size: 13px; font-weight: 500; color: var(--text1); }
+  .cert-date { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .cert-dl {
+    margin-left: auto;
+    width: 30px; height: 30px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3); flex-shrink: 0;
+  }
+  .cert-dl svg { width: 14px; height: 14px; }
+
+  /* DEADLINE */
+  .deadline-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px; border-bottom: 1px solid var(--border);
+  }
+  .deadline-item:last-child { border-bottom: none; }
+  .dl-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dl-title { font-size: 13px; font-weight: 500; color: var(--text1); flex: 1; }
+  .dl-date { font-size: 11px; font-weight: 600; border-radius: 6px; padding: 3px 8px; }
+  .dl-urgent { background: #fee2e2; color: #b91c1c; }
+  .dl-soon { background: #fef3c7; color: #b45309; }
+  .dl-ok { background: #dcfce7; color: #15803d; }
+
+  /* BOTTOM */
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* EXPLORE */
+  .explore-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.12s;
+  }
+  .explore-item:hover { background: var(--surface2); }
+  .explore-item:last-child { border-bottom: none; }
+  .exp-thumb {
+    width: 52px; height: 34px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .exp-thumb svg { width: 14px; height: 14px; color: rgba(255,255,255,0.6); }
+  .exp-title { font-size: 12px; font-weight: 500; color: var(--text1); }
+  .exp-dur { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  /* RANKING */
+  .rank-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px; border-bottom: 1px solid var(--border);
+  }
+  .rank-item:last-child { border-bottom: none; }
+  .rank-num { width: 20px; font-size: 12px; font-weight: 600; color: var(--text3); text-align: center; }
+  .rank-av {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #fff; flex-shrink: 0;
+  }
+  .rank-name { font-size: 12px; font-weight: 500; color: var(--text1); flex: 1; }
+  .rank-you {
+    font-size: 10px; background: #dbeafe; color: #1d4ed8;
+    padding: 1px 6px; border-radius: 99px; font-weight: 600;
+  }
+  .rank-score { font-size: 12px; font-weight: 600; color: var(--accent); }
+  .rank-item.me { background: #f0f7ff; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo">SOP<span>Learn</span></div>
+    <div class="logo-tag">PT Maju Bersama Tbk</div>
+  </div>
+
+  <div class="user-card">
+    <div class="user-av">RW</div>
+    <div style="flex:1;min-width:0;">
+      <div class="user-name">Rini Wulandari</div>
+      <div class="user-dept">Sales · Jakarta</div>
+      <div class="user-progress">
+        <div class="up-label"><span>Progress bulan ini</span><span>78%</span></div>
+        <div class="up-bar"><div class="up-fill" style="width:78%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-section">Menu</div>
+    <a class="nav-item active" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Beranda
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      SOP Saya
+      <span class="nav-badge">3</span>
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Sertifikat
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Jelajahi SOP
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Peringkat
+    </a>
+    <div class="nav-section">Akun</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      Profil Saya
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Pengaturan
+    </a>
+  </nav>
+
+  <div class="sidebar-bot">
+    <div class="company-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      PT Maju Bersama Tbk
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <header class="topbar">
+    <div>
+      <div class="greeting">Selamat sore, Rini 👋</div>
+      <div class="greeting-sub">Senin, 2 Juni 2025 · Masih ada 3 SOP yang belum selesai</div>
+    </div>
+    <div class="topbar-right">
+      <div class="streak-pill">
+        🔥 7 hari streak
+      </div>
+      <div class="tb-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero-bar">
+      <div class="hero-ring">
+        <svg class="ring-svg" viewBox="0 0 90 90">
+          <circle class="ring-bg" cx="45" cy="45" r="35"/>
+          <circle class="ring-fill" cx="45" cy="45" r="35"/>
+        </svg>
+        <div class="ring-label">
+          <div class="ring-pct">78%</div>
+          <div class="ring-sub">selesai</div>
+        </div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-title">Progress Pelatihan Bulan Juni</div>
+        <div class="hero-sub">Kamu sudah menyelesaikan 14 dari 18 SOP wajib. Terus semangat!</div>
+        <div class="hero-pills">
+          <div class="h-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            <strong>14</strong> ditonton
+          </div>
+          <div class="h-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <strong>8</strong> sertifikat
+          </div>
+          <div class="h-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <strong>82%</strong> avg. skor
+          </div>
+          <div class="h-pill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <strong>3</strong> deadline minggu ini
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-mini">
+        <div class="stat-ic blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        </div>
+        <div><div class="s-val">18</div><div class="s-lbl">SOP wajib</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-ic green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div><div class="s-val">14</div><div class="s-lbl">Sudah selesai</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-ic amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div><div class="s-val" style="color:var(--amber);">3</div><div class="s-lbl">Belum selesai</div></div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-ic purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </div>
+        <div><div class="s-val">8</div><div class="s-lbl">Sertifikat diraih</div></div>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="grid2">
+
+      <!-- SOP WAJIB -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">SOP Wajib Saya</div>
+          <div class="card-link">Lihat semua →</div>
+        </div>
+
+        <!-- DONE -->
+        <div class="sop-item">
+          <div class="sop-thumb" style="background:#1e3a5f;">
+            <div class="sop-done-overlay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="sop-info">
+            <div class="sop-title">SOP Sales: Proses Onboarding Klien Baru</div>
+            <div class="sop-meta"><span class="dept-tag dt-sales">Sales</span><span class="sop-dur">8:24</span></div>
+            <div class="sop-prog">
+              <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--green);"></div></div>
+              <div class="prog-pct" style="color:var(--green);">100%</div>
+            </div>
+          </div>
+          <div class="sop-status"><span class="status-pill sp-done">Selesai</span></div>
+        </div>
+
+        <div class="sop-item">
+          <div class="sop-thumb" style="background:#1e3a5f;">
+            <div class="sop-done-overlay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+          <div class="sop-info">
+            <div class="sop-title">SOP Sales: Negosiasi & Closing Deals</div>
+            <div class="sop-meta"><span class="dept-tag dt-sales">Sales</span><span class="sop-dur">11:05</span></div>
+            <div class="sop-prog">
+              <div class="prog-bar"><div class="prog-fill" style="width:100%;background:var(--green);"></div></div>
+              <div class="prog-pct" style="color:var(--green);">100%</div>
+            </div>
+          </div>
+          <div class="sop-status"><span class="status-pill sp-done">Selesai</span></div>
+        </div>
+
+        <!-- ONGOING -->
+        <div class="sop-item">
+          <div class="sop-thumb" style="background:#1a2f54;">
+            <div class="play-ic">
+              <svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+          <div class="sop-info">
+            <div class="sop-title">SOP Sales: Presentasi Produk ke Klien</div>
+            <div class="sop-meta"><span class="dept-tag dt-sales">Sales</span><span class="sop-dur">9:40</span></div>
+            <div class="sop-prog">
+              <div class="prog-bar"><div class="prog-fill" style="width:60%;background:var(--accent);"></div></div>
+              <div class="prog-pct">60%</div>
+            </div>
+          </div>
+          <div class="sop-status"><span class="status-pill sp-ongoing">Lanjutkan</span></div>
+        </div>
+
+        <!-- DEADLINE SOON -->
+        <div class="sop-item">
+          <div class="sop-thumb" style="background:#2a1010;">
+            <div class="play-ic">
+              <svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+          <div class="sop-info">
+            <div class="sop-title">SOP CS: Penanganan Komplain Pelanggan</div>
+            <div class="sop-meta"><span class="dept-tag dt-cs">CS</span><span class="sop-dur">10:15</span></div>
+            <div class="sop-prog">
+              <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--red);"></div></div>
+              <div class="prog-pct">0%</div>
+            </div>
+          </div>
+          <div class="sop-status"><span class="status-pill sp-deadline">Besok!</span></div>
+        </div>
+
+        <!-- NEW -->
+        <div class="sop-item">
+          <div class="sop-thumb" style="background:#1a3d2b;">
+            <div class="play-ic">
+              <svg viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          </div>
+          <div class="sop-info">
+            <div class="sop-title">SOP HRD: Peraturan Cuti & Izin Karyawan</div>
+            <div class="sop-meta"><span class="dept-tag dt-hrd">HRD</span><span class="sop-dur">5:30</span></div>
+            <div class="sop-prog">
+              <div class="prog-bar"><div class="prog-fill" style="width:0%;background:var(--amber);"></div></div>
+              <div class="prog-pct">0%</div>
+            </div>
+          </div>
+          <div class="sop-status"><span class="status-pill sp-new">Baru</span></div>
+        </div>
+
+      </div>
+
+      <!-- SIDE -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <!-- DEADLINE -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Deadline Minggu Ini</div>
+          </div>
+          <div class="deadline-item">
+            <div class="dl-dot" style="background:var(--red);"></div>
+            <div class="dl-title">SOP CS: Handling Komplain</div>
+            <div class="dl-date dl-urgent">Besok</div>
+          </div>
+          <div class="deadline-item">
+            <div class="dl-dot" style="background:var(--amber);"></div>
+            <div class="dl-title">SOP Sales: Presentasi Produk</div>
+            <div class="dl-date dl-soon">4 Jun</div>
+          </div>
+          <div class="deadline-item">
+            <div class="dl-dot" style="background:var(--green);"></div>
+            <div class="dl-title">SOP HRD: Peraturan Cuti</div>
+            <div class="dl-date dl-ok">7 Jun</div>
+          </div>
+        </div>
+
+        <!-- SERTIFIKAT -->
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Sertifikat Terbaru</div>
+            <div class="card-link">Semua →</div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-ic" style="background:#dbeafe;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <div>
+              <div class="cert-name">SOP Sales Onboarding</div>
+              <div class="cert-date">Diperoleh 28 Mei 2025</div>
+            </div>
+            <div class="cert-dl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-ic" style="background:#dbeafe;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <div>
+              <div class="cert-name">SOP Sales: Negosiasi</div>
+              <div class="cert-date">Diperoleh 20 Mei 2025</div>
+            </div>
+            <div class="cert-dl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-ic" style="background:#f5f3ff;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#6d28d9" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <div>
+              <div class="cert-name">SOP Finance: Reimbursement</div>
+              <div class="cert-date">Diperoleh 10 Mei 2025</div>
+            </div>
+            <div class="cert-dl">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="grid3">
+
+      <!-- JELAJAHI -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Jelajahi SOP Lainnya</div>
+          <div class="card-link">Semua →</div>
+        </div>
+        <div class="explore-item">
+          <div class="exp-thumb" style="background:#2d1a4a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div>
+            <div class="exp-title">SOP Finance: Pengajuan Budget</div>
+            <div class="exp-dur"><span class="dept-tag dt-fin" style="font-size:9px;">Finance</span> &nbsp;6:20</div>
+          </div>
+        </div>
+        <div class="explore-item">
+          <div class="exp-thumb" style="background:#072a30;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div>
+            <div class="exp-title">SOP IT: Keamanan Data Perusahaan</div>
+            <div class="exp-dur"><span class="dept-tag dt-it" style="font-size:9px;">IT</span> &nbsp;7:50</div>
+          </div>
+        </div>
+        <div class="explore-item">
+          <div class="exp-thumb" style="background:#3d2200;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div>
+            <div class="exp-title">SOP Operasional: K3 Gudang</div>
+            <div class="exp-dur"><span class="dept-tag dt-ops" style="font-size:9px;">Ops</span> &nbsp;15:30</div>
+          </div>
+        </div>
+        <div class="explore-item">
+          <div class="exp-thumb" style="background:#1a3d2b;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+          </div>
+          <div>
+            <div class="exp-title">SOP HRD: Penilaian Kinerja Tahunan</div>
+            <div class="exp-dur"><span class="dept-tag dt-hrd" style="font-size:9px;">HRD</span> &nbsp;9:10</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERINGKAT TIM -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Peringkat Tim Sales</div>
+          <div class="card-link">Semua dept →</div>
+        </div>
+        <div class="rank-item me">
+          <div class="rank-num" style="color:#d97706;">🥇</div>
+          <div class="rank-av" style="background:#2F7BFF;">RW</div>
+          <div class="rank-name">Rini Wulandari <span class="rank-you">Kamu</span></div>
+          <div class="rank-score">18</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-num">2</div>
+          <div class="rank-av" style="background:#0891b2;">AH</div>
+          <div class="rank-name">Agus Hermawan</div>
+          <div class="rank-score">15</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-num">3</div>
+          <div class="rank-av" style="background:#7c3aed;">DP</div>
+          <div class="rank-name">Dini Puspita</div>
+          <div class="rank-score">13</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-num">4</div>
+          <div class="rank-av" style="background:#b45309;">FN</div>
+          <div class="rank-name">Fajar Nugroho</div>
+          <div class="rank-score">11</div>
+        </div>
+        <div class="rank-item">
+          <div class="rank-num">5</div>
+          <div class="rank-av" style="background:#64748b;">LM</div>
+          <div class="rank-name">Lestari Mulyani</div>
+          <div class="rank-score">9</div>
+        </div>
+      </div>
+
+      <!-- PENCAPAIAN -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Pencapaian Saya</div>
+        </div>
+        <div style="padding:14px 20px;display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:#fffbeb;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🔥</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text1);">7 Hari Streak</div>
+              <div style="font-size:11px;color:var(--text3);">Belajar 7 hari berturut-turut</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🏆</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text1);">Top Sales Learner</div>
+              <div style="font-size:11px;color:var(--text3);">Peringkat #1 di tim Sales</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:40px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">⭐</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text1);">Quiz Master</div>
+              <div style="font-size:11px;color:var(--text3);">Rata-rata skor quiz 82%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;opacity:0.4;">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🎯</div>
+            <div>
+              <div style="font-size:13px;font-weight:500;color:var(--text1);">100% Completion</div>
+              <div style="font-size:11px;color:var(--text3);">Selesaikan semua 18 SOP wajib</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+</body>
+</html>
