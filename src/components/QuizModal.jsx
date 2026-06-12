@@ -19,6 +19,7 @@ export const QuizModal = ({ video, onClose }) => {
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(0);
   const videoRef = useRef(null);
+  const maxWatchedTime = useRef(0); // furthest second ever watched
 
   // Post-test state
   const [postAnswers, setPostAnswers] = useState({}); // { qId: answerValue (MCQ option or essay string) }
@@ -46,10 +47,24 @@ export const QuizModal = ({ video, onClose }) => {
   const handleTimeUpdate = () => {
     const el = videoRef.current;
     if (!el || !el.duration) return;
+    // Update max watched time
+    if (el.currentTime > maxWatchedTime.current) {
+      maxWatchedTime.current = el.currentTime;
+    }
     const pct = Math.round((el.currentTime / el.duration) * 100);
     setPlayProgress(pct);
     updateProgress(video.id, pct);
   };
+
+  const handleSeeking = () => {
+    const el = videoRef.current;
+    if (!el) return;
+    // Block seeking beyond max watched time
+    if (el.currentTime > maxWatchedTime.current + 1) {
+      el.currentTime = maxWatchedTime.current;
+    }
+  };
+
   const handleVideoEnded = () => { setVideoPlaying(false); setPlayProgress(100); updateProgress(video.id, 100); };
   const handlePlayPause = () => {
     const el = videoRef.current;
@@ -223,6 +238,7 @@ export const QuizModal = ({ video, onClose }) => {
                     ref={videoRef}
                     src={video.videoUrl}
                     onTimeUpdate={handleTimeUpdate}
+                    onSeeking={handleSeeking}
                     onEnded={handleVideoEnded}
                     onPlay={() => setVideoPlaying(true)}
                     onPause={() => setVideoPlaying(false)}
