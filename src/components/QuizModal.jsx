@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const QuizModal = ({ video, onClose }) => {
@@ -15,34 +15,47 @@ export const QuizModal = ({ video, onClose }) => {
   const [preSubmitted, setPreSubmitted] = useState(false);
   const [preScore, setPreScore] = useState(0);
 
-  // Video progress simulation
+  // Video progress
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [playProgress, setPlayProgress] = useState(0);
+  const videoRef = useRef(null);
 
   // Post-test state
   const [postAnswers, setPostAnswers] = useState({}); // { qId: answerValue (MCQ option or essay string) }
   const [postSubmitted, setPostSubmitted] = useState(false);
   const [postScore, setPostScore] = useState(0);
 
-  // Handle Video Progression Simulation
+  // Simulation mode (no real video URL)
   useEffect(() => {
+    if (video.videoUrl) return;
     let interval;
     if (videoPlaying && playProgress < 100) {
       interval = setInterval(() => {
         setPlayProgress(prev => {
           const next = prev + 5;
-          if (next >= 100) {
-            setVideoPlaying(false);
-            updateProgress(video.id, 100);
-            return 100;
-          }
+          if (next >= 100) { setVideoPlaying(false); updateProgress(video.id, 100); return 100; }
           updateProgress(video.id, next);
           return next;
         });
-      }, 500); // simulation tick
+      }, 500);
     }
     return () => clearInterval(interval);
-  }, [videoPlaying, playProgress, video.id]);
+  }, [videoPlaying, playProgress, video.id, video.videoUrl]);
+
+  // Real video handlers
+  const handleTimeUpdate = () => {
+    const el = videoRef.current;
+    if (!el || !el.duration) return;
+    const pct = Math.round((el.currentTime / el.duration) * 100);
+    setPlayProgress(pct);
+    updateProgress(video.id, pct);
+  };
+  const handleVideoEnded = () => { setVideoPlaying(false); setPlayProgress(100); updateProgress(video.id, 100); };
+  const handlePlayPause = () => {
+    const el = videoRef.current;
+    if (!el) return;
+    if (el.paused) { el.play(); setVideoPlaying(true); } else { el.pause(); setVideoPlaying(false); }
+  };
 
   const handlePreSubmit = () => {
     // Grade MCQ Pre-Test
@@ -203,39 +216,42 @@ export const QuizModal = ({ video, onClose }) => {
           {step === 'video' && (
             <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div style={{ flex: 1, background: '#090f1d', borderRadius: '12px', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                {/* Simulated Stream */}
-                <div style={{ textAlign: 'center', color: '#fff', zIndex: 2 }}>
-                  <div style={{ fontSize: '48px', marginBottom: '10px' }}>🎬</div>
-                  <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '6px' }}>{video.title}</h4>
-                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
-                    {videoPlaying ? 'Memutar simulasi video...' : playProgress >= 100 ? 'SOP selesai ditonton!' : 'Klik tombol Putar untuk menonton SOP'}
-                  </p>
 
-                  <button 
-                    onClick={() => setVideoPlaying(!videoPlaying)}
-                    style={{
-                      background: 'var(--accent)',
-                      color: '#fff',
-                      border: 'none',
-                      padding: '12px 28px',
-                      borderRadius: '50px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(47,123,255,0.4)'
-                    }}
-                  >
-                    {videoPlaying ? '⏸ Pause Video' : playProgress >= 100 ? '🔄 Tonton Ulang' : '▶ Putar Video'}
-                  </button>
-                </div>
-
-                {/* Progress bar overlay */}
-                <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)' }}>
-                  <div style={{ height: '100%', width: `${playProgress}%`, background: 'var(--accent)', transition: 'width 0.3s ease' }}></div>
-                </div>
-                <div style={{ position: 'absolute', bottom: '12px', right: '16px', color: '#fff', fontSize: '11px', fontWeight: '600', zIndex: 3 }}>
-                  Progress: {playProgress}%
-                </div>
+                {video.videoUrl ? (
+                  /* Real video player */
+                  <video
+                    ref={videoRef}
+                    src={video.videoUrl}
+                    onTimeUpdate={handleTimeUpdate}
+                    onEnded={handleVideoEnded}
+                    onPlay={() => setVideoPlaying(true)}
+                    onPause={() => setVideoPlaying(false)}
+                    controls
+                    controlsList="nodownload"
+                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain' }}
+                  />
+                ) : (
+                  /* Simulation fallback */
+                  <div style={{ textAlign: 'center', color: '#fff', zIndex: 2 }}>
+                    <div style={{ fontSize: '48px', marginBottom: '10px' }}>🎬</div>
+                    <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '6px' }}>{video.title}</h4>
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginBottom: '20px' }}>
+                      {videoPlaying ? 'Memutar simulasi video...' : playProgress >= 100 ? 'SOP selesai ditonton!' : 'Klik tombol Putar untuk menonton SOP'}
+                    </p>
+                    <button
+                      onClick={() => setVideoPlaying(!videoPlaying)}
+                      style={{ background: 'var(--accent)', color: '#fff', border: 'none', padding: '12px 28px', borderRadius: '50px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}
+                    >
+                      {videoPlaying ? '⏸ Pause Video' : playProgress >= 100 ? '🔄 Tonton Ulang' : '▶ Putar Video'}
+                    </button>
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)' }}>
+                      <div style={{ height: '100%', width: `${playProgress}%`, background: 'var(--accent)', transition: 'width 0.3s ease' }}></div>
+                    </div>
+                    <div style={{ position: 'absolute', bottom: '12px', right: '16px', color: '#fff', fontSize: '11px', fontWeight: '600' }}>
+                      Progress: {playProgress}%
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>

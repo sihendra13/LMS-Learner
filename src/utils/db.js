@@ -21,15 +21,16 @@ const defaultDatabase = {
     { id: 5, name: 'Nina Putri', dept: 'CS', city: 'Medan', score: 11 },
   ],
   videos: [
-    { 
-      id: 1, 
-      title: 'SOP Sales: Proses Onboarding Klien Baru', 
-      dept: 'Sales', 
-      duration: '8:24', 
-      progress: 100, 
-      views: 156, 
-      color: '#1e3a5f', 
+    {
+      id: 1,
+      title: 'SOP Sales: Proses Onboarding Klien Baru',
+      dept: 'Sales',
+      duration: '8:24',
+      progress: 100,
+      views: 156,
+      color: '#1e3a5f',
       tagClass: 'dt-sales',
+      videoUrl: 'https://vgefsqwjhyiezmlsegsf.supabase.co/storage/v1/object/public/videos/TEs%20AI%20podcast.mp4',
       preQuizzes: [
         { id: 1, question: "Apa tahapan awal sebelum klien baru melakukan pembayaran?", options: ["Kirim NDA", "Kirim Invoice", "Kirim Proposal Kerja", "Telepon Perkenalan"], answer: "D" },
         { id: 2, question: "Apakah tim CS perlu dilibatkan saat serah terima berkas?", options: ["Ya, wajib", "Tidak perlu", "Hanya jika klien meminta", "Tergantung ukuran proyek"], answer: "A" }
