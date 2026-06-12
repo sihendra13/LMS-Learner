@@ -5,8 +5,14 @@ export const QuizModal = ({ video, onClose }) => {
   const { currentUser, addSubmission, submitEssay, passingScore, updateProgress } = useTenant();
 
   // Learning wizard steps: 'pre-test' | 'video' | 'post-test' | 'result'
-  const hasPreTest = video.preQuizzes && video.preQuizzes.length > 0;
-  const hasPostTest = video.postQuizzes && video.postQuizzes.length > 0;
+  const midVideoTriggers = [
+    ...(video.preQuizzes || []),
+    ...(video.postQuizzes || [])
+  ].filter(q => q.triggerTime > 0);
+  const regularPreQuizzes = (video.preQuizzes || []).filter(q => !q.triggerTime || q.triggerTime === 0);
+  const regularPostQuizzes = (video.postQuizzes || []).filter(q => !q.triggerTime || q.triggerTime === 0);
+  const hasPreTest = regularPreQuizzes.length > 0;
+  const hasPostTest = regularPostQuizzes.length > 0;
   
   const [step, setStep] = useState(() => hasPreTest ? 'pre-test' : 'video');
   
@@ -20,6 +26,9 @@ export const QuizModal = ({ video, onClose }) => {
   const [playProgress, setPlayProgress] = useState(0);
   const videoRef = useRef(null);
   const maxWatchedTime = useRef(0); // furthest second ever watched
+  const triggeredIds = useRef(new Set());
+  const [activeTrigger, setActiveTrigger] = useState(null);
+  const [triggerAnswer, setTriggerAnswer] = useState('');
 
   // Post-test state
   const [postAnswers, setPostAnswers] = useState({}); // { qId: answerValue (MCQ option or essay string) }
@@ -47,13 +56,23 @@ export const QuizModal = ({ video, onClose }) => {
   const handleTimeUpdate = () => {
     const el = videoRef.current;
     if (!el || !el.duration) return;
-    // Update max watched time
     if (el.currentTime > maxWatchedTime.current) {
       maxWatchedTime.current = el.currentTime;
     }
     const pct = Math.round((el.currentTime / el.duration) * 100);
     setPlayProgress(pct);
     updateProgress(video.id, pct);
+    if (!activeTrigger) {
+      for (const q of midVideoTriggers) {
+        if (!triggeredIds.current.has(q.id) && el.currentTime >= q.triggerTime) {
+          triggeredIds.current.add(q.id);
+          el.pause();
+          setVideoPlaying(false);
+          setActiveTrigger(q);
+          break;
+        }
+      }
+    }
   };
 
   const handleSeeking = () => {
@@ -72,27 +91,29 @@ export const QuizModal = ({ video, onClose }) => {
     if (el.paused) { el.play(); setVideoPlaying(true); } else { el.pause(); setVideoPlaying(false); }
   };
 
+  const handleTriggerSubmit = () => {
+    setActiveTrigger(null);
+    setTriggerAnswer('');
+    if (videoRef.current) videoRef.current.play();
+    setVideoPlaying(true);
+  };
+
   const handlePreSubmit = () => {
-    // Grade MCQ Pre-Test
     let correct = 0;
-    video.preQuizzes.forEach(q => {
-      const isCorrect = (q.options[q.answer.charCodeAt(0) - 65] === preAnswers[q.id]) || (q.answer === preAnswers[q.id]);
-      if (isCorrect || preAnswers[q.id] === q.answer) correct++;
+    regularPreQuizzes.forEach(q => {
+      if (preAnswers[q.id] === q.answer) correct++;
     });
-    const calculatedScore = Math.round((correct / video.preQuizzes.length) * 100);
+    const calculatedScore = regularPreQuizzes.length > 0 ? Math.round((correct / regularPreQuizzes.length) * 100) : 100;
     setPreScore(calculatedScore);
     setPreSubmitted(true);
-    setTimeout(() => {
-      setStep('video');
-    }, 2000);
+    setTimeout(() => { setStep('video'); }, 2000);
   };
 
   const handlePostSubmit = () => {
-    const isEssayQuiz = video.postQuizzes.some(q => q.isEssay);
+    const isEssayQuiz = regularPostQuizzes.some(q => q.isEssay);
 
     if (isEssayQuiz) {
-      // Structure essay response to match pendingEssays in LMS Admin
-      const essayQuestions = video.postQuizzes.map(q => ({
+      const essayQuestions = regularPostQuizzes.map(q => ({
         id: q.id,
         question: q.question,
         answer: postAnswers[q.id] || '',
@@ -109,19 +130,15 @@ export const QuizModal = ({ video, onClose }) => {
       };
 
       submitEssay(essaySubmission);
-      
-      // Set status to pending/submitted
       setPostSubmitted(true);
       setPostScore(null);
       setStep('result');
     } else {
-      // Grade MCQ Post-Test
       let correct = 0;
-      video.postQuizzes.forEach(q => {
-        const isCorrect = (q.options[q.answer.charCodeAt(0) - 65] === postAnswers[q.id]) || (q.answer === postAnswers[q.id]);
-        if (isCorrect || postAnswers[q.id] === q.answer) correct++;
+      regularPostQuizzes.forEach(q => {
+        if (postAnswers[q.id] === q.answer) correct++;
       });
-      const calculatedScore = Math.round((correct / video.postQuizzes.length) * 100);
+      const calculatedScore = regularPostQuizzes.length > 0 ? Math.round((correct / regularPostQuizzes.length) * 100) : 100;
       setPostScore(calculatedScore);
       setPostSubmitted(true);
 
@@ -168,7 +185,7 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  {video.preQuizzes.map((q, idx) => (
+                  {regularPreQuizzes.map((q, idx) => (
                     <div key={q.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
                       <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
@@ -212,12 +229,12 @@ export const QuizModal = ({ video, onClose }) => {
                 ) : (
                   <button 
                     className="btn-primary" 
-                    disabled={Object.keys(preAnswers).length < video.preQuizzes.length}
+                    disabled={Object.keys(preAnswers).length < regularPreQuizzes.length}
                     onClick={handlePreSubmit}
-                    style={{ 
-                      background: Object.keys(preAnswers).length < video.preQuizzes.length ? 'var(--text3)' : '#002D72',
-                      borderColor: Object.keys(preAnswers).length < video.preQuizzes.length ? 'var(--text3)' : '#002D72',
-                      cursor: Object.keys(preAnswers).length < video.preQuizzes.length ? 'not-allowed' : 'pointer'
+                    style={{
+                      background: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'var(--text3)' : '#002D72',
+                      borderColor: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'var(--text3)' : '#002D72',
+                      cursor: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'not-allowed' : 'pointer'
                     }}
                   >
                     Kirim Pre-Test & Lanjutkan
@@ -268,6 +285,78 @@ export const QuizModal = ({ video, onClose }) => {
                     </div>
                   </div>
                 )}
+
+                {activeTrigger && (
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(9,15,29,0.95)',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '24px',
+                    zIndex: 10
+                  }}>
+                    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', maxWidth: '480px', width: '100%' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#1d4ed8', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.05em' }}>
+                        📋 Kuis — Video Dijeda Sementara
+                      </div>
+                      <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
+                        {activeTrigger.question}
+                      </h4>
+                      {activeTrigger.options && activeTrigger.options.length > 0 ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                          {activeTrigger.options.map((opt, idx) => {
+                            const letter = String.fromCharCode(65 + idx);
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => setTriggerAnswer(letter)}
+                                style={{
+                                  padding: '10px 14px',
+                                  border: triggerAnswer === letter ? '2px solid #002D72' : '1px solid #e2e8f0',
+                                  background: triggerAnswer === letter ? '#eff6ff' : '#f8fafc',
+                                  color: triggerAnswer === letter ? '#002D72' : '#0f172a',
+                                  borderRadius: '8px',
+                                  textAlign: 'left',
+                                  fontSize: '13px',
+                                  cursor: 'pointer',
+                                  fontWeight: triggerAnswer === letter ? '600' : 'normal'
+                                }}
+                              >
+                                <strong>{letter}.</strong> {opt}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <textarea
+                          className="form-input"
+                          style={{ width: '100%', height: '80px', resize: 'none', fontSize: '13px', marginBottom: '16px', boxSizing: 'border-box' }}
+                          placeholder="Ketik jawaban Anda..."
+                          value={triggerAnswer}
+                          onChange={(e) => setTriggerAnswer(e.target.value)}
+                        />
+                      )}
+                      <button
+                        className="btn-primary"
+                        disabled={!triggerAnswer}
+                        onClick={handleTriggerSubmit}
+                        style={{
+                          width: '100%',
+                          background: !triggerAnswer ? '#94a3b8' : '#002D72',
+                          cursor: !triggerAnswer ? 'not-allowed' : 'pointer',
+                          padding: '10px',
+                          border: 'none'
+                        }}
+                      >
+                        Jawab & Lanjutkan Video ▶
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
@@ -302,7 +391,7 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  {video.postQuizzes.map((q, idx) => (
+                  {regularPostQuizzes.map((q, idx) => (
                     <div key={q.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
                       <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
@@ -349,14 +438,14 @@ export const QuizModal = ({ video, onClose }) => {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                <button 
-                  className="btn-primary" 
-                  disabled={Object.keys(postAnswers).length < video.postQuizzes.length}
+                <button
+                  className="btn-primary"
+                  disabled={Object.keys(postAnswers).length < regularPostQuizzes.length}
                   onClick={handlePostSubmit}
-                  style={{ 
-                    background: Object.keys(postAnswers).length < video.postQuizzes.length ? 'var(--text3)' : '#002D72',
-                    borderColor: Object.keys(postAnswers).length < video.postQuizzes.length ? 'var(--text3)' : '#002D72',
-                    cursor: Object.keys(postAnswers).length < video.postQuizzes.length ? 'not-allowed' : 'pointer'
+                  style={{
+                    background: Object.keys(postAnswers).length < regularPostQuizzes.length ? 'var(--text3)' : '#002D72',
+                    borderColor: Object.keys(postAnswers).length < regularPostQuizzes.length ? 'var(--text3)' : '#002D72',
+                    cursor: Object.keys(postAnswers).length < regularPostQuizzes.length ? 'not-allowed' : 'pointer'
                   }}
                 >
                   Kirim Jawaban Kuis
