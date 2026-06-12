@@ -142,7 +142,7 @@ export const QuizModal = ({ video, onClose }) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {video.preQuizzes.map((q, idx) => (
                     <div key={q.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                      <h4 style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
                       </h4>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -160,7 +160,7 @@ export const QuizModal = ({ video, onClose }) => {
                                 color: isSelected ? 'var(--accent)' : 'var(--text1)',
                                 borderRadius: '8px',
                                 textAlign: 'left',
-                                fontSize: '12px',
+                                fontSize: '14px',
                                 cursor: 'pointer',
                                 fontWeight: isSelected ? '600' : 'normal',
                                 transition: 'all 0.15s ease'
@@ -272,13 +272,13 @@ export const QuizModal = ({ video, onClose }) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {video.postQuizzes.map((q, idx) => (
                     <div key={q.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                      <h4 style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
                       </h4>
                       {q.isEssay ? (
                         <textarea
                           className="form-input"
-                          style={{ height: '80px', resize: 'none', background: '#fff' }}
+                          style={{ height: '80px', resize: 'none', background: '#fff', fontSize: '14px' }}
                           placeholder="Ketik jawaban esai lengkap Anda di sini..."
                           value={postAnswers[q.id] || ''}
                           onChange={e => setPostAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
@@ -299,7 +299,7 @@ export const QuizModal = ({ video, onClose }) => {
                                   color: isSelected ? 'var(--accent)' : 'var(--text1)',
                                   borderRadius: '8px',
                                   textAlign: 'left',
-                                  fontSize: '12px',
+                                  fontSize: '14px',
                                   cursor: 'pointer',
                                   fontWeight: isSelected ? '600' : 'normal',
                                   transition: 'all 0.15s ease'
