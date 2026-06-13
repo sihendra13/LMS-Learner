@@ -261,7 +261,7 @@ export const QuizModal = ({ video, onClose }) => {
                     onPause={() => setVideoPlaying(false)}
                     controls
                     controlsList="nodownload"
-                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain' }}
+                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto' }}
                   />
                 ) : (
                   /* Simulation fallback */
