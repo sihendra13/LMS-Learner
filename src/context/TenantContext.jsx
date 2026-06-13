@@ -131,6 +131,23 @@ export const TenantProvider = ({ children }) => {
     }
   };
 
+  const [tenant, setTenant] = useState(() => {
+    return db.tenant || {
+      name: 'PT Maju Bersama',
+      plan: 'business',
+      status: 'Aktif',
+      avatar: 'MB',
+      logo: null
+    };
+  });
+
+  // Keep tenant state synced when db changes
+  useEffect(() => {
+    if (db.tenant) {
+      setTenant(db.tenant);
+    }
+  }, [db]);
+
   return (
     <TenantContext.Provider value={{
       currentUser: db.currentUser,
@@ -148,7 +165,8 @@ export const TenantProvider = ({ children }) => {
       submitEssay,
       exportDBString,
       importDBString,
-      setDb
+      setDb,
+      tenant
     }}>
       {children}
     </TenantContext.Provider>

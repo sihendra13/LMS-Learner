@@ -36,47 +36,91 @@ const AppContent = () => {
     <>
       {/* SIDEBAR */}
       <aside className="sidebar">
-        <div className="logo-area">
-          <div className="logo">SOP<span>Learn</span></div>
-          <div className="logo-tag">PT Maju Bersama Tbk</div>
-        </div>
-
-        <div className="user-card">
-          <div className="user-av">{currentUser.avatar}</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="user-name">{currentUser.name}</div>
-            <div className="user-dept">{currentUser.dept} · {currentUser.city}</div>
+        {/* BRANDING TOP: FULL WHITE HEADER CONTAINER FOR LOGO */}
+        <div style={{ borderBottom: '1px solid rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column' }}>
+          <div style={{
+            background: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            height: '60px',
+            overflow: 'hidden',
+            padding: '0 20px',
+            width: '100%',
+            boxSizing: 'border-box',
+            borderRight: '1px solid #e2e8f0'
+          }} onClick={() => setActivePage('dashboard')}>
+            {tenant.logo ? (
+              <img src={tenant.logo} alt={tenant.name} style={{ maxWidth: '100%', maxHeight: '42px', objectFit: 'contain' }} />
+            ) : (
+              <>
+                <span style={{ fontSize: '15px', flexShrink: 0 }}>🏢</span>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {tenant.name}
+                </div>
+              </>
+            )}
+          </div>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', padding: '12px 20px', fontWeight: '600' }}>
+            Paket {tenant.plan ? tenant.plan.charAt(0).toUpperCase() + tenant.plan.slice(1) : 'Business'} · {tenant.status || 'Aktif'}
           </div>
         </div>
 
-        <nav>
+        {/* USER PROFILE BADGE */}
+        <div className="tenant-badge" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '10px', padding: '10px 14px', borderRadius: '8px', margin: '14px', alignItems: 'center', textAlign: 'left' }}>
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            background: 'var(--accent)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '13px',
+            fontWeight: '700',
+            color: '#fff',
+            flexShrink: 0
+          }}>
+            {currentUser.avatar}
+          </div>
+          <div style={{ overflow: 'hidden' }}>
+            <div className="tenant-name" style={{ fontWeight: '700', fontSize: '13px', color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentUser.name}</div>
+            <div className="tenant-plan" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>
+              Divisi {currentUser.dept}
+            </div>
+          </div>
+        </div>
+
+        <nav style={{ flex: 1 }}>
           <div className="nav-section">Menu Utama</div>
           
           <button 
             className={`nav-item ${activePage === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActivePage('dashboard')}
-            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left' }}
+            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
             Beranda
           </button>
           
           <button 
             className={`nav-item ${activePage === 'sop' ? 'active' : ''}`}
             onClick={() => setActivePage('sop')}
-            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left', display: 'flex', alignItems: 'center' }}
+            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
             SOP Saya
-            {outstandingCount > 0 && <span className="nav-badge">{outstandingCount}</span>}
+            {outstandingCount > 0 && <span className="nav-badge" style={{ marginLeft: 'auto' }}>{outstandingCount}</span>}
           </button>
           
           <button 
             className={`nav-item ${activePage === 'sertifikasi' ? 'active' : ''}`}
             onClick={() => setActivePage('sertifikasi')}
-            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left' }}
+            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
             Sertifikat
           </button>
 
@@ -84,16 +128,30 @@ const AppContent = () => {
           <button 
             className="nav-item"
             onClick={() => setSyncOpen(true)}
-            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left', color: '#60a5fa' }}
+            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
           >
             🔄 Sync Data DB
           </button>
         </nav>
 
-        <div className="sidebar-bot">
-          <div className="company-badge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-            PT Maju Bersama Tbk
+        {/* LOGOUT + BRANDING BOTTOM */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '12px 16px' }}>
+          <button
+            onClick={() => alert('Logout simulasi berhasil! Anda dapat memuat ulang halaman untuk masuk kembali.')}
+            style={{
+              width: '100%', background: 'rgba(255,255,255,0.06)', border: 'none',
+              borderRadius: '8px', padding: '9px 14px', color: 'rgba(255,255,255,0.7)',
+              fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center',
+              gap: '8px', marginBottom: '10px',
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Keluar
+          </button>
+          <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '600', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em' }}>
+            Axara LMS Platform
           </div>
         </div>
       </aside>
