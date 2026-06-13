@@ -35,6 +35,8 @@ export const QuizModal = ({ video, onClose }) => {
   const [postSubmitted, setPostSubmitted] = useState(false);
   const [postScore, setPostScore] = useState(0);
 
+  const [videoError, setVideoError] = useState(false);
+
   // Simulation mode (no real video URL)
   useEffect(() => {
     if (video.videoUrl) return;
@@ -190,32 +192,42 @@ export const QuizModal = ({ video, onClose }) => {
                       <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
                       </h4>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        {q.options.map((option, optIdx) => {
-                          const optionChar = String.fromCharCode(65 + optIdx);
-                          const isSelected = preAnswers[q.id] === optionChar || preAnswers[q.id] === option;
-                          return (
-                            <button
-                              key={optIdx}
-                              onClick={() => setPreAnswers(prev => ({ ...prev, [q.id]: optionChar }))}
-                              style={{
-                                padding: '10px 14px',
-                                border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
-                                background: isSelected ? '#eff6ff' : '#ffffff',
-                                color: isSelected ? 'var(--accent)' : 'var(--text1)',
-                                borderRadius: '8px',
-                                textAlign: 'left',
-                                fontSize: '14px',
-                                cursor: 'pointer',
-                                fontWeight: isSelected ? '600' : 'normal',
-                                transition: 'all 0.15s ease'
-                              }}
-                            >
-                              <strong>{optionChar}.</strong> {option}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      {q.type === 'essay' ? (
+                        <textarea
+                          className="form-input"
+                          style={{ height: '80px', resize: 'none', background: '#fff', fontSize: '14px' }}
+                          placeholder="Ketik jawaban esai Anda di sini..."
+                          value={preAnswers[q.id] || ''}
+                          onChange={e => setPreAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                        />
+                      ) : (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          {q.options.map((option, optIdx) => {
+                            const optionChar = String.fromCharCode(65 + optIdx);
+                            const isSelected = preAnswers[q.id] === optionChar || preAnswers[q.id] === option;
+                            return (
+                              <button
+                                key={optIdx}
+                                onClick={() => setPreAnswers(prev => ({ ...prev, [q.id]: optionChar }))}
+                                style={{
+                                  padding: '10px 14px',
+                                  border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                  background: isSelected ? '#eff6ff' : '#ffffff',
+                                  color: isSelected ? 'var(--accent)' : 'var(--text1)',
+                                  borderRadius: '8px',
+                                  textAlign: 'left',
+                                  fontSize: '14px',
+                                  cursor: 'pointer',
+                                  fontWeight: isSelected ? '600' : 'normal',
+                                  transition: 'all 0.15s ease'
+                                }}
+                              >
+                                <strong>{optionChar}.</strong> {option}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -249,7 +261,7 @@ export const QuizModal = ({ video, onClose }) => {
             <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               <div style={{ flex: 1, background: '#090f1d', borderRadius: '12px', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
 
-                {video.videoUrl ? (
+                {video.videoUrl && !videoError ? (
                   /* Real video player */
                   <video
                     ref={videoRef}
@@ -259,10 +271,20 @@ export const QuizModal = ({ video, onClose }) => {
                     onEnded={handleVideoEnded}
                     onPlay={() => setVideoPlaying(true)}
                     onPause={() => setVideoPlaying(false)}
+                    onError={() => setVideoError(true)}
                     controls
                     controlsList="nodownload"
                     style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto' }}
                   />
+                ) : video.videoUrl && videoError ? (
+                  /* Video URL exists but file not found */
+                  <div style={{ textAlign: 'center', color: '#fff', zIndex: 2, padding: '24px' }}>
+                    <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
+                    <h4 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '8px' }}>Video Tidak Dapat Dimuat</h4>
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: '1.6', maxWidth: '280px' }}>
+                      File video belum tersedia di server. Silakan hubungi Admin untuk mengunggah ulang video ini.
+                    </p>
+                  </div>
                 ) : (
                   /* Simulation fallback */
                   <div style={{ textAlign: 'center', color: '#fff', zIndex: 2 }}>
@@ -396,7 +418,7 @@ export const QuizModal = ({ video, onClose }) => {
                       <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
                       </h4>
-                      {q.isEssay ? (
+                      {q.type === 'essay' ? (
                         <textarea
                           className="form-input"
                           style={{ height: '80px', resize: 'none', background: '#fff', fontSize: '14px' }}
