@@ -5,7 +5,7 @@ export const Dashboard = ({ onSelectVideo }) => {
   const { currentUser, videos, quizSubmissions, activities, passingScore } = useTenant();
 
   // Filter videos for Sales (the current employee dept)
-  const mandatoryVideos = videos.filter(v => v.dept === currentUser.dept);
+  const mandatoryVideos = videos.filter(v => (v.dept === currentUser.dept || v.dept === 'Semua') && !v.archived);
   
   // Calculations
   const totalMandatory = mandatoryVideos.length;
