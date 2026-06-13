@@ -3,12 +3,11 @@ import { useTenant } from '../context/TenantContext';
 
 export const SOPManager = ({ onSelectVideo }) => {
   const { videos, quizSubmissions, currentUser, passingScore } = useTenant();
-  const [selectedDept, setSelectedDept] = useState('all');
   const [selectedProgress, setSelectedProgress] = useState('all');
 
   // Filter lists
   const filteredVideos = videos.filter(video => {
-    const matchesDept = selectedDept === 'all' || video.dept.toLowerCase() === selectedDept.toLowerCase();
+    const matchesDept = video.dept === 'Semua' || video.dept.toLowerCase() === (currentUser.dept || '').toLowerCase();
     
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
     const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
@@ -36,20 +35,7 @@ export const SOPManager = ({ onSelectVideo }) => {
       </div>
 
       {/* FILTER BAR */}
-      <div className="card" style={{ padding: '16px 20px', marginBottom: '20px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-        <div style={{ minWidth: '180px' }}>
-          <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>Departemen</label>
-          <select className="form-select" value={selectedDept} onChange={e => setSelectedDept(e.target.value)}>
-            <option value="all">Semua Departemen</option>
-            <option value="Sales">Sales</option>
-            <option value="HRD">HRD</option>
-            <option value="Finance">Finance</option>
-            <option value="CS">Customer Service</option>
-            <option value="IT">IT</option>
-            <option value="Operasional">Operasional</option>
-          </select>
-        </div>
-        
+      <div className="card" style={{ padding: '16px 20px', marginBottom: '20px', display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
         <div style={{ minWidth: '180px' }}>
           <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>Progress</label>
           <select className="form-select" value={selectedProgress} onChange={e => setSelectedProgress(e.target.value)}>
@@ -58,6 +44,9 @@ export const SOPManager = ({ onSelectVideo }) => {
             <option value="ongoing">Dalam Proses</option>
             <option value="new">Belum Dimulai (Baru)</option>
           </select>
+        </div>
+        <div style={{ fontSize: '12px', color: 'var(--text3)', paddingBottom: '8px' }}>
+          Menampilkan SOP untuk departemen: <strong style={{ color: 'var(--text1)' }}>{currentUser.dept || 'Semua'}</strong>
         </div>
       </div>
 
