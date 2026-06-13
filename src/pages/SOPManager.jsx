@@ -7,7 +7,7 @@ export const SOPManager = ({ onSelectVideo }) => {
 
   // Filter lists
   const filteredVideos = videos.filter(video => {
-    const matchesDept = video.dept === 'Semua' || video.dept.toLowerCase() === (currentUser.dept || '').toLowerCase();
+    const matchesDept = (video.dept === 'Semua' || video.dept.toLowerCase() === (currentUser.dept || '').toLowerCase()) && !video.archived;
     
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
     const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
