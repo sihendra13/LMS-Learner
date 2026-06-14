@@ -58,7 +58,7 @@ export const TenantProvider = ({ children }) => {
           return sub;
         });
       } else {
-        updatedSubmissions = [submission, ...prev.quizSubmissions];
+        updatedSubmissions = [{ certStatus: 'pending', ...submission }, ...prev.quizSubmissions];
       }
 
       // Add activity

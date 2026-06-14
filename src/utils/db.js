@@ -119,11 +119,11 @@ const defaultDatabase = {
     },
   ],
   quizSubmissions: [
-    { id: 1, employeeName: 'Rini Wulandari', videoTitle: 'SOP Sales: Proses Onboarding Klien Baru', preScore: 40, postScore: 100, date: '05 Jun 2026', status: 'Lulus' },
-    { id: 2, employeeName: 'Budi Pratama', videoTitle: 'SOP Finance: Proses Reimbursement Karyawan', preScore: 50, postScore: 100, date: '06 Jun 2026', status: 'Lulus' },
-    { id: 3, employeeName: 'Sari Anggraeni', videoTitle: 'SOP HRD: Rekrutmen & Seleksi Karyawan', preScore: 30, postScore: 90, date: '07 Jun 2026', status: 'Lulus' },
-    { id: 4, employeeName: 'Dika Kurniawan', videoTitle: 'SOP IT: Keamanan Password & Akun', preScore: 60, postScore: 95, date: '08 Jun 2026', status: 'Lulus' },
-    { id: 5, employeeName: 'Nina Putri', videoTitle: 'SOP Customer Service: Handling Komplain', preScore: 20, postScore: 60, date: '09 Jun 2026', status: 'Remedi (Butuh Ujian Ulang)' },
+    { id: 1, employeeName: 'Rini Wulandari', videoTitle: 'SOP Sales: Proses Onboarding Klien Baru', preScore: 40, postScore: 100, date: '05 Jun 2026', status: 'Lulus', certStatus: 'pending' },
+    { id: 2, employeeName: 'Budi Pratama', videoTitle: 'SOP Finance: Proses Reimbursement Karyawan', preScore: 50, postScore: 100, date: '06 Jun 2026', status: 'Lulus', certStatus: 'pending' },
+    { id: 3, employeeName: 'Sari Anggraeni', videoTitle: 'SOP HRD: Rekrutmen & Seleksi Karyawan', preScore: 30, postScore: 90, date: '07 Jun 2026', status: 'Lulus', certStatus: 'pending' },
+    { id: 4, employeeName: 'Dika Kurniawan', videoTitle: 'SOP IT: Keamanan Password & Akun', preScore: 60, postScore: 95, date: '08 Jun 2026', status: 'Lulus', certStatus: 'pending' },
+    { id: 5, employeeName: 'Nina Putri', videoTitle: 'SOP Customer Service: Handling Komplain', preScore: 20, postScore: 60, date: '09 Jun 2026', status: 'Remedi (Butuh Ujian Ulang)', certStatus: 'pending' },
   ],
   pendingEssays: [
     { 

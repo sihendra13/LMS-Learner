@@ -479,42 +479,46 @@ export const QuizModal = ({ video, onClose }) => {
           {/* STEP: RESULT SCREEN */}
           {step === 'result' && (
             <div style={{ flex: 1, padding: '36px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-              {postScore === null ? (
-                <>
-                  <div style={{ fontSize: '64px', marginBottom: '14px' }}>⏳</div>
-                  <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text1)', marginBottom: '8px' }}>
-                    Jawaban Esai Berhasil Dikirim!
-                  </h3>
-                  <p style={{ fontSize: '13px', color: 'var(--text3)', maxWidth: '440px', lineHeight: '1.6', marginBottom: '24px' }}>
-                    Jawaban Anda telah didistribusikan ke antrean penilaian HRD/Supervisor di <strong>LMS Admin</strong>. Sertifikat kelulusan akan diterbitkan secara otomatis setelah HRD memvalidasi dan memberi nilai di atas <strong>{passingScore}%</strong>.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div style={{ fontSize: '64px', marginBottom: '14px' }}>
-                    {postScore >= passingScore ? '🏆' : '⚠️'}
+              <div style={{ fontSize: '64px', marginBottom: '14px' }}>⏳</div>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text1)', marginBottom: '8px' }}>
+                {postScore === null ? 'Jawaban Berhasil Dikirim!' : `Kuis Selesai — Skor Anda: ${postScore}%`}
+              </h3>
+
+              {/* Pending verification notice */}
+              <div style={{
+                background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px',
+                padding: '16px 20px', maxWidth: '420px', marginBottom: '20px', textAlign: 'left'
+              }}>
+                <div style={{ fontWeight: '700', fontSize: '13px', color: '#92400e', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  🔍 Menunggu Verifikasi HRD
+                </div>
+                <p style={{ fontSize: '12px', color: '#78350f', lineHeight: '1.6', margin: 0 }}>
+                  {postScore === null
+                    ? 'Jawaban esai Anda sedang dalam antrean penilaian oleh HRD/Supervisor.'
+                    : 'Hasil kuis Anda sudah tercatat. Sertifikat akan diterbitkan setelah HRD memverifikasi dan menyetujuinya.'
+                  }
+                  {' '}Anda akan dapat melihat status di halaman <strong>Sertifikat</strong>.
+                </p>
+              </div>
+
+              {postScore !== null && (
+                <div style={{
+                  display: 'inline-flex', gap: '24px', padding: '12px 24px',
+                  background: '#f8fafc', border: '1px solid var(--border)', borderRadius: '10px',
+                  marginBottom: '20px'
+                }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '2px' }}>Skor Kuis</div>
+                    <div style={{ fontSize: '20px', fontWeight: '800', color: postScore >= passingScore ? '#16a34a' : '#dc2626' }}>
+                      {postScore}%
+                    </div>
                   </div>
-                  <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text1)', marginBottom: '8px' }}>
-                    {postScore >= passingScore ? 'Luar Biasa, Anda Lulus!' : 'Nilai Belum Mencapai Standar'}
-                  </h3>
-                  <div style={{ 
-                    display: 'inline-block',
-                    padding: '8px 24px',
-                    borderRadius: '50px',
-                    fontSize: '18px',
-                    fontWeight: '800',
-                    background: postScore >= passingScore ? '#e6f4ea' : '#fce8e6',
-                    color: postScore >= passingScore ? '#137333' : '#c5221f',
-                    marginBottom: '16px'
-                  }}>
-                    Skor: {postScore}%
+                  <div style={{ width: '1px', background: 'var(--border)' }} />
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '2px' }}>Standar Lulus</div>
+                    <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text2)' }}>{passingScore}%</div>
                   </div>
-                  <p style={{ fontSize: '13px', color: 'var(--text3)', maxWidth: '440px', lineHeight: '1.6', marginBottom: '24px' }}>
-                    {postScore >= passingScore 
-                      ? 'Selamat! Sertifikat kompetensi digital Anda telah terbit dan dapat diunduh di tab sertifikat.'
-                      : `Minimal nilai kelulusan adalah ${passingScore}%. Silakan tonton ulang video SOP dan coba kuis kembali.`}
-                  </p>
-                </>
+                </div>
               )}
 
               <button className="btn-primary" onClick={onClose} style={{ padding: '10px 32px', background: '#002D72' }}>
