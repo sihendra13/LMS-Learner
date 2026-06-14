@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getDB, saveDB } from '../utils/db';
+import { supabase } from '../utils/supabase';
 
 const TenantContext = createContext();
 
@@ -11,9 +12,29 @@ export const useTenant = () => {
   return context;
 };
 
+const mapRow = (row) => ({
+  id: row.id,
+  employeeName: row.employee_name,
+  dept: row.dept,
+  videoTitle: row.video_title,
+  preScore: row.pre_score,
+  postScore: row.post_score,
+  date: row.submission_date,
+  status: row.status,
+  certStatus: row.cert_status,
+  retakeCount: row.retake_count,
+  supervisorNote: row.supervisor_note || '',
+  supervisorName: row.supervisor_name,
+  supervisorDate: row.supervisor_date,
+  approvedBy: row.approved_by,
+  approvedDate: row.approved_date,
+  rejectionNote: row.rejection_note || '',
+});
+
 export const TenantProvider = ({ children }) => {
   const [db, setDb] = useState(() => getDB());
   const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'sop' | 'sertifikasi' | 'peringkat'
+  const [quizSubmissions, setQuizSubmissions] = useState([]);
 
   useEffect(() => {
     saveDB(db);
@@ -30,6 +51,30 @@ export const TenantProvider = ({ children }) => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
+  // Supabase: fetch quiz submissions for current user + realtime sync
+  useEffect(() => {
+    const userName = db.currentUser?.name;
+    if (!userName) return;
+
+    const fetchSubmissions = async () => {
+      const { data } = await supabase
+        .from('quiz_submissions')
+        .select('*')
+        .eq('employee_name', userName)
+        .order('created_at', { ascending: false });
+      if (data) setQuizSubmissions(data.map(mapRow));
+    };
+
+    fetchSubmissions();
+
+    const channel = supabase
+      .channel('learner_quiz_submissions')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_submissions' }, fetchSubmissions)
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  }, [db.currentUser?.name]);
+
   const updateProgress = (videoId, newProgress) => {
     setDb(prev => {
       const updatedVideos = prev.videos.map(v => {
@@ -42,40 +87,42 @@ export const TenantProvider = ({ children }) => {
     });
   };
 
-  const addSubmission = (submission) => {
-    setDb(prev => {
-      // Check if submission already exists for this employee and video
-      const exists = prev.quizSubmissions.some(
-        sub => sub.employeeName === submission.employeeName && sub.videoTitle === submission.videoTitle
-      );
-      
-      let updatedSubmissions;
-      if (exists) {
-        updatedSubmissions = prev.quizSubmissions.map(sub => {
-          if (sub.employeeName === submission.employeeName && sub.videoTitle === submission.videoTitle) {
-            return { ...sub, ...submission, id: sub.id }; // Update scores
-          }
-          return sub;
-        });
-      } else {
-        updatedSubmissions = [{ certStatus: 'pending', ...submission }, ...prev.quizSubmissions];
-      }
+  const addSubmission = async (submission) => {
+    const existing = quizSubmissions.find(
+      sub => sub.employeeName === submission.employeeName && sub.videoTitle === submission.videoTitle
+    );
 
-      // Add activity
-      const isPassed = submission.status === 'Lulus';
-      const newAct = {
-        id: Date.now(),
-        text: `<strong>${submission.employeeName}</strong> menyelesaikan ${submission.videoTitle} dengan skor <strong>${submission.postScore}%</strong> (${submission.status})`,
-        time: 'Baru saja',
-        type: isPassed ? 'green' : 'amber'
-      };
+    if (existing) {
+      await supabase.from('quiz_submissions').update({
+        pre_score: submission.preScore,
+        post_score: submission.postScore,
+        submission_date: submission.date,
+        status: submission.status,
+        cert_status: 'pending',
+      }).eq('id', existing.id);
+    } else {
+      await supabase.from('quiz_submissions').insert({
+        employee_name: submission.employeeName,
+        dept: submission.dept || db.currentUser?.dept,
+        video_title: submission.videoTitle,
+        pre_score: submission.preScore,
+        post_score: submission.postScore,
+        submission_date: submission.date,
+        status: submission.status,
+        cert_status: 'pending',
+        retake_count: 0,
+      });
+    }
 
-      return {
-        ...prev,
-        quizSubmissions: updatedSubmissions,
-        activities: [newAct, ...prev.activities]
-      };
-    });
+    // Add activity to local db
+    const isPassed = submission.status === 'Lulus';
+    const newAct = {
+      id: Date.now(),
+      text: `<strong>${submission.employeeName}</strong> menyelesaikan ${submission.videoTitle} dengan skor <strong>${submission.postScore}%</strong> (${submission.status})`,
+      time: 'Baru saja',
+      type: isPassed ? 'green' : 'amber'
+    };
+    setDb(prev => ({ ...prev, activities: [newAct, ...prev.activities] }));
   };
 
   const submitEssay = (essaySubmission) => {
@@ -114,21 +161,26 @@ export const TenantProvider = ({ children }) => {
 
   const MAX_RETAKES = 3;
 
-  const retakeQuiz = (videoId, submissionId) => {
-    setDb(prev => {
-      const sub = prev.quizSubmissions.find(s => s.id === submissionId);
-      if (!sub) return prev;
-      const newRetakeCount = (sub.retakeCount || 0) + 1;
-      return {
-        ...prev,
-        videos: prev.videos.map(v => v.id === videoId ? { ...v, progress: 0 } : v),
-        quizSubmissions: prev.quizSubmissions.map(s =>
-          s.id === submissionId
-            ? { ...s, certStatus: 'pending', retakeCount: newRetakeCount }
-            : s
-        ),
-      };
-    });
+  const retakeQuiz = async (videoId, submissionId) => {
+    const sub = quizSubmissions.find(s => s.id === submissionId);
+    if (!sub) return;
+    const newRetakeCount = (sub.retakeCount || 0) + 1;
+
+    await supabase.from('quiz_submissions').update({
+      cert_status: 'pending',
+      retake_count: newRetakeCount,
+    }).eq('id', submissionId);
+
+    // Reset video progress in localStorage
+    setDb(prev => ({
+      ...prev,
+      videos: prev.videos.map(v => v.id === videoId ? { ...v, progress: 0 } : v),
+    }));
+
+    // Optimistic update (realtime will also sync)
+    setQuizSubmissions(prev => prev.map(s =>
+      s.id === submissionId ? { ...s, certStatus: 'pending', retakeCount: newRetakeCount } : s
+    ));
   };
 
   // Sync state between Admin and Learner
@@ -172,7 +224,7 @@ export const TenantProvider = ({ children }) => {
       currentUser: db.currentUser,
       employees: db.employees,
       videos: db.videos,
-      quizSubmissions: db.quizSubmissions,
+      quizSubmissions,
       pendingEssays: db.pendingEssays,
       activities: db.activities,
       passingScore: db.passingScore,
