@@ -221,11 +221,26 @@ export const Certifications = () => {
                         )}
                       </div>
 
-                      {/* Right: badge + retake button */}
+                      {/* Right: badge + action buttons */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
                         <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
                           {s.label}
                         </span>
+                        {sub.certStatus === 'approved' && (() => {
+                          const cert = certificates.find(c => c.videoTitle === sub.videoTitle);
+                          return cert ? (
+                            <button
+                              onClick={() => setPreviewCert(cert)}
+                              style={{
+                                padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '700',
+                                background: '#f0fdf4', border: '1px solid #86efac', color: '#15803d',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                              }}
+                            >
+                              🏆 Lihat Sertifikat
+                            </button>
+                          ) : null;
+                        })()}
                         {canRetake && (
                           <button
                             onClick={() => handleRetake(sub)}
