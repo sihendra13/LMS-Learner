@@ -112,6 +112,25 @@ export const TenantProvider = ({ children }) => {
     });
   };
 
+  const MAX_RETAKES = 3;
+
+  const retakeQuiz = (videoId, submissionId) => {
+    setDb(prev => {
+      const sub = prev.quizSubmissions.find(s => s.id === submissionId);
+      if (!sub) return prev;
+      const newRetakeCount = (sub.retakeCount || 0) + 1;
+      return {
+        ...prev,
+        videos: prev.videos.map(v => v.id === videoId ? { ...v, progress: 0 } : v),
+        quizSubmissions: prev.quizSubmissions.map(s =>
+          s.id === submissionId
+            ? { ...s, certStatus: 'pending', retakeCount: newRetakeCount }
+            : s
+        ),
+      };
+    });
+  };
+
   // Sync state between Admin and Learner
   const exportDBString = () => {
     return JSON.stringify(db, null, 2);
@@ -166,7 +185,9 @@ export const TenantProvider = ({ children }) => {
       exportDBString,
       importDBString,
       setDb,
-      tenant
+      tenant,
+      retakeQuiz,
+      MAX_RETAKES
     }}>
       {children}
     </TenantContext.Provider>

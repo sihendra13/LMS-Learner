@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Certifications = () => {
-  const { quizSubmissions, currentUser, passingScore, validityMonths } = useTenant();
+  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage } = useTenant();
   const [previewCert, setPreviewCert] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState('modern-navy');
   const [activeTab, setActiveTab] = useState('sertifikat');
@@ -28,9 +28,18 @@ export const Certifications = () => {
     });
 
   const certStatusLabel = (sub) => {
-    if (sub.certStatus === 'approved') return { label: 'Diterbitkan', color: '#16a34a', bg: '#f0fdf4', border: '#86efac' };
-    if (sub.certStatus === 'rejected') return { label: 'Ditolak', color: '#dc2626', bg: '#fff5f5', border: '#fecaca' };
-    return { label: 'Menunggu Verifikasi', color: '#d97706', bg: '#fffbeb', border: '#fde68a' };
+    if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+    if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+    if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+    if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+    return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
+  };
+
+  const handleRetake = (sub) => {
+    const video = videos.find(v => v.title === sub.videoTitle);
+    if (!video) return;
+    retakeQuiz(video.id, sub.id);
+    setActivePage('dashboard');
   };
 
   return (
@@ -167,28 +176,71 @@ export const Certifications = () => {
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {mySubmissions.map(sub => {
                 const s = certStatusLabel(sub);
+                const isRemedial = sub.certStatus === 'remedial';
+                const retakeCount = sub.retakeCount || 0;
+                const canRetake = isRemedial && retakeCount < MAX_RETAKES;
+                const maxReached = isRemedial && retakeCount >= MAX_RETAKES;
                 return (
-                  <div key={sub.id} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text1)', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {sub.videoTitle}
-                      </div>
-                      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                          Pre-Test: <strong style={{ color: sub.preScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.preScore ?? '-'}%</strong>
-                        </span>
-                        <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                          Post-Test: <strong style={{ color: sub.postScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.postScore ?? '-'}%</strong>
-                        </span>
-                        <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{sub.date}</span>
+                  <div key={sub.id} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text1)', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {sub.videoTitle}
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                            Pre-Test: <strong style={{ color: sub.preScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.preScore ?? '—'}%</strong>
+                          </span>
+                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                            Post-Test: <strong style={{ color: sub.postScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.postScore ?? '—'}%</strong>
+                          </span>
+                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{sub.date}</span>
+                          {retakeCount > 0 && (
+                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px' }}>
+                              Percobaan ke-{retakeCount + 1}
+                            </span>
+                          )}
+                        </div>
+                        {/* Remedial note from supervisor */}
+                        {isRemedial && sub.supervisorNote && (
+                          <div style={{ fontSize: '12px', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '6px 10px', marginBottom: '8px', lineHeight: '1.5' }}>
+                            💬 <strong>Catatan Supervisor:</strong> {sub.supervisorNote}
+                          </div>
+                        )}
+                        {/* Rejected note from HRD */}
                         {sub.certStatus === 'rejected' && sub.rejectionNote && (
-                          <span style={{ fontSize: '11px', color: '#dc2626' }}>Alasan: {sub.rejectionNote}</span>
+                          <div style={{ fontSize: '12px', color: '#b91c1c', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 10px', lineHeight: '1.5' }}>
+                            ⛔ <strong>Alasan Penolakan:</strong> {sub.rejectionNote}
+                          </div>
+                        )}
+                        {/* Max retake warning */}
+                        {maxReached && (
+                          <div style={{ fontSize: '12px', color: '#b91c1c', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 10px', lineHeight: '1.5' }}>
+                            ⚠️ Batas maksimal {MAX_RETAKES}x percobaan telah tercapai. Hubungi HRD untuk tindak lanjut.
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right: badge + retake button */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
+                        <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
+                          {s.label}
+                        </span>
+                        {canRetake && (
+                          <button
+                            onClick={() => handleRetake(sub)}
+                            style={{
+                              padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: '700',
+                              background: '#fff7ed', border: '1px solid #fed7aa', color: '#b45309',
+                              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+                            }}
+                          >
+                            ↩ Kerjakan Ulang
+                            <span style={{ fontSize: '10px', color: '#92400e', fontWeight: '400' }}>({retakeCount}/{MAX_RETAKES})</span>
+                          </button>
                         )}
                       </div>
                     </div>
-                    <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: s.bg, color: s.color, border: `1px solid ${s.border}`, flexShrink: 0 }}>
-                      {s.label}
-                    </span>
                   </div>
                 );
               })}
