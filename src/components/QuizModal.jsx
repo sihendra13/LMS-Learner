@@ -112,7 +112,7 @@ export const QuizModal = ({ video, onClose }) => {
   };
 
   const handlePostSubmit = () => {
-    const isEssayQuiz = regularPostQuizzes.some(q => q.isEssay);
+    const isEssayQuiz = regularPostQuizzes.some(q => q.isEssay || q.type === 'essay');
 
     if (isEssayQuiz) {
       const essayQuestions = regularPostQuizzes.map(q => ({
@@ -418,7 +418,7 @@ export const QuizModal = ({ video, onClose }) => {
                       <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
                       </h4>
-                      {q.type === 'essay' ? (
+                      {(q.type === 'essay' || q.isEssay) ? (
                         <textarea
                           className="form-input"
                           style={{ height: '80px', resize: 'none', background: '#fff', fontSize: '14px' }}

@@ -7,7 +7,7 @@ import { QuizModal } from './components/QuizModal';
 import { SyncPanel } from './components/SyncPanel';
 
 const AppContent = () => {
-  const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore } = useTenant();
+  const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore, tenant } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [syncOpen, setSyncOpen] = useState(false);
 
