@@ -5,12 +5,11 @@ export const QuizModal = ({ video, onClose }) => {
   const { currentUser, addSubmission, submitEssay, passingScore, updateProgress } = useTenant();
 
   // Learning wizard steps: 'pre-test' | 'video' | 'post-test' | 'result'
-  const midVideoTriggers = [
-    ...(video.preQuizzes || []),
-    ...(video.postQuizzes || [])
-  ].filter(q => q.triggerTime > 0);
-  const regularPreQuizzes = (video.preQuizzes || []).filter(q => !q.triggerTime || q.triggerTime === 0);
-  const regularPostQuizzes = (video.postQuizzes || []).filter(q => !q.triggerTime || q.triggerTime === 0);
+  // Use Number() to handle both numeric 0 and string "0" from older saved data
+  const isMidTrigger = (q) => { const t = Number(q.triggerTime); return !isNaN(t) && t > 0; };
+  const midVideoTriggers = [...(video.preQuizzes || []), ...(video.postQuizzes || [])].filter(isMidTrigger);
+  const regularPreQuizzes = (video.preQuizzes || []).filter(q => !isMidTrigger(q));
+  const regularPostQuizzes = (video.postQuizzes || []).filter(q => !isMidTrigger(q));
   const hasPreTest = regularPreQuizzes.length > 0;
   const hasPostTest = regularPostQuizzes.length > 0;
   
@@ -272,9 +271,9 @@ export const QuizModal = ({ video, onClose }) => {
                     onPlay={() => setVideoPlaying(true)}
                     onPause={() => setVideoPlaying(false)}
                     onError={() => setVideoError(true)}
-                    controls
+                    controls={!activeTrigger}
                     controlsList="nodownload"
-                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto' }}
+                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto', visibility: activeTrigger ? 'hidden' : 'visible' }}
                   />
                 ) : video.videoUrl && videoError ? (
                   /* Video URL exists but file not found */
