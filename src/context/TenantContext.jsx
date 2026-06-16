@@ -191,9 +191,17 @@ export const TenantProvider = ({ children }) => {
   const importDBString = (jsonStr) => {
     try {
       const parsed = JSON.parse(jsonStr);
-      if (parsed && typeof parsed === 'object' && parsed.quizSubmissions && parsed.pendingEssays) {
-        setDb(parsed);
-        saveDB(parsed);
+      if (parsed && typeof parsed === 'object' && parsed.videos) {
+        // Selective merge — only update non-quiz data (quizSubmissions now lives in Supabase)
+        setDb(prev => ({
+          ...prev,
+          ...(parsed.passingScore !== undefined && { passingScore: parsed.passingScore }),
+          ...(parsed.validityMonths !== undefined && { validityMonths: parsed.validityMonths }),
+          ...(parsed.employees && { employees: parsed.employees }),
+          ...(parsed.videos && { videos: parsed.videos }),
+          ...(parsed.pendingEssays && { pendingEssays: parsed.pendingEssays }),
+          ...(parsed.activities && { activities: parsed.activities }),
+        }));
         return { success: true };
       }
       return { success: false, error: 'Format JSON database tidak valid.' };
