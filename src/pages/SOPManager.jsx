@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const SOPManager = ({ onSelectVideo }) => {
-  const { videos, quizSubmissions, currentUser, passingScore } = useTenant();
+  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES } = useTenant();
   const [selectedProgress, setSelectedProgress] = useState('all');
 
   // Filter lists
@@ -69,7 +69,10 @@ export const SOPManager = ({ onSelectVideo }) => {
                 if (!sub) return null;
                 if (sub.certStatus === 'approved')      return { label: `Lulus ✓ (${sub.postScore}%)`,              color: '#15803d', bg: '#f0fdf4' };
                 if (sub.certStatus === 'supervisor_ok') return { label: `Direkomendasi — Menunggu HRD (${sub.postScore}%)`, color: '#1d4ed8', bg: '#eff6ff' };
-                if (sub.certStatus === 'remedial')      return { label: `Perlu Mengulang (${sub.postScore}%)`,       color: '#b45309', bg: '#fff7ed' };
+                if (sub.certStatus === 'remedial') {
+                  const remaining = MAX_RETAKES - (sub.retakeCount || 0);
+                  return { label: `Perlu Mengulang — Sisa ${remaining}x (${sub.postScore}%)`, color: '#b45309', bg: '#fff7ed' };
+                }
                 if (sub.certStatus === 'rejected')      return { label: `Ditolak Final (${sub.postScore}%)`,         color: '#b91c1c', bg: '#fff5f5' };
                 // pending: submitted or retaken, waiting for review
                 if (sub.postScore >= passingScore)      return { label: `Lulus — Menunggu Review (${sub.postScore}%)`, color: '#15803d', bg: '#e6f4ea' };

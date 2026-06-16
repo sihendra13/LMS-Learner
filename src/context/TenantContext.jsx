@@ -93,12 +93,15 @@ export const TenantProvider = ({ children }) => {
     );
 
     if (existing) {
+      const wasRemedial = existing.certStatus === 'remedial';
+      const newRetakeCount = wasRemedial ? (existing.retakeCount || 0) + 1 : existing.retakeCount;
       await supabase.from('quiz_submissions').update({
         pre_score: submission.preScore,
         post_score: submission.postScore,
         submission_date: submission.date,
         status: submission.status,
         cert_status: 'pending',
+        ...(wasRemedial && { retake_count: newRetakeCount }),
       }).eq('id', existing.id);
     } else {
       await supabase.from('quiz_submissions').insert({
