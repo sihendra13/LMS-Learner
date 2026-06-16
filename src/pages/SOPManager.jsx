@@ -65,6 +65,18 @@ export const SOPManager = ({ onSelectVideo }) => {
               const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
               const isOngoing = video.progress > 0 && video.progress < 100;
 
+              const getStatusBadge = (sub) => {
+                if (!sub) return null;
+                if (sub.certStatus === 'approved')      return { label: `Lulus ✓ (${sub.postScore}%)`,              color: '#15803d', bg: '#f0fdf4' };
+                if (sub.certStatus === 'supervisor_ok') return { label: `Direkomendasi — Menunggu HRD (${sub.postScore}%)`, color: '#1d4ed8', bg: '#eff6ff' };
+                if (sub.certStatus === 'remedial')      return { label: `Perlu Mengulang (${sub.postScore}%)`,       color: '#b45309', bg: '#fff7ed' };
+                if (sub.certStatus === 'rejected')      return { label: `Ditolak Final (${sub.postScore}%)`,         color: '#b91c1c', bg: '#fff5f5' };
+                // pending: submitted or retaken, waiting for review
+                if (sub.postScore >= passingScore)      return { label: `Lulus — Menunggu Review (${sub.postScore}%)`, color: '#15803d', bg: '#e6f4ea' };
+                return { label: `Menunggu Review Supervisor (${sub.postScore}%)`, color: '#92400e', bg: '#fffbeb' };
+              };
+              const statusBadge = getStatusBadge(submission);
+
               return (
                 <div key={video.id} className="sop-item" onClick={() => onSelectVideo(video)}>
                   <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '90px', height: '56px' }}>
@@ -82,16 +94,16 @@ export const SOPManager = ({ onSelectVideo }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className={`dept-tag ${video.tagClass}`}>{video.dept}</span>
                       <span className="sop-dur">⏱ {video.duration}</span>
-                      {submission && (
-                        <span style={{ 
-                          fontSize: '11px', 
-                          fontWeight: 'bold', 
-                          color: submission.postScore >= passingScore ? 'var(--green)' : 'var(--red)',
-                          background: submission.postScore >= passingScore ? '#e6f4ea' : '#fce8e6',
-                          padding: '1px 6px',
+                      {statusBadge && (
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: 'bold',
+                          color: statusBadge.color,
+                          background: statusBadge.bg,
+                          padding: '1px 8px',
                           borderRadius: '4px'
                         }}>
-                          Nilai: {submission.postScore}% ({submission.status})
+                          {statusBadge.label}
                         </span>
                       )}
                     </div>
