@@ -35,6 +35,7 @@ export const QuizModal = ({ video, onClose }) => {
   const [postScore, setPostScore] = useState(0);
 
   const [videoError, setVideoError] = useState(false);
+  const [triggerToast, setTriggerToast] = useState(false);
 
   // Auto-play video when entering video step (after pre-test submission)
   useEffect(() => {
@@ -105,8 +106,12 @@ export const QuizModal = ({ video, onClose }) => {
   const handleTriggerSubmit = () => {
     setActiveTrigger(null);
     setTriggerAnswer('');
-    if (videoRef.current) videoRef.current.play();
-    setVideoPlaying(true);
+    setTriggerToast(true);
+    setTimeout(() => {
+      setTriggerToast(false);
+      if (videoRef.current) videoRef.current.play();
+      setVideoPlaying(true);
+    }, 1500);
   };
 
   const handlePreSubmit = () => {
@@ -386,6 +391,29 @@ export const QuizModal = ({ video, onClose }) => {
                         Jawab & Lanjutkan Video ▶
                       </button>
                     </div>
+                  </div>
+                )}
+
+                {triggerToast && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#002D72',
+                    color: '#fff',
+                    padding: '10px 20px',
+                    borderRadius: '50px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    zIndex: 20,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.3)'
+                  }}>
+                    ✓ Jawaban tersimpan! Video dilanjutkan...
                   </div>
                 )}
               </div>
