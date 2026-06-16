@@ -273,7 +273,7 @@ export const QuizModal = ({ video, onClose }) => {
                     onError={() => setVideoError(true)}
                     controls={!activeTrigger}
                     controlsList="nodownload"
-                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto', visibility: activeTrigger ? 'hidden' : 'visible' }}
+                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto', display: activeTrigger ? 'none' : 'block' }}
                   />
                 ) : video.videoUrl && videoError ? (
                   /* Video URL exists but file not found */
