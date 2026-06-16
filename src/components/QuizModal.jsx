@@ -12,7 +12,8 @@ export const QuizModal = ({ video, onClose }) => {
   const regularPostQuizzes = (video.postQuizzes || []).filter(q => !isMidTrigger(q));
   const hasPreTest = regularPreQuizzes.length > 0;
   const hasPostTest = regularPostQuizzes.length > 0;
-  
+  console.log('[DEBUG] midVideoTriggers=', midVideoTriggers.length, midVideoTriggers.map(q => `id=${q.id} t=${q.triggerTime}`));
+
   const [step, setStep] = useState(() => hasPreTest ? 'pre-test' : 'video');
   
   // Pre-test state
@@ -35,6 +36,11 @@ export const QuizModal = ({ video, onClose }) => {
   const [postScore, setPostScore] = useState(0);
 
   const [videoError, setVideoError] = useState(false);
+
+  // DEBUG: track activeTrigger state changes
+  useEffect(() => {
+    console.log('[DEBUG] activeTrigger state =', activeTrigger ? activeTrigger.question : null);
+  }, [activeTrigger]);
 
   // Simulation mode (no real video URL)
   useEffect(() => {
@@ -66,10 +72,12 @@ export const QuizModal = ({ video, onClose }) => {
     if (!activeTrigger) {
       for (const q of midVideoTriggers) {
         if (!triggeredIds.current.has(q.id) && el.currentTime >= q.triggerTime) {
+          console.log('[TRIGGER] fired q.id=', q.id, 'question=', q.question, 'at', el.currentTime);
           triggeredIds.current.add(q.id);
           el.pause();
           setVideoPlaying(false);
           setActiveTrigger(q);
+          console.log('[TRIGGER] setActiveTrigger called');
           break;
         }
       }
