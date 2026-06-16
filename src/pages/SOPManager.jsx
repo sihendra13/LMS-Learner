@@ -70,12 +70,14 @@ export const SOPManager = ({ onSelectVideo }) => {
                 if (sub.certStatus === 'approved')      return { label: `Lulus ✓ (${sub.postScore}%)`,              color: '#15803d', bg: '#f0fdf4' };
                 if (sub.certStatus === 'supervisor_ok') return { label: `Direkomendasi — Menunggu HRD (${sub.postScore}%)`, color: '#1d4ed8', bg: '#eff6ff' };
                 if (sub.certStatus === 'remedial') {
+                  const attempt = (sub.retakeCount || 0) + 2;
                   const remaining = MAX_RETAKES - (sub.retakeCount || 0);
-                  return { label: `Perlu Mengulang — Sisa ${remaining}x (${sub.postScore}%)`, color: '#b45309', bg: '#fff7ed' };
+                  return { label: `Perlu Mengulang — Percobaan ke-${attempt} dari ${MAX_RETAKES} (Sisa ${remaining}x)`, color: '#b45309', bg: '#fff7ed' };
                 }
-                if (sub.certStatus === 'rejected')      return { label: `Ditolak Final (${sub.postScore}%)`,         color: '#b91c1c', bg: '#fff5f5' };
+                if (sub.certStatus === 'rejected') return { label: `Ditolak Final (${sub.postScore}%)`, color: '#b91c1c', bg: '#fff5f5' };
                 // pending: submitted or retaken, waiting for review
-                if (sub.postScore >= passingScore)      return { label: `Lulus — Menunggu Review (${sub.postScore}%)`, color: '#15803d', bg: '#e6f4ea' };
+                if (sub.postScore >= passingScore) return { label: `Lulus — Menunggu Review (${sub.postScore}%)`, color: '#15803d', bg: '#e6f4ea' };
+                if (sub.retakeCount > 0) return { label: `Menunggu Review — Percobaan ke-${sub.retakeCount + 1} dari ${MAX_RETAKES} (${sub.postScore}%)`, color: '#92400e', bg: '#fffbeb' };
                 return { label: `Menunggu Review Supervisor (${sub.postScore}%)`, color: '#92400e', bg: '#fffbeb' };
               };
               const statusBadge = getStatusBadge(submission);
