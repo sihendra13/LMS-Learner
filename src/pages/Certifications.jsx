@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Certifications = () => {
-  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage } = useTenant();
+  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES } = useTenant();
   const [previewCert, setPreviewCert] = useState(null);
   const [selectedTemplate, setSelectedTemplate] = useState('modern-navy');
   const [activeTab, setActiveTab] = useState('sertifikat');
