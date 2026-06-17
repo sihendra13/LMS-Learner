@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Certifications = () => {
-  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES } = useTenant();
+  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant } = useTenant();
   const [previewCert, setPreviewCert] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState('modern-navy');
   const [activeTab, setActiveTab] = useState('sertifikat');
 
   const mySubmissions = quizSubmissions.filter(s => s.employeeName === currentUser.name);
@@ -281,30 +280,26 @@ export const Certifications = () => {
               onClick={() => setPreviewCert(null)}
             >✕</button>
 
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
-              <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text2)' }}>Pilih Template:</span>
-              <select className="form-select" style={{ width: '200px', fontSize: '12px', padding: '4px 8px' }}
-                value={selectedTemplate} onChange={e => setSelectedTemplate(e.target.value)}>
-                <option value="modern-navy">Elegant Navy (Corporate)</option>
-                <option value="luxury-gold">Luxury Gold (Premium)</option>
-                <option value="emerald-green">Emerald Compliance (Formal)</option>
-              </select>
-            </div>
-
             <div className="print-area" style={{
-              border: `8px double ${selectedTemplate === 'modern-navy' ? '#0f172a' : selectedTemplate === 'luxury-gold' ? '#d97706' : '#047857'}`,
+              border: '8px double #0f172a',
               padding: '30px', textAlign: 'center', background: '#fefefe',
               borderRadius: '8px', fontFamily: "'Plus Jakarta Sans', serif",
               position: 'relative', overflow: 'hidden'
             }}>
-              <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '150px', height: '150px', borderRadius: '50%', background: selectedTemplate === 'modern-navy' ? '#eff6ff' : selectedTemplate === 'luxury-gold' ? '#fffbeb' : '#f0fdf4', opacity: 0.5, zIndex: 1 }} />
-              <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '20px' }}>
-                🏢 PT Maju Bersama · Corporate LMS
-              </div>
-              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: selectedTemplate === 'modern-navy' ? '#0f172a' : selectedTemplate === 'luxury-gold' ? '#b45309' : '#065f46', margin: '0 0 10px 0', letterSpacing: '1px' }}>
+              <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '150px', height: '150px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
+              {tenant?.logo ? (
+                <div style={{ marginBottom: '16px' }}>
+                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '52px', maxWidth: '180px', objectFit: 'contain' }} />
+                </div>
+              ) : (
+                <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '20px' }}>
+                  🏢 {tenant?.name || 'PT Maju Bersama'} · Corporate LMS
+                </div>
+              )}
+              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: '#0f172a', margin: '0 0 10px 0', letterSpacing: '1px' }}>
                 SERTIFIKAT KELULUSAN
               </h1>
-              <div style={{ width: '60px', height: '2px', background: selectedTemplate === 'modern-navy' ? '#0f172a' : selectedTemplate === 'luxury-gold' ? '#d97706' : '#047857', margin: '0 auto 24px auto' }} />
+              <div style={{ width: '60px', height: '2px', background: '#0f172a', margin: '0 auto 24px auto' }} />
               <p style={{ fontSize: '12px', color: 'var(--text3)', margin: '0 0 20px 0', fontStyle: 'italic' }}>
                 Dengan ini secara resmi menyatakan dan menganugerahkan penghargaan kepada:
               </p>
@@ -330,7 +325,7 @@ export const Certifications = () => {
                   </div>
                   <div style={{ width: '120px', height: '1px', background: 'var(--border)', margin: '4px auto' }} />
                   <div style={{ fontSize: '10px', color: 'var(--text3)', fontWeight: '600', textTransform: 'uppercase' }}>
-                    HR Manager, PT Maju Bersama
+                    HR Manager, {tenant?.name || 'PT Maju Bersama'}
                   </div>
                 </div>
               </div>
