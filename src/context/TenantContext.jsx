@@ -195,9 +195,15 @@ export const TenantProvider = ({ children }) => {
     try {
       const parsed = JSON.parse(jsonStr);
       if (parsed && typeof parsed === 'object' && parsed.videos) {
+        // Simpan logo ke localStorage terpisah agar tidak bloat DB
+        if (parsed.tenant?.logo) {
+          try { localStorage.setItem('axara_lms_logo', parsed.tenant.logo); } catch {}
+          setTenant(prev => ({ ...prev, ...parsed.tenant }));
+        }
         // Selective merge — only update non-quiz data (quizSubmissions now lives in Supabase)
         setDb(prev => ({
           ...prev,
+          ...(parsed.tenant && { tenant: { ...parsed.tenant, logo: undefined } }),
           ...(parsed.passingScore !== undefined && { passingScore: parsed.passingScore }),
           ...(parsed.validityMonths !== undefined && { validityMonths: parsed.validityMonths }),
           ...(parsed.employees && { employees: parsed.employees }),
@@ -214,19 +220,14 @@ export const TenantProvider = ({ children }) => {
   };
 
   const [tenant, setTenant] = useState(() => {
-    return db.tenant || {
-      name: 'PT Maju Bersama',
-      plan: 'business',
-      status: 'Aktif',
-      avatar: 'MB',
-      logo: null
-    };
+    const base = db.tenant || { name: 'PT Maju Bersama', plan: 'business', status: 'Aktif', avatar: 'MB' };
+    return { ...base, logo: localStorage.getItem('axara_lms_logo') || base.logo || null };
   });
 
   // Keep tenant state synced when db changes
   useEffect(() => {
     if (db.tenant) {
-      setTenant(db.tenant);
+      setTenant({ ...db.tenant, logo: localStorage.getItem('axara_lms_logo') || db.tenant?.logo || null });
     }
   }, [db]);
 
