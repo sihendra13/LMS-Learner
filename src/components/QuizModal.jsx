@@ -44,6 +44,18 @@ export const QuizModal = ({ video, onClose }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [maxSlideReached, setMaxSlideReached] = useState(0);
 
+  // Kuis pemicu slide — muncul ketika user sampai di slide tertentu
+  const slideTriggers = video.triggerQuizzes || [];
+  const [answeredTriggerIds, setAnsweredTriggerIds] = useState([]);
+  const [activeSlideTrigger, setActiveSlideTrigger] = useState(null);
+  const [slideTriggerAnswer, setSlideTriggerAnswer] = useState('');
+
+  const handleSlideTriggerSubmit = () => {
+    setAnsweredTriggerIds(prev => [...prev, activeSlideTrigger.id]);
+    setActiveSlideTrigger(null);
+    setSlideTriggerAnswer('');
+  };
+
   // Auto-play video when entering video step (after pre-test submission)
   useEffect(() => {
     if (step === 'video' && videoRef.current && video.videoUrl) {
@@ -453,12 +465,21 @@ export const QuizModal = ({ video, onClose }) => {
             const totalSlides = slides ? slides.length : 0;
 
             const goToSlide = (idx) => {
+              if (activeSlideTrigger) return; // blokir navigasi selama kuis trigger aktif
               const clamped = Math.max(0, Math.min(idx, totalSlides - 1));
               setCurrentSlide(clamped);
               if (clamped > maxSlideReached) setMaxSlideReached(clamped);
+              // Cek apakah slide tujuan punya kuis pemicu yang belum dijawab
+              const trigger = slideTriggers.find(
+                t => t.triggerSlide === clamped + 1 && !answeredTriggerIds.includes(t.id)
+              );
+              if (trigger) {
+                setActiveSlideTrigger(trigger);
+                setSlideTriggerAnswer('');
+              }
             };
 
-            const hasSeenAll = totalSlides === 0 || maxSlideReached >= totalSlides - 1;
+            const hasSeenAll = totalSlides === 0 || (maxSlideReached >= totalSlides - 1 && !activeSlideTrigger);
 
             if (!slides || slides.length === 0) {
               return (
@@ -492,13 +513,15 @@ export const QuizModal = ({ video, onClose }) => {
                     alt={`Slide ${currentSlide + 1}`}
                     style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
                   />
-                  {currentSlide > 0 && (
+                  {/* Tombol prev — disembunyikan saat kuis trigger aktif */}
+                  {currentSlide > 0 && !activeSlideTrigger && (
                     <button
                       onClick={() => goToSlide(currentSlide - 1)}
                       style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px' }}
                     >‹</button>
                   )}
-                  {currentSlide < totalSlides - 1 && (
+                  {/* Tombol next — disembunyikan saat kuis trigger aktif */}
+                  {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
                     <button
                       onClick={() => goToSlide(currentSlide + 1)}
                       style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px' }}
@@ -507,6 +530,54 @@ export const QuizModal = ({ video, onClose }) => {
                   <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px', userSelect: 'none' }}>
                     {currentSlide + 1} / {totalSlides}
                   </div>
+
+                  {/* OVERLAY KUIS PEMICU SLIDE */}
+                  {activeSlideTrigger && (
+                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,15,29,0.92)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px', zIndex: 10 }}>
+                      <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                          <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', fontWeight: '700', color: '#b45309' }}>
+                            ⚡ KUIS SLIDE {currentSlide + 1}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#94a3b8' }}>Jawab dulu untuk lanjut ke slide berikutnya</div>
+                        </div>
+                        <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
+                          {activeSlideTrigger.question}
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                          {(activeSlideTrigger.options || []).map((opt, oi) => {
+                            const letter = String.fromCharCode(65 + oi);
+                            const isSelected = slideTriggerAnswer === letter;
+                            return (
+                              <button
+                                key={oi}
+                                onClick={() => setSlideTriggerAnswer(letter)}
+                                style={{
+                                  padding: '10px 14px', border: isSelected ? '2px solid #b45309' : '1px solid #e2e8f0',
+                                  background: isSelected ? '#fffbeb' : '#f8fafc', color: isSelected ? '#92400e' : '#0f172a',
+                                  borderRadius: '8px', textAlign: 'left', fontSize: '13px',
+                                  cursor: 'pointer', fontWeight: isSelected ? '600' : 'normal'
+                                }}
+                              >
+                                <strong>{letter}.</strong> {opt}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <button
+                          onClick={handleSlideTriggerSubmit}
+                          disabled={!slideTriggerAnswer}
+                          style={{
+                            width: '100%', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700', fontSize: '13px',
+                            background: slideTriggerAnswer ? '#b45309' : '#94a3b8',
+                            color: '#fff', cursor: slideTriggerAnswer ? 'pointer' : 'not-allowed'
+                          }}
+                        >
+                          Jawab & Lanjutkan Presentasi ›
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Thumbnail strip */}
