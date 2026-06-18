@@ -40,6 +40,10 @@ export const QuizModal = ({ video, onClose }) => {
   const [videoError, setVideoError] = useState(false);
   const [triggerToast, setTriggerToast] = useState(false);
 
+  // Slideshow state untuk PPT custom player
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [maxSlideReached, setMaxSlideReached] = useState(0);
+
   // Auto-play video when entering video step (after pre-test submission)
   useEffect(() => {
     if (step === 'video' && videoRef.current && video.videoUrl) {
@@ -443,49 +447,102 @@ export const QuizModal = ({ video, onClose }) => {
             </div>
           )}
 
-          {/* STEP: PPT PRESENTATION PLAYER */}
-          {step === 'presentation' && (
-            <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div style={{ flex: 1, borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
-                {video.videoUrl ? (
-                  <iframe
-                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(video.videoUrl)}`}
-                    style={{ flex: 1, width: '100%', border: 'none', minHeight: '400px' }}
-                    title={video.title}
-                    allowFullScreen
-                  />
-                ) : (
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', gap: '12px' }}>
+          {/* STEP: PPT PRESENTATION PLAYER (Custom slideshow dari slideImages array) */}
+          {step === 'presentation' && (() => {
+            const slides = video.slideImages;
+            const totalSlides = slides ? slides.length : 0;
+
+            const goToSlide = (idx) => {
+              const clamped = Math.max(0, Math.min(idx, totalSlides - 1));
+              setCurrentSlide(clamped);
+              if (clamped > maxSlideReached) setMaxSlideReached(clamped);
+            };
+
+            const hasSeenAll = totalSlides === 0 || maxSlideReached >= totalSlides - 1;
+
+            if (!slides || slides.length === 0) {
+              return (
+                <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ flex: 1, borderRadius: '12px', border: '1px solid var(--border)', background: '#f1f5f9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
                     <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                       <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
                     </svg>
                     <div style={{ fontWeight: '700', fontSize: '15px', color: '#1e1b4b' }}>{video.title}</div>
-                    <div style={{ fontSize: '12px', color: '#7c3aed' }}>
-                      {video.slideCount ? `${video.slideCount} slide` : 'Presentasi'}
-                    </div>
                     <div style={{ fontSize: '11px', color: '#94a3b8', maxWidth: '280px', textAlign: 'center', lineHeight: '1.6' }}>
-                      File presentasi belum tersedia. Hubungi Admin untuk mengunggah file PPTX.
+                      Slide belum diproses. Hubungi Admin untuk mengunggah ulang file PPTX.
                     </div>
                   </div>
-                )}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                    <button className="btn-primary" onClick={() => setStep(hasPostTest ? 'post-test' : 'result')} style={{ background: '#002D72', cursor: 'pointer' }}>
+                      {hasPostTest ? 'Selesai → Kuis Post-Test' : 'Selesaikan Materi'}
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px 24px 0' }}>
+                {/* Slide viewer */}
+                <div style={{ flex: 1, position: 'relative', background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '360px' }}>
+                  <img
+                    key={currentSlide}
+                    src={slides[currentSlide]}
+                    alt={`Slide ${currentSlide + 1}`}
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                  />
+                  {currentSlide > 0 && (
+                    <button
+                      onClick={() => goToSlide(currentSlide - 1)}
+                      style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px' }}
+                    >‹</button>
+                  )}
+                  {currentSlide < totalSlides - 1 && (
+                    <button
+                      onClick={() => goToSlide(currentSlide + 1)}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '18px' }}
+                    >›</button>
+                  )}
+                  <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px', userSelect: 'none' }}>
+                    {currentSlide + 1} / {totalSlides}
+                  </div>
+                </div>
+
+                {/* Thumbnail strip */}
+                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '10px 0', flexShrink: 0 }}>
+                  {slides.map((url, i) => (
+                    <button
+                      key={i}
+                      onClick={() => goToSlide(i)}
+                      style={{
+                        flex: '0 0 auto', width: '60px', height: '40px',
+                        border: i === currentSlide ? '2px solid #7c3aed' : '2px solid transparent',
+                        borderRadius: '4px', overflow: 'hidden', cursor: 'pointer', padding: 0,
+                        opacity: i > maxSlideReached + 1 ? 0.4 : 1, background: '#e2e8f0'
+                      }}
+                    >
+                      <img src={url} alt={`${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    </button>
+                  ))}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '12px', paddingBottom: '12px' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text3)' }}>
+                    {hasSeenAll ? 'Anda sudah melihat semua slide.' : 'Lanjutkan ke slide terakhir untuk mengaktifkan tombol Selesai.'}
+                  </span>
+                  <button
+                    className="btn-primary"
+                    disabled={!hasSeenAll}
+                    onClick={() => setStep(hasPostTest ? 'post-test' : 'result')}
+                    style={{ background: hasSeenAll ? '#002D72' : '#94a3b8', borderColor: hasSeenAll ? '#002D72' : '#94a3b8', cursor: hasSeenAll ? 'pointer' : 'not-allowed' }}
+                  >
+                    {hasPostTest ? 'Selesai → Kuis Post-Test' : 'Selesaikan Materi'}
+                  </button>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text3)' }}>
-                  Selesai membaca seluruh slide presentasi? Klik Selesai untuk melanjutkan ke kuis.
-                </span>
-                <button
-                  className="btn-primary"
-                  onClick={() => setStep(hasPostTest ? 'post-test' : 'result')}
-                  style={{ background: '#002D72', borderColor: '#002D72', cursor: 'pointer' }}
-                >
-                  {hasPostTest ? 'Selesai → Kuis Post-Test' : 'Selesaikan Materi'}
-                </button>
-              </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* STEP: POST-TEST */}
           {step === 'post-test' && (
