@@ -4,16 +4,19 @@ import { useTenant } from '../context/TenantContext';
 export const QuizModal = ({ video, onClose }) => {
   const { currentUser, addSubmission, submitEssay, passingScore, updateProgress } = useTenant();
 
-  // Learning wizard steps: 'pre-test' | 'video' | 'post-test' | 'result'
+  // Learning wizard steps: 'pre-test' | 'video' | 'presentation' | 'post-test' | 'result'
+  const isPpt = video.type === 'ppt';
+
   // Use Number() to handle both numeric 0 and string "0" from older saved data
   const isMidTrigger = (q) => { const t = Number(q.triggerTime); return !isNaN(t) && t > 0; };
-  const midVideoTriggers = [...(video.preQuizzes || []), ...(video.postQuizzes || [])].filter(isMidTrigger);
+  const midVideoTriggers = isPpt ? [] : [...(video.preQuizzes || []), ...(video.postQuizzes || [])].filter(isMidTrigger);
   const regularPreQuizzes = (video.preQuizzes || []).filter(q => !isMidTrigger(q));
   const regularPostQuizzes = (video.postQuizzes || []).filter(q => !isMidTrigger(q));
   const hasPreTest = regularPreQuizzes.length > 0;
   const hasPostTest = regularPostQuizzes.length > 0;
 
-  const [step, setStep] = useState(() => hasPreTest ? 'pre-test' : 'video');
+  const mediaStep = isPpt ? 'presentation' : 'video';
+  const [step, setStep] = useState(() => hasPreTest ? 'pre-test' : mediaStep);
   
   // Pre-test state
   const [preAnswers, setPreAnswers] = useState({}); // { qId: selectedOption }
@@ -122,7 +125,7 @@ export const QuizModal = ({ video, onClose }) => {
     const calculatedScore = regularPreQuizzes.length > 0 ? Math.round((correct / regularPreQuizzes.length) * 100) : 100;
     setPreScore(calculatedScore);
     setPreSubmitted(true);
-    setTimeout(() => { setStep('video'); }, 2000);
+    setTimeout(() => { setStep(mediaStep); }, 2000);
   };
 
   const handlePostSubmit = () => {
@@ -181,9 +184,11 @@ export const QuizModal = ({ video, onClose }) => {
         <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: 'var(--text1)' }}>
-              🎥 SOP: {video.title}
+              {isPpt ? '📊' : '🎥'} SOP: {video.title}
             </h3>
-            <span style={{ fontSize: '11px', color: 'var(--text3)' }}>Divisi {video.dept} · Durasi {video.duration}</span>
+            <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
+              Divisi {video.dept} · {isPpt ? `${video.slideCount || '?'} slide` : `Durasi ${video.duration}`}
+            </span>
           </div>
           <button style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }} onClick={onClose}>✕</button>
         </div>
@@ -197,7 +202,7 @@ export const QuizModal = ({ video, onClose }) => {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--accent)', textTransform: 'uppercase' }}>📝 PRE-TEST KUIS</span>
-                  <span style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600' }}>Selesaikan sebelum menonton video</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600' }}>{isPpt ? 'Selesaikan sebelum melihat presentasi' : 'Selesaikan sebelum menonton video'}</span>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -253,8 +258,8 @@ export const QuizModal = ({ video, onClose }) => {
                     ✓ Pre-Test Selesai (Skor: {preScore}%)! Membuka Video...
                   </div>
                 ) : (
-                  <button 
-                    className="btn-primary" 
+                  <button
+                    className="btn-primary"
                     disabled={Object.keys(preAnswers).length < regularPreQuizzes.length}
                     onClick={handlePreSubmit}
                     style={{
@@ -263,7 +268,7 @@ export const QuizModal = ({ video, onClose }) => {
                       cursor: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'not-allowed' : 'pointer'
                     }}
                   >
-                    Kirim Pre-Test & Lanjutkan
+                    {isPpt ? 'Kirim Pre-Test & Buka Presentasi' : 'Kirim Pre-Test & Lanjutkan'}
                   </button>
                 )}
               </div>
@@ -433,6 +438,50 @@ export const QuizModal = ({ video, onClose }) => {
                   }}
                 >
                   {hasPostTest ? 'Lanjutkan ke Kuis Kategori SOP' : 'Selesaikan SOP'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP: PPT PRESENTATION PLAYER */}
+          {step === 'presentation' && (
+            <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div style={{ flex: 1, borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)', background: '#f1f5f9', display: 'flex', flexDirection: 'column' }}>
+                {video.videoUrl ? (
+                  <iframe
+                    src={`https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(video.videoUrl)}`}
+                    style={{ flex: 1, width: '100%', border: 'none', minHeight: '400px' }}
+                    title={video.title}
+                    allowFullScreen
+                  />
+                ) : (
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', gap: '12px' }}>
+                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                    <div style={{ fontWeight: '700', fontSize: '15px', color: '#1e1b4b' }}>{video.title}</div>
+                    <div style={{ fontSize: '12px', color: '#7c3aed' }}>
+                      {video.slideCount ? `${video.slideCount} slide` : 'Presentasi'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94a3b8', maxWidth: '280px', textAlign: 'center', lineHeight: '1.6' }}>
+                      File presentasi belum tersedia. Hubungi Admin untuk mengunggah file PPTX.
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text3)' }}>
+                  Selesai membaca seluruh slide presentasi? Klik Selesai untuk melanjutkan ke kuis.
+                </span>
+                <button
+                  className="btn-primary"
+                  onClick={() => setStep(hasPostTest ? 'post-test' : 'result')}
+                  style={{ background: '#002D72', borderColor: '#002D72', cursor: 'pointer' }}
+                >
+                  {hasPostTest ? 'Selesai → Kuis Post-Test' : 'Selesaikan Materi'}
                 </button>
               </div>
             </div>

@@ -98,7 +98,13 @@ export const SOPManager = ({ onSelectVideo }) => {
                   <div className="sop-info" style={{ marginLeft: '10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className={`dept-tag ${video.tagClass}`}>{video.dept}</span>
-                      <span className="sop-dur">⏱ {video.duration}</span>
+                      {video.type === 'ppt' ? (
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#ede9fe', color: '#7c3aed', padding: '2px 8px', borderRadius: '4px' }}>
+                          📊 {video.slideCount || '?'} slide
+                        </span>
+                      ) : (
+                        <span className="sop-dur">⏱ {video.duration}</span>
+                      )}
                       {statusBadge && (
                         <span style={{
                           fontSize: '11px',
