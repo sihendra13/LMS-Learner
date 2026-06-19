@@ -792,12 +792,11 @@ export const QuizModal = ({ video, onClose }) => {
                           style={{ 
                             height: '36px', 
                             fontSize: '12px', 
-                            padding: '0 28px 0 10px', 
-                            borderRadius: '6px', 
-                            border: '1px solid var(--border)', 
-                            color: 'var(--text2)', 
-                            background: '#fff', 
-                            cursor: 'pointer', 
+                            padding: '0 32px 0 10px',
+                            borderRadius: '6px',
+                            border: '1px solid var(--border)',
+                            color: 'var(--text2)',
+                            cursor: 'pointer',
                             boxSizing: 'border-box',
                             flex: isMobile ? 1 : 'none'
                           }}

@@ -484,13 +484,23 @@ nav { padding: 8px 0; flex: 1; }
   outline: none;
   border-color: var(--accent);
 }
+.form-select,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%23667085' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-color: #fff;
+}
+
 .form-select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px 32px 10px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 13px;
-  background: #fff;
 }
 
 @media print {
