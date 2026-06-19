@@ -581,21 +581,24 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
 
                 {/* Thumbnail strip */}
-                <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '10px 0', flexShrink: 0 }}>
-                  {slides.map((url, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goToSlide(i)}
-                      style={{
-                        flex: '0 0 auto', width: '60px', height: '40px',
-                        border: i === currentSlide ? '2px solid #7c3aed' : '2px solid transparent',
-                        borderRadius: '4px', overflow: 'hidden', cursor: 'pointer', padding: 0,
-                        opacity: i > maxSlideReached + 1 ? 0.4 : 1, background: '#e2e8f0'
-                      }}
-                    >
-                      <img src={url} alt={`${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                    </button>
-                  ))}
+                <div style={{ overflowX: 'auto', flexShrink: 0, padding: '10px 0', WebkitOverflowScrolling: 'touch' }}>
+                  <div style={{ display: 'flex', gap: '6px', width: 'max-content' }}>
+                    {slides.map((url, i) => (
+                      <button
+                        key={i}
+                        onClick={() => goToSlide(i)}
+                        style={{
+                          width: '60px', height: '40px',
+                          border: i === currentSlide ? '2px solid #7c3aed' : '2px solid transparent',
+                          borderRadius: '4px', overflow: 'hidden', cursor: 'pointer', padding: 0,
+                          opacity: i > maxSlideReached + 1 ? 0.4 : 1, background: '#e2e8f0',
+                          flexShrink: 0
+                        }}
+                      >
+                        <img src={url} alt={`${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '12px', paddingBottom: '12px' }}>
