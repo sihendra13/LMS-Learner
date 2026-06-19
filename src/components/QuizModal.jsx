@@ -692,40 +692,42 @@ export const QuizModal = ({ video, onClose }) => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, paddingTop: '12px', paddingBottom: '12px' }}>
-                  <span style={{ fontSize: '12px', color: isFullscreen ? '#94a3b8' : 'var(--text3)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {hasSeenAll ? 'Semua slide selesai.' : 'Tonton hingga slide terakhir.'}
-                  </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                    {/* Auto-play controls */}
-                    {!activeSlideTrigger && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <select
-                          value={autoPlaySpeed}
-                          onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
-                          disabled={autoPlay}
-                          style={{ fontSize: '11px', padding: '5px 6px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer' }}
-                        >
-                          <option value={3}>3 dtk/slide</option>
-                          <option value={5}>5 dtk/slide</option>
-                          <option value={8}>8 dtk/slide</option>
-                          <option value={10}>10 dtk/slide</option>
-                        </select>
-                        <button
-                          onClick={() => setAutoPlay(prev => !prev)}
-                          style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', border: 'none', background: autoPlay ? '#7c3aed' : '#f3f0ff', color: autoPlay ? '#fff' : '#7c3aed', fontSize: '12px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
-                        >
-                          {autoPlay ? '⏸ Pause' : '▶ Auto Play'}
-                        </button>
-                      </div>
-                    )}
+                <div style={{ borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, paddingTop: '10px', paddingBottom: '10px' }}>
+                  {/* Row 1: Auto-play controls */}
+                  {!activeSlideTrigger && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '11px', color: isFullscreen ? '#64748b' : 'var(--text3)', marginRight: '2px' }}>Auto Play:</span>
+                      <select
+                        value={autoPlaySpeed}
+                        onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
+                        disabled={autoPlay}
+                        style={{ fontSize: '11px', padding: '4px 6px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer' }}
+                      >
+                        <option value={3}>3 dtk/slide</option>
+                        <option value={5}>5 dtk/slide</option>
+                        <option value={8}>8 dtk/slide</option>
+                        <option value={10}>10 dtk/slide</option>
+                      </select>
+                      <button
+                        onClick={() => setAutoPlay(prev => !prev)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 12px', borderRadius: '8px', border: 'none', background: autoPlay ? '#7c3aed' : '#f3f0ff', color: autoPlay ? '#fff' : '#7c3aed', fontSize: '12px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                      >
+                        {autoPlay ? '⏸ Pause' : '▶ Auto Play'}
+                      </button>
+                    </div>
+                  )}
+                  {/* Row 2: Hint text + Selesai button */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '12px', color: isFullscreen ? '#94a3b8' : 'var(--text3)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {hasSeenAll ? 'Semua slide selesai.' : 'Tonton hingga slide terakhir untuk melanjutkan.'}
+                    </span>
                     <button
                       className="btn-primary"
                       disabled={!hasSeenAll}
                       onClick={() => { setAutoPlay(false); setStep(hasPostTest ? 'post-test' : 'result'); }}
-                      style={{ background: hasSeenAll ? '#002D72' : '#94a3b8', borderColor: hasSeenAll ? '#002D72' : '#94a3b8', cursor: hasSeenAll ? 'pointer' : 'not-allowed' }}
+                      style={{ flexShrink: 0, background: hasSeenAll ? '#002D72' : '#94a3b8', borderColor: hasSeenAll ? '#002D72' : '#94a3b8', cursor: hasSeenAll ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
                     >
-                      {hasPostTest ? 'Selesai → Kuis Post-Test' : 'Selesaikan Materi'}
+                      {hasPostTest ? 'Selesai → Post-Test' : 'Selesaikan Materi'}
                     </button>
                   </div>
                 </div>
