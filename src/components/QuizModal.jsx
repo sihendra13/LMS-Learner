@@ -584,20 +584,6 @@ export const QuizModal = ({ video, onClose }) => {
                       alt={`Slide ${currentSlide + 1}`}
                       style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
                     />
-                    {/* Tombol prev */}
-                    {currentSlide > 0 && !activeSlideTrigger && (
-                      <button
-                        onClick={() => { goToSlide(currentSlide - 1); setAutoPlay(false); }}
-                        style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)' }}
-                      >‹</button>
-                    )}
-                    {/* Tombol next */}
-                    {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
-                      <button
-                        onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
-                        style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 5 }}
-                      >›</button>
-                    )}
                     <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px', userSelect: 'none' }}>
                       {currentSlide + 1} / {totalSlides}
                     </div>
@@ -651,6 +637,20 @@ export const QuizModal = ({ video, onClose }) => {
                     )}
                   </div>
 
+                  {/* Tombol prev — di luar inner div, tidak ter-clip overflow:hidden */}
+                  {currentSlide > 0 && !activeSlideTrigger && (
+                    <button
+                      onClick={() => { goToSlide(currentSlide - 1); setAutoPlay(false); }}
+                      style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                    >‹</button>
+                  )}
+                  {/* Tombol next — di luar inner div, tidak ter-clip overflow:hidden */}
+                  {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
+                    <button
+                      onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
+                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                    >›</button>
+                  )}
                   {/* Tombol fullscreen — di luar overflow:hidden, relative ke wrapper */}
                   {!activeSlideTrigger && (
                     <button
