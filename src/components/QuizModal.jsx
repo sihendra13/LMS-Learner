@@ -79,15 +79,14 @@ export const QuizModal = ({ video, onClose }) => {
     setSlideTriggerAnswer('');
   };
 
-  // Auto-play audio narasi saat slide berubah
+  // Stop audio narasi saat slide berubah (playback dikontrol via <audio autoPlay>)
   useEffect(() => {
-    if (step !== 'presentation') return;
-    const narasi = video.slideNarasi?.[currentSlide];
-    if (!narasi?.audioUrl) return;
-    const audio = new Audio(narasi.audioUrl);
-    audioNarasiRef.current = audio;
-    audio.play().catch(() => {}); // browser mungkin blokir autoplay tanpa interaksi user dulu
-    return () => { audio.pause(); };
+    return () => {
+      if (audioNarasiRef.current) {
+        audioNarasiRef.current.pause();
+        audioNarasiRef.current = null;
+      }
+    };
   }, [currentSlide, step]);
 
   // Fullscreen change listener
@@ -780,7 +779,7 @@ export const QuizModal = ({ video, onClose }) => {
             return (
               <div ref={presentationRef} className="presentation-player-container" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '0px' : '16px 24px 16px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
-                <div style={{ flex: 1, position: 'relative', minHeight: isFullscreen ? 'none' : '360px' }}>
+                <div style={{ flex: 1, position: 'relative', minHeight: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? '160px' : '220px') : '360px') }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
                   <div 
                     onTouchStart={handleTouchStart}
@@ -957,22 +956,23 @@ export const QuizModal = ({ video, onClose }) => {
                   const hasAudio = (mode === 'audio' || mode === 'keduanya') && narasi.audioUrl;
                   if (!hasTeks && !hasAudio) return null;
                   return (
-                    <div style={{ margin: '8px 0', padding: '12px 16px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                    <div style={{ margin: '8px 0', padding: '12px 16px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: '10px', flexShrink: 0 }}>
                       <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', marginBottom: '8px', letterSpacing: '0.05em' }}>
                         🎙️ NARASI SLIDE {currentSlide + 1}
                       </div>
                       {hasTeks && (
-                        <p style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', margin: 0, marginBottom: hasAudio ? '10px' : 0 }}>
+                        <p style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', margin: 0, marginBottom: hasAudio ? '10px' : 0, maxHeight: '80px', overflowY: 'auto' }}>
                           {narasi.teks}
                         </p>
                       )}
                       {hasAudio && (
                         <audio
-                          key={currentSlide}
+                          key={`audio-${currentSlide}`}
                           controls
                           src={narasi.audioUrl}
-                          style={{ width: '100%', height: '36px', display: 'block' }}
-                          onCanPlay={e => e.target.play().catch(() => {})}
+                          style={{ width: '100%', height: '36px', display: 'block', marginTop: hasTeks ? '8px' : 0 }}
+                          autoPlay
+                          onError={() => {}}
                         />
                       )}
                     </div>
@@ -981,8 +981,8 @@ export const QuizModal = ({ video, onClose }) => {
 
                 <div style={{
                   display: 'flex',
-                  flexDirection: isMobile ? 'column' : 'row',
-                  alignItems: isMobile ? 'stretch' : 'center',
+                  flexDirection: isMobile ? (window.innerHeight < 500 ? 'row' : 'column') : 'row',
+                  alignItems: isMobile ? (window.innerHeight < 500 ? 'center' : 'stretch') : 'center',
                   justifyContent: 'space-between',
                   gap: '12px',
                   borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, 
@@ -992,8 +992,8 @@ export const QuizModal = ({ video, onClose }) => {
                   <div style={{ 
                     fontSize: '12px', 
                     color: isFullscreen ? '#94a3b8' : 'var(--text3)', 
-                    textAlign: isMobile ? 'center' : 'left',
-                    flex: isMobile ? 'none' : 1,
+                    textAlign: isMobile ? (window.innerHeight < 500 ? 'left' : 'center') : 'left',
+                    flex: isMobile ? (window.innerHeight < 500 ? 1 : 'none') : 1,
                     minWidth: 0,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -1004,8 +1004,8 @@ export const QuizModal = ({ video, onClose }) => {
                   
                   <div style={{ 
                     display: 'flex', 
-                    flexDirection: isMobile ? 'column' : 'row', 
-                    alignItems: isMobile ? 'stretch' : 'center', 
+                    flexDirection: isMobile ? (window.innerHeight < 500 ? 'row' : 'column') : 'row', 
+                    alignItems: isMobile ? (window.innerHeight < 500 ? 'center' : 'stretch') : 'center', 
                     gap: '10px' 
                   }}>
                     {!activeSlideTrigger && (
@@ -1013,7 +1013,7 @@ export const QuizModal = ({ video, onClose }) => {
                         display: 'flex', 
                         alignItems: 'center', 
                         gap: '6px',
-                        justifyContent: isMobile ? 'space-between' : 'flex-start'
+                        justifyContent: isMobile ? (window.innerHeight < 500 ? 'flex-start' : 'space-between') : 'flex-start'
                       }}>
                         <select
                           value={autoPlaySpeed}
@@ -1028,7 +1028,7 @@ export const QuizModal = ({ video, onClose }) => {
                             color: 'var(--text2)',
                             cursor: 'pointer',
                             boxSizing: 'border-box',
-                            flex: isMobile ? 1 : 'none'
+                            flex: isMobile ? (window.innerHeight < 500 ? 'none' : 1) : 'none'
                           }}
                         >
                           <option value={3}>Tiap 3 detik</option>
@@ -1054,7 +1054,7 @@ export const QuizModal = ({ video, onClose }) => {
                             cursor: 'pointer', 
                             whiteSpace: 'nowrap', 
                             boxSizing: 'border-box',
-                            flex: isMobile ? 1 : 'none'
+                            flex: isMobile ? (window.innerHeight < 500 ? 'none' : 1) : 'none'
                           }}
                         >
                           {autoPlay ? '⏸ Pause' : '▶ Auto Play'}
@@ -1070,7 +1070,7 @@ export const QuizModal = ({ video, onClose }) => {
                         background: hasSeenAll ? '#002D72' : '#94a3b8', 
                         borderColor: hasSeenAll ? '#002D72' : '#94a3b8', 
                         cursor: hasSeenAll ? 'pointer' : 'not-allowed',
-                        width: isMobile ? '100%' : 'auto',
+                        width: isMobile ? (window.innerHeight < 500 ? 'auto' : '100%') : 'auto',
                         padding: '10px 16px',
                         boxSizing: 'border-box',
                         textAlign: 'center'
