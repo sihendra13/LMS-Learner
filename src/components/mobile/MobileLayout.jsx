@@ -4,7 +4,6 @@ import MobileBeranda from './MobileBeranda';
 import MobileSOPSaya from './MobileSOPSaya';
 import MobileSertifikat from './MobileSertifikat';
 import MobileProfil from './MobileProfil';
-import '../../mobile.css';
 
 const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
   const { currentUser, tenant, videos, quizSubmissions, passingScore } = useTenant();
@@ -45,16 +44,18 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
 
   return (
     <div style={{
-      width: '100%',
-      height: `${viewportHeight}px`,
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       background: 'var(--surface2)',
       color: 'var(--text1)',
       fontFamily: "'Plus Jakarta Sans', sans-serif",
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'hidden',
-      position: 'relative'
+      overflow: 'hidden'
     }}>
       {/* Inject mobile-only CSS overrides to align browser viewport container */}
       <style>{`
@@ -90,14 +91,14 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div className="streak-pill" style={{ padding: '4px 10px', fontSize: '11px', margin: 0 }}>
-            🔥 {currentUser.streak} Hari
+            🔥 {currentUser.streak} Hari Streak
           </div>
           <button 
             className="btn-sync" 
             onClick={onOpenSync}
             style={{ padding: '4px 8px', fontSize: '10px' }}
           >
-            🔄 Sync
+            🔄 Sync State
           </button>
         </div>
       </header>
@@ -141,8 +142,13 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
             transition: 'color 0.15s'
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${activeTab === 'home' ? 1 : 0}`, fontSize: '22px' }}>home</span>
-          <span style={{ fontSize: '10px', marginTop: '2px', fontWeight: activeTab === 'home' ? '600' : '400' }}>Beranda</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ width: '20px', height: '20px', color: activeTab === 'home' ? 'var(--accent)' : 'var(--text3)' }}>
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span style={{ fontSize: '10px', marginTop: '4px', fontWeight: activeTab === 'home' ? '600' : '400' }}>Beranda</span>
         </button>
 
         <button
@@ -161,13 +167,16 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
             position: 'relative'
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${activeTab === 'sop' ? 1 : 0}`, fontSize: '22px' }}>assignment</span>
-          <span style={{ fontSize: '10px', marginTop: '2px', fontWeight: activeTab === 'sop' ? '600' : '400' }}>SOP Saya</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ width: '20px', height: '20px', color: activeTab === 'sop' ? 'var(--accent)' : 'var(--text3)' }}>
+            <polygon points="23 7 16 12 23 17 23 7"/>
+            <rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+          <span style={{ fontSize: '10px', marginTop: '4px', fontWeight: activeTab === 'sop' ? '600' : '400' }}>SOP Saya</span>
           {outstandingCount > 0 && (
             <span style={{
               position: 'absolute',
               top: '2px',
-              right: '18%',
+              right: '22%',
               background: 'var(--red)',
               color: '#fff',
               fontSize: '9px',
@@ -199,8 +208,11 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
             transition: 'color 0.15s'
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${activeTab === 'certificates' ? 1 : 0}`, fontSize: '22px' }}>verified</span>
-          <span style={{ fontSize: '10px', marginTop: '2px', fontWeight: activeTab === 'certificates' ? '600' : '400' }}>Sertifikat</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ width: '20px', height: '20px', color: activeTab === 'certificates' ? 'var(--accent)' : 'var(--text3)' }}>
+            <circle cx="12" cy="8" r="6"/>
+            <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+          </svg>
+          <span style={{ fontSize: '10px', marginTop: '4px', fontWeight: activeTab === 'certificates' ? '600' : '400' }}>Sertifikat</span>
         </button>
 
         <button
@@ -218,8 +230,11 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
             transition: 'color 0.15s'
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: `'FILL' ${activeTab === 'profile' ? 1 : 0}`, fontSize: '22px' }}>person</span>
-          <span style={{ fontSize: '10px', marginTop: '2px', fontWeight: activeTab === 'profile' ? '600' : '400' }}>Profil</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ width: '20px', height: '20px', color: activeTab === 'profile' ? 'var(--accent)' : 'var(--text3)' }}>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span style={{ fontSize: '10px', marginTop: '4px', fontWeight: activeTab === 'profile' ? '600' : '400' }}>Profil</span>
         </button>
       </nav>
     </div>
