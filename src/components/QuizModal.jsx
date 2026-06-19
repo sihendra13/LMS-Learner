@@ -31,13 +31,16 @@ export const QuizModal = ({ video, onClose }) => {
   const triggeredIds = useRef(new Set());
   const [activeTrigger, setActiveTrigger] = useState(null);
   const [triggerAnswer, setTriggerAnswer] = useState('');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
   const [videoAspectRatio, setVideoAspectRatio] = useState(16/9);
 
   const touchStartX = useRef(null);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      if (document.fullscreenElement || window.isFullscreenActive) return;
+      setIsMobile(window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -67,29 +70,53 @@ export const QuizModal = ({ video, onClose }) => {
   const videoContainerRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Narasi audio per slide
+  const audioNarasiRef = useRef(null);
+
   const handleSlideTriggerSubmit = () => {
     setAnsweredTriggerIds(prev => [...prev, activeSlideTrigger.id]);
     setActiveSlideTrigger(null);
     setSlideTriggerAnswer('');
   };
 
+  // Auto-play audio narasi saat slide berubah
+  useEffect(() => {
+    if (step !== 'presentation') return;
+    const narasi = video.slideNarasi?.[currentSlide];
+    if (!narasi?.audioUrl) return;
+    const audio = new Audio(narasi.audioUrl);
+    audioNarasiRef.current = audio;
+    audio.play().catch(() => {}); // browser mungkin blokir autoplay tanpa interaksi user dulu
+    return () => { audio.pause(); };
+  }, [currentSlide, step]);
+
   // Fullscreen change listener
   useEffect(() => {
-    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onFsChange = () => {
+      const isFs = !!document.fullscreenElement;
+      setIsFullscreen(isFs);
+      if (!isFs) {
+        window.isFullscreenActive = false;
+      }
+    };
     document.addEventListener('fullscreenchange', onFsChange);
     return () => document.removeEventListener('fullscreenchange', onFsChange);
   }, []);
 
   const togglePresentationFullscreen = async () => {
-    if (!document.fullscreenElement) {
+    if (!isFullscreen) {
       try {
+        window.isFullscreenActive = true;
         await presentationRef.current?.requestFullscreen?.();
+        setIsFullscreen(true);
         if (screen.orientation && screen.orientation.lock) {
           await screen.orientation.lock('landscape').catch(() => {});
         }
       } catch (err) {}
     } else {
       document.exitFullscreen?.();
+      window.isFullscreenActive = false;
+      setIsFullscreen(false);
       if (screen.orientation && screen.orientation.unlock) {
         try { screen.orientation.unlock(); } catch (err) {}
       }
@@ -97,15 +124,19 @@ export const QuizModal = ({ video, onClose }) => {
   };
 
   const toggleVideoFullscreen = async () => {
-    if (!document.fullscreenElement) {
+    if (!isFullscreen) {
       try {
+        window.isFullscreenActive = true;
         await videoContainerRef.current?.requestFullscreen?.();
+        setIsFullscreen(true);
         if (screen.orientation && screen.orientation.lock) {
           await screen.orientation.lock('landscape').catch(() => {});
         }
       } catch (err) {}
     } else {
       document.exitFullscreen?.();
+      window.isFullscreenActive = false;
+      setIsFullscreen(false);
       if (screen.orientation && screen.orientation.unlock) {
         try { screen.orientation.unlock(); } catch (err) {}
       }
@@ -382,27 +413,29 @@ export const QuizModal = ({ video, onClose }) => {
 
           {/* STEP: VIDEO PLAYER */}
           {step === 'video' && (
-            <div style={{ flex: 1, padding: isMobile ? '16px' : '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
+            <div style={{ flex: 1, padding: isMobile ? (window.innerHeight < 500 ? '8px 16px 4px' : '16px') : '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}>
               <div 
                 ref={videoContainerRef} 
+                className="video-player-container"
                 style={{ 
                   width: '100%',
-                  maxWidth: '100%',
-                  aspectRatio: videoAspectRatio,
-                  maxHeight: isMobile ? '50vh' : 'none',
+                  height: isFullscreen ? '100%' : 'auto',
+                  maxWidth: isFullscreen ? 'none' : '100%',
+                  aspectRatio: isFullscreen ? 'auto' : videoAspectRatio,
+                  maxHeight: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? 'calc(100vh - 110px)' : '50vh') : 'none'),
                   background: '#090f1d', 
-                  borderRadius: '12px', 
+                  borderRadius: isFullscreen ? '0px' : '12px', 
                   position: 'relative', 
                   display: 'flex', 
                   flexDirection: 'column', 
                   justifyContent: 'center', 
                   alignItems: 'center', 
                   overflow: 'hidden',
-                  flex: isMobile ? 'none' : 1,
+                  flex: isFullscreen ? 1 : (isMobile ? (window.innerHeight < 500 ? 1 : 'none') : 1),
                   margin: '0 auto'
                 }}
               >
-
+ 
                 {video.videoUrl && !videoError ? (
                   /* Real video player */
                   <video
@@ -420,7 +453,7 @@ export const QuizModal = ({ video, onClose }) => {
                       }
                     }}
                     controls={!activeTrigger}
-                    controlsList="nodownload"
+                    controlsList="nodownload nofullscreen"
                     style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto', display: activeTrigger ? 'none' : 'block' }}
                   />
                 ) : video.videoUrl && videoError ? (
@@ -455,7 +488,7 @@ export const QuizModal = ({ video, onClose }) => {
                   </div>
                 )}
 
-                {!isMobile && activeTrigger && (
+                {(!isMobile || isFullscreen) && activeTrigger && (
                   <div style={{
                     position: 'absolute',
                     inset: 0,
@@ -601,7 +634,7 @@ export const QuizModal = ({ video, onClose }) => {
                 </button>
               </div>
 
-              {isMobile && activeTrigger && (
+              {isMobile && !isFullscreen && activeTrigger && (
                 <div style={{
                   position: 'absolute',
                   inset: 0,
@@ -745,14 +778,14 @@ export const QuizModal = ({ video, onClose }) => {
             }
 
             return (
-              <div ref={presentationRef} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '16px' : '16px 24px 16px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
+              <div ref={presentationRef} className="presentation-player-container" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '0px' : '16px 24px 16px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
-                <div style={{ flex: 1, position: 'relative', minHeight: '360px' }}>
+                <div style={{ flex: 1, position: 'relative', minHeight: isFullscreen ? 'none' : '360px' }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
                   <div 
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
-                    style={{ position: 'absolute', inset: 0, background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    style={{ position: 'absolute', inset: 0, background: '#1e1b4b', borderRadius: isFullscreen ? '0px' : '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                   >
                     <img
                       key={currentSlide}
@@ -765,7 +798,7 @@ export const QuizModal = ({ video, onClose }) => {
                     </div>
 
                     {/* OVERLAY KUIS PEMICU SLIDE */}
-                    {!isMobile && activeSlideTrigger && (
+                    {(!isMobile || isFullscreen) && activeSlideTrigger && (
                       <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,15,29,0.92)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px', zIndex: 10 }}>
                         <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
@@ -915,12 +948,43 @@ export const QuizModal = ({ video, onClose }) => {
                   </div>
                 </div>
 
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row', 
-                  alignItems: isMobile ? 'stretch' : 'center', 
+                {/* Narasi per slide */}
+                {(() => {
+                  const narasi = video.slideNarasi?.[currentSlide];
+                  const mode = video.narasiMode;
+                  if (!narasi || !mode || mode === 'none') return null;
+                  const hasTeks = (mode === 'teks' || mode === 'keduanya') && narasi.teks;
+                  const hasAudio = (mode === 'audio' || mode === 'keduanya') && narasi.audioUrl;
+                  if (!hasTeks && !hasAudio) return null;
+                  return (
+                    <div style={{ margin: '8px 0', padding: '12px 16px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: '10px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                        🎙️ NARASI SLIDE {currentSlide + 1}
+                      </div>
+                      {hasTeks && (
+                        <p style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', margin: 0, marginBottom: hasAudio ? '10px' : 0 }}>
+                          {narasi.teks}
+                        </p>
+                      )}
+                      {hasAudio && (
+                        <audio
+                          key={currentSlide}
+                          controls
+                          src={narasi.audioUrl}
+                          style={{ width: '100%', height: '36px', display: 'block' }}
+                          onCanPlay={e => e.target.play().catch(() => {})}
+                        />
+                      )}
+                    </div>
+                  );
+                })()}
+
+                <div style={{
+                  display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  alignItems: isMobile ? 'stretch' : 'center',
                   justifyContent: 'space-between',
-                  gap: '12px', 
+                  gap: '12px',
                   borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, 
                   paddingTop: '12px', 
                   paddingBottom: '12px' 
@@ -1017,7 +1081,7 @@ export const QuizModal = ({ video, onClose }) => {
                   </div>
                 </div>
 
-                {isMobile && activeSlideTrigger && (
+                {isMobile && !isFullscreen && activeSlideTrigger && (
                   <div style={{
                     position: 'absolute',
                     inset: 0,
