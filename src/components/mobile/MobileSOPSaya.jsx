@@ -4,13 +4,11 @@ import { useTenant } from '../../context/TenantContext';
 const MobileSOPSaya = ({ onSelectVideo }) => {
   const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES } = useTenant();
   const [selectedProgress, setSelectedProgress] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
 
   // Filter lists
   const filteredVideos = videos.filter(video => {
     const matchesDept = (video.dept === 'Semua' || video.dept.toLowerCase() === (currentUser.dept || '').toLowerCase()) && !video.archived;
-    const matchesSearch = video.title.toLowerCase().includes(searchTerm.toLowerCase());
     
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
     const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
@@ -22,7 +20,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
     else if (selectedProgress === 'ongoing') matchesProgress = isOngoing;
     else if (selectedProgress === 'new') matchesProgress = isNew;
 
-    return matchesDept && matchesSearch && matchesProgress;
+    return matchesDept && matchesProgress;
   });
 
   return (
@@ -35,19 +33,8 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
         </p>
       </div>
 
-      {/* FILTER BAR & SEARCH */}
+      {/* FILTER BAR */}
       <div className="card" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div>
-          <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Cari Modul</label>
-          <input 
-            type="text" 
-            className="form-input" 
-            placeholder="Cari judul SOP..." 
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            style={{ boxSizing: 'border-box' }}
-          />
-        </div>
         <div>
           <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Status Progress</label>
           <div 
