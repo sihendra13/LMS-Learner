@@ -45,6 +45,17 @@ export const QuizModal = ({ video, onClose }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Force layout recalculation saat masuk presentation step
+  // (flex container belum settle width-nya saat pertama render)
+  useEffect(() => {
+    if (step === 'presentation') {
+      const t = setTimeout(() => {
+        setIsMobile(window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
+      }, 80);
+      return () => clearTimeout(t);
+    }
+  }, [step]);
+
   // Post-test state
   const [postAnswers, setPostAnswers] = useState({}); // { qId: answerValue (MCQ option or essay string) }
   const [postSubmitted, setPostSubmitted] = useState(false);
@@ -1002,11 +1013,14 @@ export const QuizModal = ({ video, onClose }) => {
                     {hasSeenAll ? 'Semua slide selesai.' : 'Tonton hingga slide terakhir.'}
                   </div>
                   
-                  <div style={{ 
-                    display: 'flex', 
-                    flexDirection: isMobile ? (window.innerHeight < 500 ? 'row' : 'column') : 'row', 
-                    alignItems: isMobile ? (window.innerHeight < 500 ? 'center' : 'stretch') : 'center', 
-                    gap: '10px' 
+                  <div style={{
+                    display: 'flex',
+                    flexDirection: isMobile ? (window.innerHeight < 500 ? 'row' : 'column') : 'row',
+                    alignItems: isMobile ? (window.innerHeight < 500 ? 'center' : 'stretch') : 'center',
+                    gap: '10px',
+                    flexWrap: 'wrap',
+                    justifyContent: 'flex-end',
+                    flexShrink: 0
                   }}>
                     {!activeSlideTrigger && (
                       <div style={{ 
