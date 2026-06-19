@@ -749,39 +749,107 @@ export const QuizModal = ({ video, onClose }) => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, paddingTop: '12px', paddingBottom: '12px' }}>
-                  <span style={{ fontSize: '12px', color: isFullscreen ? '#94a3b8' : 'var(--text3)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: isMobile ? 'column' : 'row', 
+                  alignItems: isMobile ? 'stretch' : 'center', 
+                  justifyContent: 'space-between',
+                  gap: '12px', 
+                  borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, 
+                  paddingTop: '12px', 
+                  paddingBottom: '12px' 
+                }}>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: isFullscreen ? '#94a3b8' : 'var(--text3)', 
+                    textAlign: isMobile ? 'center' : 'left',
+                    flex: isMobile ? 'none' : 1,
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
                     {hasSeenAll ? 'Semua slide selesai.' : 'Tonton hingga slide terakhir.'}
-                  </span>
-                  {!activeSlideTrigger && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                      <select
-                        value={autoPlaySpeed}
-                        onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
-                        disabled={autoPlay}
-                        style={{ height: '36px', fontSize: '12px', padding: '0 28px 0 10px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}
-                      >
-                        <option value={3}>Tiap 3 detik</option>
-                        <option value={5}>Tiap 5 detik</option>
-                        <option value={8}>Tiap 8 detik</option>
-                        <option value={10}>Tiap 10 detik</option>
-                      </select>
-                      <button
-                        onClick={() => setAutoPlay(prev => !prev)}
-                        style={{ height: '36px', display: 'flex', alignItems: 'center', gap: '5px', padding: '0 14px', borderRadius: '8px', border: 'none', background: autoPlay ? '#7c3aed' : '#f3f0ff', color: autoPlay ? '#fff' : '#7c3aed', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap', boxSizing: 'border-box' }}
-                      >
-                        {autoPlay ? '⏸ Pause' : '▶ Auto Play'}
-                      </button>
-                    </div>
-                  )}
-                  <button
-                    className="btn-primary"
-                    disabled={!hasSeenAll}
-                    onClick={() => { setAutoPlay(false); setStep(hasPostTest ? 'post-test' : 'result'); }}
-                    style={{ flexShrink: 0, whiteSpace: 'nowrap', background: hasSeenAll ? '#002D72' : '#94a3b8', borderColor: hasSeenAll ? '#002D72' : '#94a3b8', cursor: hasSeenAll ? 'pointer' : 'not-allowed' }}
-                  >
-                    {hasPostTest ? 'Selesai → Post-Test' : 'Selesaikan Materi'}
-                  </button>
+                  </div>
+                  
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row', 
+                    alignItems: isMobile ? 'stretch' : 'center', 
+                    gap: '10px' 
+                  }}>
+                    {!activeSlideTrigger && (
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '6px',
+                        justifyContent: isMobile ? 'space-between' : 'flex-start'
+                      }}>
+                        <select
+                          value={autoPlaySpeed}
+                          onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
+                          disabled={autoPlay}
+                          style={{ 
+                            height: '36px', 
+                            fontSize: '12px', 
+                            padding: '0 28px 0 10px', 
+                            borderRadius: '6px', 
+                            border: '1px solid var(--border)', 
+                            color: 'var(--text2)', 
+                            background: '#fff', 
+                            cursor: 'pointer', 
+                            boxSizing: 'border-box',
+                            flex: isMobile ? 1 : 'none'
+                          }}
+                        >
+                          <option value={3}>Tiap 3 detik</option>
+                          <option value={5}>Tiap 5 detik</option>
+                          <option value={8}>Tiap 8 detik</option>
+                          <option value={10}>Tiap 10 detik</option>
+                        </select>
+                        <button
+                          onClick={() => setAutoPlay(prev => !prev)}
+                          style={{ 
+                            height: '36px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            gap: '5px', 
+                            padding: '0 14px', 
+                            borderRadius: '8px', 
+                            border: 'none', 
+                            background: autoPlay ? '#7c3aed' : '#f3f0ff', 
+                            color: autoPlay ? '#fff' : '#7c3aed', 
+                            fontSize: '13px', 
+                            fontWeight: '600', 
+                            cursor: 'pointer', 
+                            whiteSpace: 'nowrap', 
+                            boxSizing: 'border-box',
+                            flex: isMobile ? 1 : 'none'
+                          }}
+                        >
+                          {autoPlay ? '⏸ Pause' : '▶ Auto Play'}
+                        </button>
+                      </div>
+                    )}
+                    <button
+                      className="btn-primary"
+                      disabled={!hasSeenAll}
+                      onClick={() => { setAutoPlay(false); setStep(hasPostTest ? 'post-test' : 'result'); }}
+                      style={{ 
+                        whiteSpace: 'nowrap', 
+                        background: hasSeenAll ? '#002D72' : '#94a3b8', 
+                        borderColor: hasSeenAll ? '#002D72' : '#94a3b8', 
+                        cursor: hasSeenAll ? 'pointer' : 'not-allowed',
+                        width: isMobile ? '100%' : 'auto',
+                        padding: '10px 16px',
+                        boxSizing: 'border-box',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {hasPostTest ? 'Selesai → Post-Test' : 'Selesaikan Materi'}
+                    </button>
+                  </div>
                 </div>
               </div>
             );
