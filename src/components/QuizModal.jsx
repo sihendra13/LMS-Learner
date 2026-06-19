@@ -595,7 +595,7 @@ export const QuizModal = ({ video, onClose }) => {
                     {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
                       <button
                         onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
-                        style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)' }}
+                        style={{ position: 'absolute', right: '20px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 5 }}
                       >›</button>
                     )}
                     <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px', userSelect: 'none' }}>
@@ -698,16 +698,17 @@ export const QuizModal = ({ video, onClose }) => {
                   </span>
                   {!activeSlideTrigger && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                      <span style={{ fontSize: '11px', color: 'var(--text3)', whiteSpace: 'nowrap' }}>Ganti slide tiap</span>
                       <select
                         value={autoPlaySpeed}
                         onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
                         disabled={autoPlay}
                         style={{ fontSize: '11px', padding: '5px 6px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer' }}
                       >
-                        <option value={3}>3 dtk/slide</option>
-                        <option value={5}>5 dtk/slide</option>
-                        <option value={8}>8 dtk/slide</option>
-                        <option value={10}>10 dtk/slide</option>
+                        <option value={3}>3 detik</option>
+                        <option value={5}>5 detik</option>
+                        <option value={8}>8 detik</option>
+                        <option value={10}>10 detik</option>
                       </select>
                       <button
                         onClick={() => setAutoPlay(prev => !prev)}
