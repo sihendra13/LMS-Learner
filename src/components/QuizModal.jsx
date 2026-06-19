@@ -641,14 +641,14 @@ export const QuizModal = ({ video, onClose }) => {
                   {currentSlide > 0 && !activeSlideTrigger && (
                     <button
                       onClick={() => { goToSlide(currentSlide - 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                      style={{ position: 'absolute', left: '24px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
                     >‹</button>
                   )}
                   {/* Tombol next — di luar inner div, tidak ter-clip overflow:hidden */}
                   {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
                     <button
                       onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                      style={{ position: 'absolute', right: '24px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
                     >›</button>
                   )}
                   {/* Tombol fullscreen — di luar overflow:hidden, relative ke wrapper */}
