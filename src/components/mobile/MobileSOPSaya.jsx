@@ -5,6 +5,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
   const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES } = useTenant();
   const [selectedProgress, setSelectedProgress] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
 
   // Filter lists
   const filteredVideos = videos.filter(video => {
@@ -49,12 +50,40 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
         </div>
         <div>
           <label style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text3)', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Status Progress</label>
-          <select className="form-select" value={selectedProgress} onChange={e => setSelectedProgress(e.target.value)}>
-            <option value="all">Semua Status</option>
-            <option value="completed">Lulus / Selesai</option>
-            <option value="ongoing">Dalam Proses</option>
-            <option value="new">Belum Dimulai (Baru)</option>
-          </select>
+          <div 
+            onClick={() => setBottomSheetOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 14px',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              fontSize: '13px',
+              color: 'var(--text1)',
+              cursor: 'pointer',
+              userSelect: 'none',
+              height: '38px',
+              boxSizing: 'border-box'
+            }}
+          >
+            <span>
+              {selectedProgress === 'all' && 'Semua Status'}
+              {selectedProgress === 'completed' && 'Lulus / Selesai'}
+              {selectedProgress === 'ongoing' && 'Dalam Proses'}
+              {selectedProgress === 'new' && 'Belum Dimulai (Baru)'}
+            </span>
+            <svg 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              style={{ width: '14px', height: '14px', color: 'var(--text3)' }}
+            >
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
         </div>
         <div style={{ fontSize: '11px', color: 'var(--text3)' }}>
           Departemen Anda: <strong style={{ color: 'var(--text1)' }}>{currentUser.dept || 'Semua'}</strong>
@@ -163,6 +192,42 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
             })}
           </div>
         )}
+    </div>
+
+      {/* BOTTOM SHEET FOR PROGRESS FILTER */}
+      <div 
+        className={`bottom-sheet-backdrop ${bottomSheetOpen ? 'open' : ''}`}
+        onClick={() => setBottomSheetOpen(false)}
+      />
+      <div className={`bottom-sheet-container ${bottomSheetOpen ? 'open' : ''}`}>
+        <div className="bottom-sheet-handle" />
+        <div style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text1)', marginBottom: '16px', textAlign: 'center' }}>
+          Pilih Status Progress
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {[
+            { value: 'all', label: 'Semua Status' },
+            { value: 'completed', label: 'Lulus / Selesai' },
+            { value: 'ongoing', label: 'Dalam Proses' },
+            { value: 'new', label: 'Belum Dimulai (Baru)' }
+          ].map(opt => (
+            <button
+              key={opt.value}
+              className={`bottom-sheet-option ${selectedProgress === opt.value ? 'active' : ''}`}
+              onClick={() => {
+                setSelectedProgress(opt.value);
+                setBottomSheetOpen(false);
+              }}
+            >
+              <span>{opt.label}</span>
+              {selectedProgress === opt.value && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" style={{ width: '16px', height: '16px' }}>
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
