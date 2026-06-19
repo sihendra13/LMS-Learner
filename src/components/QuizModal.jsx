@@ -698,21 +698,20 @@ export const QuizModal = ({ video, onClose }) => {
                   </span>
                   {!activeSlideTrigger && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                      <span style={{ fontSize: '11px', color: 'var(--text3)', whiteSpace: 'nowrap' }}>Ganti slide tiap</span>
                       <select
                         value={autoPlaySpeed}
                         onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
                         disabled={autoPlay}
-                        style={{ fontSize: '11px', padding: '5px 6px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer' }}
+                        style={{ height: '36px', fontSize: '12px', padding: '0 8px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}
                       >
-                        <option value={3}>3 detik</option>
-                        <option value={5}>5 detik</option>
-                        <option value={8}>8 detik</option>
-                        <option value={10}>10 detik</option>
+                        <option value={3}>Tiap 3 detik</option>
+                        <option value={5}>Tiap 5 detik</option>
+                        <option value={8}>Tiap 8 detik</option>
+                        <option value={10}>Tiap 10 detik</option>
                       </select>
                       <button
                         onClick={() => setAutoPlay(prev => !prev)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '8px', border: 'none', background: autoPlay ? '#7c3aed' : '#f3f0ff', color: autoPlay ? '#fff' : '#7c3aed', fontSize: '12px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                        style={{ height: '36px', display: 'flex', alignItems: 'center', gap: '5px', padding: '0 14px', borderRadius: '8px', border: 'none', background: autoPlay ? '#7c3aed' : '#f3f0ff', color: autoPlay ? '#fff' : '#7c3aed', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap', boxSizing: 'border-box' }}
                       >
                         {autoPlay ? '⏸ Pause' : '▶ Auto Play'}
                       </button>
