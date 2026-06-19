@@ -31,6 +31,14 @@ export const QuizModal = ({ video, onClose }) => {
   const triggeredIds = useRef(new Set());
   const [activeTrigger, setActiveTrigger] = useState(null);
   const [triggerAnswer, setTriggerAnswer] = useState('');
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [videoAspectRatio, setVideoAspectRatio] = useState(16/9);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Post-test state
   const [postAnswers, setPostAnswers] = useState({}); // { qId: answerValue (MCQ option or essay string) }
@@ -343,8 +351,26 @@ export const QuizModal = ({ video, onClose }) => {
 
           {/* STEP: VIDEO PLAYER */}
           {step === 'video' && (
-            <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div ref={videoContainerRef} style={{ flex: 1, background: '#090f1d', borderRadius: '12px', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+            <div style={{ flex: 1, padding: isMobile ? '16px' : '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div 
+                ref={videoContainerRef} 
+                style={{ 
+                  width: '100%',
+                  maxWidth: '100%',
+                  aspectRatio: videoAspectRatio,
+                  maxHeight: isMobile ? '50vh' : 'none',
+                  background: '#090f1d', 
+                  borderRadius: '12px', 
+                  position: 'relative', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  overflow: 'hidden',
+                  flex: isMobile ? 'none' : 1,
+                  margin: '0 auto'
+                }}
+              >
 
                 {video.videoUrl && !videoError ? (
                   /* Real video player */
@@ -357,6 +383,11 @@ export const QuizModal = ({ video, onClose }) => {
                     onPlay={() => setVideoPlaying(true)}
                     onPause={() => setVideoPlaying(false)}
                     onError={() => setVideoError(true)}
+                    onLoadedMetadata={(e) => {
+                      if (e.target.videoWidth && e.target.videoHeight) {
+                        setVideoAspectRatio(e.target.videoWidth / e.target.videoHeight);
+                      }
+                    }}
                     controls={!activeTrigger}
                     controlsList="nodownload"
                     style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto', display: activeTrigger ? 'none' : 'block' }}
@@ -508,8 +539,18 @@ export const QuizModal = ({ video, onClose }) => {
                 )}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: 'var(--text3)' }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row', 
+                justifyContent: 'space-between', 
+                alignItems: isMobile ? 'stretch' : 'center', 
+                marginTop: '16px', 
+                borderTop: '1px solid var(--border)', 
+                paddingTop: '16px',
+                gap: isMobile ? '12px' : '0',
+                textAlign: isMobile ? 'center' : 'left'
+              }}>
+                <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
                   *Anda wajib menonton hingga 100% sebelum kuis pasca-materi terbuka.
                 </span>
                 <button 
@@ -519,7 +560,10 @@ export const QuizModal = ({ video, onClose }) => {
                   style={{
                     background: playProgress < 100 ? 'var(--text3)' : '#002D72',
                     borderColor: playProgress < 100 ? 'var(--text3)' : '#002D72',
-                    cursor: playProgress < 100 ? 'not-allowed' : 'pointer'
+                    cursor: playProgress < 100 ? 'not-allowed' : 'pointer',
+                    width: isMobile ? '100%' : 'auto',
+                    padding: '10px 16px',
+                    boxSizing: 'border-box'
                   }}
                 >
                   {hasPostTest ? 'Lanjutkan ke Kuis Kategori SOP' : 'Selesaikan SOP'}
@@ -577,7 +621,8 @@ export const QuizModal = ({ video, onClose }) => {
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
                 <div style={{ flex: 1, position: 'relative', minHeight: '360px' }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
-                  <div style={{ position: 'absolute', inset: 0, background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {/* left/right 56px memberi zona khusus untuk arrow agar tidak mepet slide */}
+                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: '56px', right: '56px', background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <img
                       key={currentSlide}
                       src={slides[currentSlide]}
@@ -637,26 +682,26 @@ export const QuizModal = ({ video, onClose }) => {
                     )}
                   </div>
 
-                  {/* Tombol prev — di luar inner div, tidak ter-clip overflow:hidden */}
+                  {/* Tombol prev — di zona kiri 56px, jelas terpisah dari slide */}
                   {currentSlide > 0 && !activeSlideTrigger && (
                     <button
                       onClick={() => { goToSlide(currentSlide - 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', left: '24px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                      style={{ position: 'absolute', left: '2px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
                     >‹</button>
                   )}
-                  {/* Tombol next — di luar inner div, tidak ter-clip overflow:hidden */}
+                  {/* Tombol next — di zona kanan 56px, jelas terpisah dari slide */}
                   {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
                     <button
                       onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', right: '24px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                      style={{ position: 'absolute', right: '2px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
                     >›</button>
                   )}
-                  {/* Tombol fullscreen — di luar overflow:hidden, relative ke wrapper */}
+                  {/* Tombol fullscreen — pojok kanan atas dalam area slide viewer */}
                   {!activeSlideTrigger && (
                     <button
                       onClick={togglePresentationFullscreen}
                       title={isFullscreen ? 'Keluar Fullscreen' : 'Fullscreen'}
-                      style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '8px', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 20, backdropFilter: 'blur(4px)', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
+                      style={{ position: 'absolute', top: '12px', right: '64px', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '8px', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 20, backdropFilter: 'blur(4px)', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
                     >
                       {isFullscreen ? (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

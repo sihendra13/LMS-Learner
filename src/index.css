@@ -613,3 +613,16 @@ nav { padding: 8px 0; flex: 1; }
   color: var(--accent);
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .wizard-modal {
+    padding: 0;
+  }
+  .wizard-card {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
