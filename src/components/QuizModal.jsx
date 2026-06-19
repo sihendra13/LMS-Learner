@@ -747,7 +747,7 @@ export const QuizModal = ({ video, onClose }) => {
                         value={autoPlaySpeed}
                         onChange={(e) => setAutoPlaySpeed(Number(e.target.value))}
                         disabled={autoPlay}
-                        style={{ height: '36px', fontSize: '12px', padding: '0 8px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}
+                        style={{ height: '36px', fontSize: '12px', padding: '0 28px 0 10px', borderRadius: '6px', border: '1px solid var(--border)', color: 'var(--text2)', background: '#fff', cursor: 'pointer', boxSizing: 'border-box' }}
                       >
                         <option value={3}>Tiap 3 detik</option>
                         <option value={5}>Tiap 5 detik</option>
