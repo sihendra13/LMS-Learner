@@ -326,9 +326,19 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row', 
+                justifyContent: isMobile ? 'center' : 'flex-end', 
+                alignItems: isMobile ? 'stretch' : 'center', 
+                marginTop: '20px', 
+                borderTop: '1px solid var(--border)', 
+                paddingTop: '16px',
+                paddingBottom: isMobile ? '24px' : '0',
+                gap: isMobile ? '12px' : '0'
+              }}>
                 {preSubmitted ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--green)', fontWeight: '600', fontSize: '13px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--green)', fontWeight: '600', fontSize: '13px', textAlign: 'center' }}>
                     ✓ Pre-Test Selesai (Skor: {preScore}%)! Membuka Video...
                   </div>
                 ) : (
@@ -339,7 +349,10 @@ export const QuizModal = ({ video, onClose }) => {
                     style={{
                       background: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'var(--text3)' : '#002D72',
                       borderColor: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'var(--text3)' : '#002D72',
-                      cursor: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'not-allowed' : 'pointer'
+                      cursor: Object.keys(preAnswers).length < regularPreQuizzes.length ? 'not-allowed' : 'pointer',
+                      width: isMobile ? '100%' : 'auto',
+                      padding: '10px 16px',
+                      boxSizing: 'border-box'
                     }}
                   >
                     {isPpt ? 'Kirim Pre-Test & Buka Presentasi' : 'Kirim Pre-Test & Lanjutkan'}
@@ -621,8 +634,7 @@ export const QuizModal = ({ video, onClose }) => {
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
                 <div style={{ flex: 1, position: 'relative', minHeight: '360px' }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
-                  {/* left/right 56px memberi zona khusus untuk arrow agar tidak mepet slide */}
-                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: '56px', right: '56px', background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ position: 'absolute', inset: 0, background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <img
                       key={currentSlide}
                       src={slides[currentSlide]}
@@ -682,26 +694,26 @@ export const QuizModal = ({ video, onClose }) => {
                     )}
                   </div>
 
-                  {/* Tombol prev — di zona kiri 56px, jelas terpisah dari slide */}
+                  {/* Tombol prev */}
                   {currentSlide > 0 && !activeSlideTrigger && (
                     <button
                       onClick={() => { goToSlide(currentSlide - 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', left: '2px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                      style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
                     >‹</button>
                   )}
-                  {/* Tombol next — di zona kanan 56px, jelas terpisah dari slide */}
+                  {/* Tombol next */}
                   {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
                     <button
                       onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', right: '2px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
+                      style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)', zIndex: 10 }}
                     >›</button>
                   )}
-                  {/* Tombol fullscreen — pojok kanan atas dalam area slide viewer */}
+                  {/* Tombol fullscreen */}
                   {!activeSlideTrigger && (
                     <button
                       onClick={togglePresentationFullscreen}
                       title={isFullscreen ? 'Keluar Fullscreen' : 'Fullscreen'}
-                      style={{ position: 'absolute', top: '12px', right: '64px', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '8px', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 20, backdropFilter: 'blur(4px)', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
+                      style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '8px', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 20, backdropFilter: 'blur(4px)', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
                     >
                       {isFullscreen ? (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -833,7 +845,14 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: isMobile ? 'center' : 'flex-end', 
+                marginTop: '20px', 
+                borderTop: '1px solid var(--border)', 
+                paddingTop: '16px',
+                paddingBottom: isMobile ? '24px' : '0'
+              }}>
                 <button
                   className="btn-primary"
                   disabled={Object.keys(postAnswers).length < regularPostQuizzes.length}
@@ -841,7 +860,10 @@ export const QuizModal = ({ video, onClose }) => {
                   style={{
                     background: Object.keys(postAnswers).length < regularPostQuizzes.length ? 'var(--text3)' : '#002D72',
                     borderColor: Object.keys(postAnswers).length < regularPostQuizzes.length ? 'var(--text3)' : '#002D72',
-                    cursor: Object.keys(postAnswers).length < regularPostQuizzes.length ? 'not-allowed' : 'pointer'
+                    cursor: Object.keys(postAnswers).length < regularPostQuizzes.length ? 'not-allowed' : 'pointer',
+                    width: isMobile ? '100%' : 'auto',
+                    padding: '10px 16px',
+                    boxSizing: 'border-box'
                   }}
                 >
                   Kirim Jawaban Kuis

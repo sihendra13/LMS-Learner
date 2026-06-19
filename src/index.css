@@ -32,6 +32,10 @@ body {
   font-size: 14px;
 }
 
+input, select, textarea, button {
+  font-family: inherit;
+}
+
 #root {
   display: flex;
   width: 100%;
