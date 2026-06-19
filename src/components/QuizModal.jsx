@@ -573,7 +573,7 @@ export const QuizModal = ({ video, onClose }) => {
             }
 
             return (
-              <div ref={presentationRef} style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '16px' : '16px 24px 16px', background: isFullscreen ? '#0f172a' : 'transparent' }}>
+              <div ref={presentationRef} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '16px' : '16px 24px 16px', background: isFullscreen ? '#0f172a' : 'transparent' }}>
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
                 <div style={{ flex: 1, position: 'relative', minHeight: '360px' }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
@@ -672,7 +672,7 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
 
                 {/* Thumbnail strip */}
-                <div style={{ overflowX: 'auto', flexShrink: 0, padding: '10px 0', WebkitOverflowScrolling: 'touch' }}>
+                <div style={{ overflowX: 'auto', flexShrink: 0, padding: '10px 0', WebkitOverflowScrolling: 'touch', width: '100%' }}>
                   <div style={{ display: 'flex', gap: '6px', width: 'max-content' }}>
                     {slides.map((url, i) => (
                       <button
