@@ -59,8 +59,8 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
       {/* Inject mobile-only CSS overrides to align browser viewport container */}
       <style>{`
         html, body, #root {
-          height: 100% !important;
-          min-height: 100% !important;
+          height: 100vh !important;
+          min-height: 100vh !important;
           overflow: hidden !important;
           width: 100% !important;
           margin: 0 !important;
