@@ -1,0 +1,16 @@
+{
+  "short_name": "Axara LMS",
+  "name": "Axara LMS Learner Portal",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0B1628",
+  "theme_color": "#0B1628",
+  "display": "standalone",
+  "orientation": "portrait"
+}

@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
 :root {
   --navy: #0B1628;
   --navy2: #112040;

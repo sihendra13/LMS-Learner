@@ -574,38 +574,89 @@ export const QuizModal = ({ video, onClose }) => {
 
             return (
               <div ref={presentationRef} style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '16px' : '16px 24px 0', background: isFullscreen ? '#0f172a' : 'transparent' }}>
-                {/* Slide viewer */}
-                <div style={{ flex: 1, position: 'relative', background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '360px' }}>
-                  <img
-                    key={currentSlide}
-                    src={slides[currentSlide]}
-                    alt={`Slide ${currentSlide + 1}`}
-                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
-                  />
-                  {/* Tombol prev — disembunyikan saat kuis trigger aktif */}
-                  {currentSlide > 0 && !activeSlideTrigger && (
-                    <button
-                      onClick={() => { goToSlide(currentSlide - 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)' }}
-                    >‹</button>
-                  )}
-                  {/* Tombol next — disembunyikan saat kuis trigger aktif */}
-                  {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
-                    <button
-                      onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
-                      style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)' }}
-                    >›</button>
-                  )}
-                  <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px', userSelect: 'none' }}>
-                    {currentSlide + 1} / {totalSlides}
+                {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
+                <div style={{ flex: 1, position: 'relative', minHeight: '360px' }}>
+                  {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
+                  <div style={{ position: 'absolute', inset: 0, background: '#1e1b4b', borderRadius: '12px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img
+                      key={currentSlide}
+                      src={slides[currentSlide]}
+                      alt={`Slide ${currentSlide + 1}`}
+                      style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
+                    />
+                    {/* Tombol prev */}
+                    {currentSlide > 0 && !activeSlideTrigger && (
+                      <button
+                        onClick={() => { goToSlide(currentSlide - 1); setAutoPlay(false); }}
+                        style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)' }}
+                      >‹</button>
+                    )}
+                    {/* Tombol next */}
+                    {currentSlide < totalSlides - 1 && !activeSlideTrigger && (
+                      <button
+                        onClick={() => { goToSlide(currentSlide + 1); setAutoPlay(false); }}
+                        style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.65)', border: 'none', borderRadius: '50%', width: '52px', height: '52px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '28px', backdropFilter: 'blur(4px)', boxShadow: '0 2px 16px rgba(0,0,0,0.5)' }}
+                      >›</button>
+                    )}
+                    <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: '12px', fontWeight: '600', padding: '4px 12px', borderRadius: '20px', userSelect: 'none' }}>
+                      {currentSlide + 1} / {totalSlides}
+                    </div>
+
+                    {/* OVERLAY KUIS PEMICU SLIDE */}
+                    {activeSlideTrigger && (
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,15,29,0.92)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px', zIndex: 10 }}>
+                        <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                            <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', fontWeight: '700', color: '#b45309' }}>
+                              ⚡ KUIS SLIDE {currentSlide + 1}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#94a3b8' }}>Jawab dulu untuk lanjut ke slide berikutnya</div>
+                          </div>
+                          <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
+                            {activeSlideTrigger.question}
+                          </h4>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                            {(activeSlideTrigger.options || []).map((opt, oi) => {
+                              const letter = String.fromCharCode(65 + oi);
+                              const isSelected = slideTriggerAnswer === letter;
+                              return (
+                                <button
+                                  key={oi}
+                                  onClick={() => setSlideTriggerAnswer(letter)}
+                                  style={{
+                                    padding: '10px 14px', border: isSelected ? '2px solid #b45309' : '1px solid #e2e8f0',
+                                    background: isSelected ? '#fffbeb' : '#f8fafc', color: isSelected ? '#92400e' : '#0f172a',
+                                    borderRadius: '8px', textAlign: 'left', fontSize: '13px',
+                                    cursor: 'pointer', fontWeight: isSelected ? '600' : 'normal'
+                                  }}
+                                >
+                                  <strong>{letter}.</strong> {opt}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <button
+                            onClick={handleSlideTriggerSubmit}
+                            disabled={!slideTriggerAnswer}
+                            style={{
+                              width: '100%', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700', fontSize: '13px',
+                              background: slideTriggerAnswer ? '#b45309' : '#94a3b8',
+                              color: '#fff', cursor: slideTriggerAnswer ? 'pointer' : 'not-allowed'
+                            }}
+                          >
+                            Jawab & Lanjutkan Presentasi ›
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Tombol fullscreen PPT */}
+                  {/* Tombol fullscreen — di luar overflow:hidden, relative ke wrapper */}
                   {!activeSlideTrigger && (
                     <button
                       onClick={togglePresentationFullscreen}
                       title={isFullscreen ? 'Keluar Fullscreen' : 'Fullscreen'}
-                      style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '8px', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 5, backdropFilter: 'blur(4px)' }}
+                      style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(0,0,0,0.6)', border: 'none', borderRadius: '8px', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', zIndex: 20, backdropFilter: 'blur(4px)', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}
                     >
                       {isFullscreen ? (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -617,54 +668,6 @@ export const QuizModal = ({ video, onClose }) => {
                         </svg>
                       )}
                     </button>
-                  )}
-
-                  {/* OVERLAY KUIS PEMICU SLIDE */}
-                  {activeSlideTrigger && (
-                    <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,15,29,0.92)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px', zIndex: 10 }}>
-                      <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                          <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', fontWeight: '700', color: '#b45309' }}>
-                            ⚡ KUIS SLIDE {currentSlide + 1}
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#94a3b8' }}>Jawab dulu untuk lanjut ke slide berikutnya</div>
-                        </div>
-                        <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
-                          {activeSlideTrigger.question}
-                        </h4>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
-                          {(activeSlideTrigger.options || []).map((opt, oi) => {
-                            const letter = String.fromCharCode(65 + oi);
-                            const isSelected = slideTriggerAnswer === letter;
-                            return (
-                              <button
-                                key={oi}
-                                onClick={() => setSlideTriggerAnswer(letter)}
-                                style={{
-                                  padding: '10px 14px', border: isSelected ? '2px solid #b45309' : '1px solid #e2e8f0',
-                                  background: isSelected ? '#fffbeb' : '#f8fafc', color: isSelected ? '#92400e' : '#0f172a',
-                                  borderRadius: '8px', textAlign: 'left', fontSize: '13px',
-                                  cursor: 'pointer', fontWeight: isSelected ? '600' : 'normal'
-                                }}
-                              >
-                                <strong>{letter}.</strong> {opt}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <button
-                          onClick={handleSlideTriggerSubmit}
-                          disabled={!slideTriggerAnswer}
-                          style={{
-                            width: '100%', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700', fontSize: '13px',
-                            background: slideTriggerAnswer ? '#b45309' : '#94a3b8',
-                            color: '#fff', cursor: slideTriggerAnswer ? 'pointer' : 'not-allowed'
-                          }}
-                        >
-                          Jawab & Lanjutkan Presentasi ›
-                        </button>
-                      </div>
-                    </div>
                   )}
                 </div>
 
@@ -689,11 +692,11 @@ export const QuizModal = ({ video, onClose }) => {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, paddingTop: '12px', paddingBottom: '12px' }}>
-                  <span style={{ fontSize: '12px', color: isFullscreen ? '#94a3b8' : 'var(--text3)' }}>
-                    {hasSeenAll ? 'Anda sudah melihat semua slide.' : 'Lanjutkan ke slide terakhir untuk mengaktifkan tombol Selesai.'}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, paddingTop: '12px', paddingBottom: '12px' }}>
+                  <span style={{ fontSize: '12px', color: isFullscreen ? '#94a3b8' : 'var(--text3)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {hasSeenAll ? 'Semua slide selesai.' : 'Tonton hingga slide terakhir.'}
                   </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                     {/* Auto-play controls */}
                     {!activeSlideTrigger && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

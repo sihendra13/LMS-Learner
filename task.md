@@ -1,0 +1,22 @@
+# Tasks
+
+- [x] Install Tailwind CSS & Configure Theme
+  - [x] Install Tailwind packages (`tailwindcss`, `postcss`, `autoprefixer`)
+  - [x] Create and configure `tailwind.config.js` (scoping to `./src/components/mobile/`)
+  - [x] Create `src/mobile.css` with `@tailwind` directives
+- [x] Configure PWA & Base Assets
+  - [x] Create `public/manifest.json`
+  - [x] Create `public/sw.js` (Service Worker caching)
+  - [x] Update `index.html` to link manifest, register service worker, and add Material Symbols font stylesheet
+- [x] Implement Mobile React Components in `src/components/mobile/`
+  - [x] Create `MobileLayout.jsx` (Navigation container)
+  - [x] Create `MobileBeranda.jsx` (Home view with circular progress)
+  - [x] Create `MobileSOPSaya.jsx` (SOP search, filters, list, and start triggers)
+  - [x] Create `MobileSertifikat.jsx` (Certificate grid and DB sync)
+  - [x] Create `MobileProfil.jsx` (Profile details, stats, achievements, and logout)
+- [x] Integrate into Main Application
+  - [x] Modify `src/App.jsx` to load mobile views dynamically based on viewport size
+- [x] Verification and Testing
+  - [x] Test desktop layout remains identical
+  - [x] Test mobile views and data binding
+  - [x] Validate PWA manifest and service worker register status

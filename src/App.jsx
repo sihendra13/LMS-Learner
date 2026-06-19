@@ -5,11 +5,19 @@ import { SOPManager } from './pages/SOPManager';
 import { Certifications } from './pages/Certifications';
 import { QuizModal } from './components/QuizModal';
 import { SyncPanel } from './components/SyncPanel';
+import MobileLayout from './components/mobile/MobileLayout';
 
 const AppContent = () => {
   const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore, tenant } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [syncOpen, setSyncOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Calculate outstanding SOP count (assigned to user's dept, progress < 100 or quiz not passed)
   const outstandingCount = videos.filter(v => {
@@ -31,6 +39,28 @@ const AppContent = () => {
         return <Dashboard onSelectVideo={setSelectedVideo} />;
     }
   };
+
+  if (isMobile) {
+    return (
+      <>
+        <MobileLayout onSelectVideo={setSelectedVideo} onOpenSync={() => setSyncOpen(true)} />
+        
+        {/* SOP INTERACTIVE MODAL WIZARD */}
+        {selectedVideo && (
+          <QuizModal 
+            video={selectedVideo} 
+            onClose={() => setSelectedVideo(null)} 
+          />
+        )}
+
+        {/* SYNC TOOL MODAL */}
+        <SyncPanel 
+          isOpen={syncOpen} 
+          onClose={() => setSyncOpen(false)} 
+        />
+      </>
+    );
+  }
 
   return (
     <>
