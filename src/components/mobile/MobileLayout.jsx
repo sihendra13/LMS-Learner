@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import MobileBeranda from './MobileBeranda';
 import MobileSOPSaya from './MobileSOPSaya';
@@ -8,16 +8,6 @@ import MobileProfil from './MobileProfil';
 const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
   const { currentUser, tenant, videos, quizSubmissions, passingScore } = useTenant();
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'sop' | 'certificates' | 'profile'
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-
-  // Monitor resize events to accurately track simulated device viewport heights
-  useEffect(() => {
-    const handleResize = () => {
-      setViewportHeight(window.innerHeight);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   // Calculate outstanding SOP count
   const outstandingCount = videos.filter(v => {
@@ -44,33 +34,22 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
 
   return (
     <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
+      width: '100%',
+      minHeight: '100vh',
       background: 'var(--surface2)',
       color: 'var(--text1)',
       fontFamily: "'Plus Jakarta Sans', sans-serif",
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'hidden'
+      position: 'relative'
     }}>
-      {/* Inject mobile-only CSS overrides to align browser viewport container */}
-      <style>{`
-        html, body, #root {
-          height: 100vh !important;
-          min-height: 100vh !important;
-          overflow: hidden !important;
-          width: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-      `}</style>
-
-      {/* MOBILE TOPBAR */}
+      {/* MOBILE TOPBAR (Sticky at top) */}
       <header style={{
+        position: 'sticky',
+        top: 0,
+        left: 0,
+        width: '100%',
         height: '56px',
         background: 'var(--surface)',
         borderBottom: '1px solid var(--border)',
@@ -103,19 +82,22 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
         </div>
       </header>
 
-      {/* Scrollable Content Container */}
+      {/* Content wrapper with padding-bottom to prevent fixed bottom navbar from overlaying the last element */}
       <main style={{
         flex: 1,
         width: '100%',
         boxSizing: 'border-box',
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch'
+        paddingBottom: '80px'
       }}>
         {renderContent()}
       </main>
 
-      {/* MOBILE BOTTOM NAVBAR */}
+      {/* MOBILE BOTTOM NAVBAR (Fixed at bottom of mobile screen) */}
       <nav style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        width: '100%',
         height: '60px',
         background: 'var(--surface)',
         borderTop: '1px solid var(--border)',
@@ -123,9 +105,8 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
         justifyContent: 'space-around',
         alignItems: 'center',
         boxSizing: 'border-box',
-        zIndex: 1100,
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
-        flexShrink: 0
+        zIndex: 1200,
+        boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'
       }}>
         <button
           onClick={() => setActiveTab('home')}
