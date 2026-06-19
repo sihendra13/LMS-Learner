@@ -202,6 +202,31 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
         </div>
       </div>
 
+      {/* Aktivitas Belajar Terbaru */}
+      <div className="card">
+        <div className="card-head" style={{ padding: '12px 16px' }}>
+          <div className="card-title" style={{ fontSize: '13px' }}>Aktivitas Belajar Terbaru</div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '6px 0' }}>
+          {recentActivities.map((act) => (
+            <div key={act.id} style={{ display: 'flex', gap: '10px', padding: '10px 16px', borderBottom: '1px solid var(--border)', alignItems: 'flex-start' }}>
+              <div style={{ 
+                width: '6px', 
+                height: '6px', 
+                borderRadius: '50%', 
+                background: act.type === 'green' ? 'var(--green)' : act.type === 'blue' ? 'var(--accent)' : act.type === 'purple' ? 'var(--purple)' : 'var(--amber)',
+                marginTop: '5px',
+                flexShrink: 0
+              }} />
+              <div>
+                <div style={{ fontSize: '11px', color: 'var(--text2)', lineHeight: '1.4' }} dangerouslySetInnerHTML={{ __html: act.text }} />
+                <div style={{ fontSize: '9px', color: 'var(--text3)', marginTop: '2px' }}>{act.time}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Peringkat Tim */}
       <div className="card">
         <div className="card-head" style={{ padding: '12px 16px' }}>

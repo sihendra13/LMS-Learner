@@ -6,6 +6,7 @@ const MobileSertifikat = ({ onOpenSync }) => {
   const [activeTab, setActiveTab] = useState('sertifikat');
   const [syncing, setSyncing] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState(false);
+  const [previewCert, setPreviewCert] = useState(null);
 
   const mySubmissions = quizSubmissions.filter(s => s.employeeName === currentUser.name);
 
@@ -146,11 +147,11 @@ const MobileSertifikat = ({ onOpenSync }) => {
                   </div>
                   <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                     <button
-                      onClick={() => alert(`Unduh simulasi PDF untuk: ${cert.videoTitle}`)}
+                      onClick={() => setPreviewCert(cert)}
                       className="btn-sec"
-                      style={{ fontSize: '11px', padding: '4px 10px', width: '100%' }}
+                      style={{ fontSize: '11px', padding: '6px 10px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                     >
-                      📥 Unduh Sertifikat (PDF)
+                      👁 Lihat Sertifikat
                     </button>
                   </div>
                 </div>
@@ -174,6 +175,9 @@ const MobileSertifikat = ({ onOpenSync }) => {
               {mySubmissions.map((sub) => {
                 const status = certStatusLabel(sub);
                 const isRemedial = sub.certStatus === 'remedial';
+                const retakeCount = sub.retakeCount || 0;
+                const canRetake = isRemedial && retakeCount < MAX_RETAKES;
+                const maxReached = isRemedial && retakeCount >= MAX_RETAKES;
                 
                 return (
                   <div key={sub.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
@@ -193,19 +197,66 @@ const MobileSertifikat = ({ onOpenSync }) => {
                     </div>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text1)' }}>{sub.videoTitle}</div>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                      <div style={{ fontSize: '11px', color: 'var(--text2)' }}>
-                        Skor: <strong style={{ color: sub.postScore >= passingScore ? 'var(--green)' : 'var(--red)' }}>{sub.postScore}%</strong> 
-                        <span style={{ color: 'var(--text3)', marginLeft: '6px' }}> (Pre-test: {sub.preScore || 0}%)</span>
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginTop: '2px' }}>
+                      <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                        Pre-Test: <strong style={{ color: sub.preScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.preScore ?? '—'}%</strong>
+                      </span>
+                      <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                        Post-Test: <strong style={{ color: sub.postScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.postScore ?? '—'}%</strong>
+                      </span>
+                      {retakeCount > 0 && (
+                        <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px' }}>
+                          Percobaan ke-{retakeCount + 1} dari {MAX_RETAKES}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Remedial note from supervisor */}
+                    {isRemedial && sub.supervisorNote && (
+                      <div style={{ fontSize: '11px', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '6px 10px', marginTop: '4px', lineHeight: '1.5' }}>
+                        💬 <strong>Catatan Supervisor:</strong> {sub.supervisorNote}
                       </div>
-                      
-                      {isRemedial && (
+                    )}
+                    {/* Rejected note from HRD */}
+                    {sub.certStatus === 'rejected' && sub.rejectionNote && (
+                      <div style={{ fontSize: '11px', color: '#b91c1c', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 10px', marginTop: '4px', lineHeight: '1.5' }}>
+                        ⛔ <strong>Alasan Penolakan:</strong> {sub.rejectionNote}
+                      </div>
+                    )}
+                    {/* Max retake warning */}
+                    {maxReached && (
+                      <div style={{ fontSize: '11px', color: '#b91c1c', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 10px', marginTop: '4px', lineHeight: '1.5' }}>
+                        ⚠️ Batas maksimal {MAX_RETAKES}x percobaan telah tercapai. Hubungi HRD untuk tindak lanjut.
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '4px' }}>
+                      {sub.certStatus === 'approved' && (() => {
+                        const cert = certificates.find(c => c.videoTitle === sub.videoTitle);
+                        return cert ? (
+                          <button
+                            onClick={() => setPreviewCert(cert)}
+                            style={{
+                              padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '700',
+                              background: '#f0fdf4', border: '1px solid #86efac', color: '#15803d',
+                              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                            }}
+                          >
+                            🏆 Lihat Sertifikat
+                          </button>
+                        ) : null;
+                      })()}
+                      {canRetake && (
                         <button
                           onClick={() => handleRetake(sub)}
-                          className="btn-primary"
-                          style={{ fontSize: '11px', padding: '4px 10px' }}
+                          style={{
+                            padding: '6px 14px', borderRadius: '8px', fontSize: '11px', fontWeight: '700',
+                            background: '#fff7ed', border: '1px solid #fed7aa', color: '#b45309',
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px'
+                          }}
                         >
-                          Mengulang Kuis
+                          ↩ Kerjakan Ulang
+                          <span style={{ fontSize: '10px', color: '#92400e', fontWeight: '400' }}>({retakeCount}/{MAX_RETAKES})</span>
                         </button>
                       )}
                     </div>
@@ -247,6 +298,84 @@ const MobileSertifikat = ({ onOpenSync }) => {
           {syncing ? 'Menyinkronkan...' : syncSuccess ? 'Berhasil Disinkronkan ✓' : 'Sinkronkan State Database'}
         </button>
       </div>
+
+      {/* CERTIFICATE PREVIEW MODAL */}
+      {previewCert && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
+          display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999
+        }} onClick={() => setPreviewCert(null)}>
+          <div style={{
+            background: '#ffffff', padding: '20px 16px', borderRadius: '16px',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', width: '90%',
+            maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto', position: 'relative'
+          }} onClick={e => e.stopPropagation()}>
+            <button
+              style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }}
+              onClick={() => setPreviewCert(null)}
+            >✕</button>
+
+            <div className="print-area" style={{
+              border: '6px double #0f172a',
+              padding: '16px', textAlign: 'center', background: '#fefefe',
+              borderRadius: '8px', fontFamily: "'Plus Jakarta Sans', serif",
+              position: 'relative', overflow: 'hidden'
+            }}>
+              <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
+              {tenant?.logo ? (
+                <div style={{ marginBottom: '12px' }}>
+                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
+                </div>
+              ) : (
+                <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text3)', marginBottom: '12px' }}>
+                  🏢 {tenant?.name || 'PT Maju Bersama'} · Corporate LMS
+                </div>
+              )}
+              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '0.5px' }}>
+                SERTIFIKAT KELULUSAN
+              </h1>
+              <div style={{ width: '40px', height: '2px', background: '#0f172a', margin: '0 auto 16px auto' }} />
+              <p style={{ fontSize: '10px', color: 'var(--text3)', margin: '0 0 12px 0', fontStyle: 'italic' }}>
+                Dengan ini secara resmi menyatakan dan menganugerahkan penghargaan kepada:
+              </p>
+              <h2 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '8px 0', textDecoration: 'underline' }}>
+                {previewCert.employeeName}
+              </h2>
+              <p style={{ fontSize: '10px', color: 'var(--text3)', margin: '10px auto', maxWidth: '320px', lineHeight: '1.5' }}>
+                Atas kelulusan luar biasa dan kompetensi penuh yang ditunjukkan dalam menyelesaikan pelatihan materi video standar perusahaan:
+              </p>
+              <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--accent)', margin: '8px 0 20px 0' }}>
+                {previewCert.videoTitle}
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px', alignItems: 'stretch', position: 'relative', zIndex: 2, borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                <div style={{ textAlign: 'left', fontSize: '10px', color: 'var(--text2)' }}>
+                  <div style={{ marginBottom: '3px' }}><strong>ID Sertifikat:</strong> {previewCert.id}</div>
+                  <div style={{ marginBottom: '3px' }}><strong>Tanggal Terbit:</strong> {previewCert.issueDate}</div>
+                  <div style={{ marginBottom: '3px' }}><strong>Masa Berlaku:</strong> {previewCert.expiryDate}</div>
+                  <div><strong>Skor Kuis:</strong> <span style={{ color: 'var(--green)', fontWeight: '600' }}>{previewCert.score}%</span></div>
+                </div>
+                <div style={{ textAlign: 'center', marginTop: '10px', borderTop: '1px dashed var(--border)', paddingTop: '10px' }}>
+                  <div style={{ fontFamily: 'cursive', fontSize: '16px', color: '#1e3a8a', height: '25px', lineHeight: '25px' }}>
+                    {previewCert.approvedBy}
+                  </div>
+                  <div style={{ width: '100px', height: '1px', background: 'var(--border)', margin: '4px auto' }} />
+                  <div style={{ fontSize: '9px', color: 'var(--text3)', fontWeight: '600', textTransform: 'uppercase' }}>
+                    HR Manager, {tenant?.name || 'PT Maju Bersama'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '16px' }}>
+              <button className="btn-sec" style={{ fontSize: '11px', padding: '6px 12px' }} onClick={() => setPreviewCert(null)}>Tutup</button>
+              <button className="btn-primary" style={{ background: '#002D72', fontSize: '11px', padding: '6px 12px' }} onClick={() => window.print()}>
+                🖨️ Cetak / Simpan PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
