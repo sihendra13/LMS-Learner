@@ -255,8 +255,8 @@ export const QuizModal = ({ video, onClose }) => {
 
   const handlePreSubmit = () => {
     let correct = 0;
-    regularPreQuizzes.forEach(q => {
-      if (preAnswers[q.id] === q.answer) correct++;
+    regularPreQuizzes.forEach((q, idx) => {
+      if (preAnswers[idx] === q.answer) correct++;
     });
     const calculatedScore = regularPreQuizzes.length > 0 ? Math.round((correct / regularPreQuizzes.length) * 100) : 100;
     setPreScore(calculatedScore);
@@ -268,10 +268,10 @@ export const QuizModal = ({ video, onClose }) => {
     const isEssayQuiz = regularPostQuizzes.some(q => q.isEssay || q.type === 'essay');
 
     if (isEssayQuiz) {
-      const essayQuestions = regularPostQuizzes.map(q => ({
+      const essayQuestions = regularPostQuizzes.map((q, idx) => ({
         id: q.id,
         question: q.question,
-        answer: postAnswers[q.id] || '',
+        answer: postAnswers[idx] || '',
         score: null
       }));
 
@@ -290,8 +290,8 @@ export const QuizModal = ({ video, onClose }) => {
       setStep('result');
     } else {
       let correct = 0;
-      regularPostQuizzes.forEach(q => {
-        if (postAnswers[q.id] === q.answer) correct++;
+      regularPostQuizzes.forEach((q, idx) => {
+        if (postAnswers[idx] === q.answer) correct++;
       });
       const calculatedScore = regularPostQuizzes.length > 0 ? Math.round((correct / regularPostQuizzes.length) * 100) : 100;
       setPostScore(calculatedScore);
@@ -344,7 +344,7 @@ export const QuizModal = ({ video, onClose }) => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {regularPreQuizzes.map((q, idx) => (
-                    <div key={q.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                    <div key={idx} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
                       <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
                       </h4>
@@ -353,18 +353,18 @@ export const QuizModal = ({ video, onClose }) => {
                           className="form-input"
                           style={{ height: '80px', resize: 'none', background: '#fff', fontSize: '14px' }}
                           placeholder="Ketik jawaban esai Anda di sini..."
-                          value={preAnswers[q.id] || ''}
-                          onChange={e => setPreAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                          value={preAnswers[idx] || ''}
+                          onChange={e => setPreAnswers(prev => ({ ...prev, [idx]: e.target.value }))}
                         />
                       ) : (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                           {q.options.map((option, optIdx) => {
                             const optionChar = String.fromCharCode(65 + optIdx);
-                            const isSelected = preAnswers[q.id] === optionChar || preAnswers[q.id] === option;
+                            const isSelected = preAnswers[idx] === optionChar;
                             return (
                               <button
                                 key={optIdx}
-                                onClick={() => setPreAnswers(prev => ({ ...prev, [q.id]: optionChar }))}
+                                onClick={() => setPreAnswers(prev => ({ ...prev, [idx]: optionChar }))}
                                 style={{
                                   padding: '10px 14px',
                                   border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
@@ -1253,7 +1253,7 @@ export const QuizModal = ({ video, onClose }) => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   {regularPostQuizzes.map((q, idx) => (
-                    <div key={q.id} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                    <div key={idx} style={{ background: '#f8fafc', padding: '16px', borderRadius: '10px', border: '1px solid var(--border)' }}>
                       <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text1)', marginBottom: '12px' }}>
                         {idx + 1}. {q.question}
                       </h4>
@@ -1262,18 +1262,18 @@ export const QuizModal = ({ video, onClose }) => {
                           className="form-input"
                           style={{ height: '80px', resize: 'none', background: '#fff', fontSize: '14px' }}
                           placeholder="Ketik jawaban esai lengkap Anda di sini..."
-                          value={postAnswers[q.id] || ''}
-                          onChange={e => setPostAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                          value={postAnswers[idx] || ''}
+                          onChange={e => setPostAnswers(prev => ({ ...prev, [idx]: e.target.value }))}
                         />
                       ) : (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                           {q.options.map((option, optIdx) => {
                             const optionChar = String.fromCharCode(65 + optIdx);
-                            const isSelected = postAnswers[q.id] === optionChar || postAnswers[q.id] === option;
+                            const isSelected = postAnswers[idx] === optionChar;
                             return (
                               <button
                                 key={optIdx}
-                                onClick={() => setPostAnswers(prev => ({ ...prev, [q.id]: optionChar }))}
+                                onClick={() => setPostAnswers(prev => ({ ...prev, [idx]: optionChar }))}
                                 style={{
                                   padding: '10px 14px',
                                   border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
