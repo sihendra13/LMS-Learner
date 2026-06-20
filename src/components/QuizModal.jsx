@@ -331,8 +331,8 @@ export const QuizModal = ({ video, onClose }) => {
           
           {/* STEP: PRE-TEST */}
           {step === 'pre-test' && (
-            <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
+            <div style={{ flex: 1, overflowY: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--accent)', textTransform: 'uppercase' }}>📝 PRE-TEST KUIS</span>
                   <span style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600' }}>{isPpt ? 'Selesaikan sebelum melihat presentasi' : 'Selesaikan sebelum menonton video'}</span>
@@ -386,18 +386,19 @@ export const QuizModal = ({ video, onClose }) => {
               </div>
 
               <div style={{ 
+                flexShrink: 0,
                 display: 'flex', 
                 flexDirection: isMobile ? 'column' : 'row', 
                 justifyContent: isMobile ? 'center' : 'flex-end', 
                 alignItems: isMobile ? 'stretch' : 'center', 
-                marginTop: '20px', 
                 borderTop: '1px solid var(--border)', 
-                paddingTop: '16px',
-                paddingBottom: isMobile ? '24px' : '0',
-                gap: isMobile ? '12px' : '0'
+                padding: isMobile ? '16px' : '16px 24px',
+                background: '#fff',
+                gap: isMobile ? '12px' : '0',
+                zIndex: 10
               }}>
                 {preSubmitted ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--green)', fontWeight: '600', fontSize: '13px', textAlign: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--green)', fontWeight: '600', fontSize: '13px', textAlign: 'center', justifyContent: 'center', width: '100%' }}>
                     ✓ Pre-Test Selesai (Skor: {preScore}%)! Membuka Video...
                   </div>
                 ) : (
@@ -1169,8 +1170,8 @@ export const QuizModal = ({ video, onClose }) => {
 
           {/* STEP: POST-TEST */}
           {step === 'post-test' && (
-            <div style={{ flex: 1, padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <div>
+            <div style={{ flex: 1, overflowY: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                   <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--accent)', textTransform: 'uppercase' }}>📝 POST-TEST EVALUASI</span>
                   <span style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600' }}>
@@ -1226,12 +1227,13 @@ export const QuizModal = ({ video, onClose }) => {
               </div>
 
               <div style={{ 
+                flexShrink: 0,
                 display: 'flex', 
                 justifyContent: isMobile ? 'center' : 'flex-end', 
-                marginTop: '20px', 
                 borderTop: '1px solid var(--border)', 
-                paddingTop: '16px',
-                paddingBottom: isMobile ? '24px' : '0'
+                padding: isMobile ? '16px' : '16px 24px',
+                background: '#fff',
+                zIndex: 10
               }}>
                 <button
                   className="btn-primary"
