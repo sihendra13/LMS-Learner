@@ -791,9 +791,9 @@ export const QuizModal = ({ video, onClose }) => {
             return (
               <div ref={presentationRef} className="presentation-player-container" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '0px' : '16px 0px 0px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
                 {/* Scrollable content: slide + thumbnail + narasi. Toolbar is OUTSIDE this div so it's always visible */}
-                <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column', WebkitOverflowScrolling: 'touch', paddingLeft: isFullscreen ? '0px' : (isMobile ? '16px' : '24px'), paddingRight: isFullscreen ? '0px' : (isMobile ? '16px' : '24px') }}>
+                <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column', WebkitOverflowScrolling: 'touch', padding: 0 }}>
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
-                <div style={{ flex: 1, position: 'relative', minHeight: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? '160px' : '220px') : '360px') }}>
+                <div style={{ flex: 1, position: 'relative', minHeight: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? '160px' : '220px') : '360px'), marginLeft: isFullscreen ? '0px' : (isMobile ? '16px' : '24px'), marginRight: isFullscreen ? '0px' : (isMobile ? '16px' : '24px') }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
                   <div 
                     onTouchStart={handleTouchStart}
@@ -940,7 +940,7 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
 
                 {/* Thumbnail strip */}
-                <div style={{ overflowX: 'auto', flexShrink: 0, padding: '10px 0', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+                <div style={{ overflowX: 'auto', flexShrink: 0, padding: '10px 0', WebkitOverflowScrolling: 'touch', width: 'auto', marginLeft: isFullscreen ? '0px' : (isMobile ? '16px' : '24px'), marginRight: isFullscreen ? '0px' : (isMobile ? '16px' : '24px') }}>
                   <div style={{ display: 'flex', gap: '6px', width: 'max-content' }}>
                     {slides.map((url, i) => (
                       <button
@@ -970,7 +970,7 @@ export const QuizModal = ({ video, onClose }) => {
                   const hasAudio = (mode === 'audio' || mode === 'keduanya') && narasi.audioUrl;
                   if (!hasTeks && !hasAudio) return null;
                   return (
-                    <div style={{ margin: '8px 0', padding: '12px 16px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: '10px', flexShrink: 0 }}>
+                    <div style={{ margin: isMobile ? '8px 16px' : '8px 24px', padding: '12px 16px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: '10px', flexShrink: 0 }}>
                       <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', marginBottom: '8px', letterSpacing: '0.05em' }}>
                         🎙️ NARASI SLIDE {currentSlide + 1}
                       </div>
@@ -1004,8 +1004,8 @@ export const QuizModal = ({ video, onClose }) => {
                   borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`,
                   paddingTop: '12px',
                   paddingBottom: '16px',
-                  paddingLeft: isFullscreen ? '24px' : (isMobile ? '16px' : '24px'),
-                  paddingRight: isFullscreen ? '24px' : (isMobile ? '16px' : '24px')
+                  paddingLeft: isMobile ? '16px' : '24px',
+                  paddingRight: isMobile ? '16px' : '24px'
                 }}>
                   <div style={{ 
                     fontSize: '12px', 
