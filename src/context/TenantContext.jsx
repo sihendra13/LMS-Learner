@@ -2,6 +2,29 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getDB, saveDB } from '../utils/db';
 import { supabase } from '../utils/supabase';
 
+const fromDbRow = (row) => ({
+  id: row.id,
+  title: row.title,
+  dept: row.dept,
+  duration: row.duration,
+  deadline: row.deadline || null,
+  progress: row.progress || 0,
+  views: row.views || 0,
+  color: row.color || '#1e3a5f',
+  tagClass: row.tag_class || 'dt-sales',
+  type: row.type || 'video',
+  videoUrl: row.video_url || null,
+  filePath: row.file_path || null,
+  slideImages: row.slide_images || null,
+  slideCount: row.slide_count || null,
+  preQuizzes: row.pre_quizzes || [],
+  postQuizzes: row.post_quizzes || [],
+  triggerQuizzes: row.trigger_quizzes || null,
+  narasiMode: row.narasi_mode || null,
+  slideNarasi: row.slide_narasi || null,
+  archived: row.archived || false,
+});
+
 const TenantContext = createContext();
 
 export const useTenant = () => {
@@ -35,6 +58,7 @@ export const TenantProvider = ({ children }) => {
   const [db, setDb] = useState(() => getDB());
   const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'sop' | 'sertifikasi' | 'peringkat'
   const [quizSubmissions, setQuizSubmissions] = useState([]);
+  const [videos, setVideos] = useState([]);
 
   useEffect(() => {
     saveDB(db);
@@ -75,16 +99,33 @@ export const TenantProvider = ({ children }) => {
     return () => supabase.removeChannel(channel);
   }, [db.currentUser?.name]);
 
+  // Supabase: fetch SOP videos (video & PPT) + realtime sync
+  useEffect(() => {
+    const fetchVideos = async () => {
+      const { data } = await supabase
+        .from('sop_videos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (data) setVideos(data.map(fromDbRow));
+    };
+
+    fetchVideos();
+
+    const channel = supabase
+      .channel('learner_sop_videos')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sop_videos' }, fetchVideos)
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  }, []);
+
   const updateProgress = (videoId, newProgress) => {
-    setDb(prev => {
-      const updatedVideos = prev.videos.map(v => {
-        if (v.id === videoId) {
-          return { ...v, progress: Math.max(v.progress, newProgress) };
-        }
-        return v;
-      });
-      return { ...prev, videos: updatedVideos };
-    });
+    setVideos(prev => prev.map(v => {
+      if (v.id !== videoId) return v;
+      const updated = Math.max(v.progress, newProgress);
+      supabase.from('sop_videos').update({ progress: updated }).eq('id', videoId);
+      return { ...v, progress: updated };
+    }));
   };
 
   const addSubmission = async (submission) => {
@@ -174,11 +215,9 @@ export const TenantProvider = ({ children }) => {
       retake_count: newRetakeCount,
     }).eq('id', submissionId);
 
-    // Reset video progress in localStorage
-    setDb(prev => ({
-      ...prev,
-      videos: prev.videos.map(v => v.id === videoId ? { ...v, progress: 0 } : v),
-    }));
+    // Reset video progress in Supabase + local state
+    setVideos(prev => prev.map(v => v.id === videoId ? { ...v, progress: 0 } : v));
+    supabase.from('sop_videos').update({ progress: 0 }).eq('id', videoId);
 
     // Optimistic update (realtime will also sync)
     setQuizSubmissions(prev => prev.map(s =>
@@ -194,20 +233,19 @@ export const TenantProvider = ({ children }) => {
   const importDBString = (jsonStr) => {
     try {
       const parsed = JSON.parse(jsonStr);
-      if (parsed && typeof parsed === 'object' && parsed.videos) {
+      if (parsed && typeof parsed === 'object') {
         // Simpan logo ke localStorage terpisah agar tidak bloat DB
         if (parsed.tenant?.logo) {
           try { localStorage.setItem('axara_lms_logo', parsed.tenant.logo); } catch {}
           setTenant(prev => ({ ...prev, ...parsed.tenant }));
         }
-        // Selective merge — only update non-quiz data (quizSubmissions now lives in Supabase)
+        // Selective merge — videos sekarang dari Supabase, tidak perlu di-import
         setDb(prev => ({
           ...prev,
           ...(parsed.tenant && { tenant: { ...parsed.tenant, logo: undefined } }),
           ...(parsed.passingScore !== undefined && { passingScore: parsed.passingScore }),
           ...(parsed.validityMonths !== undefined && { validityMonths: parsed.validityMonths }),
           ...(parsed.employees && { employees: parsed.employees }),
-          ...(parsed.videos && { videos: parsed.videos }),
           ...(parsed.pendingEssays && { pendingEssays: parsed.pendingEssays }),
           ...(parsed.activities && { activities: parsed.activities }),
         }));
@@ -235,7 +273,7 @@ export const TenantProvider = ({ children }) => {
     <TenantContext.Provider value={{
       currentUser: db.currentUser,
       employees: db.employees,
-      videos: db.videos,
+      videos,
       quizSubmissions,
       pendingEssays: db.pendingEssays,
       activities: db.activities,
