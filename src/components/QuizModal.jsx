@@ -326,7 +326,7 @@ export const QuizModal = ({ video, onClose }) => {
   };
 
   return (
-    <div className="wizard-modal" onClick={handleClose}>
+    <div className="wizard-modal">
       <div className="wizard-card" onClick={e => e.stopPropagation()}>
         {/* Wizard Header */}
         <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
