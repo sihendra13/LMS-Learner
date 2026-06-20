@@ -61,6 +61,9 @@ export const QuizModal = ({ video, onClose }) => {
   const [postSubmitted, setPostSubmitted] = useState(false);
   const [postScore, setPostScore] = useState(0);
 
+  const [isAckHovered, setIsAckHovered] = useState(false);
+  const [isResultHovered, setIsResultHovered] = useState(false);
+
   const [videoError, setVideoError] = useState(false);
   const [triggerToast, setTriggerToast] = useState(false);
 
@@ -1172,24 +1175,66 @@ export const QuizModal = ({ video, onClose }) => {
           {/* STEP: ACKNOWLEDGE */}
           {step === 'acknowledge' && (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '32px 24px', textAlign: 'center' }}>
-              <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
-                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{
+                width: '72px',
+                height: '72px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '24px',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)'
+              }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 </svg>
               </div>
-              <div style={{ fontSize: '17px', fontWeight: '700', color: '#1e293b', marginBottom: '10px' }}>Konfirmasi Pemahaman Materi</div>
-              <div style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.7', marginBottom: '28px', maxWidth: '340px' }}>
+              <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text1)', marginBottom: '10px' }}>Konfirmasi Pemahaman Materi</div>
+              <div style={{ fontSize: '13.5px', color: 'var(--text2)', lineHeight: '1.7', marginBottom: '28px', maxWidth: '380px' }}>
                 Dengan melanjutkan, saya menyatakan telah menonton dan memahami materi:<br />
-                <strong style={{ color: '#1e293b' }}>"{video.title}"</strong>
+                <div style={{
+                  background: 'var(--surface2)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  padding: '10px 14px',
+                  marginTop: '12px',
+                  fontWeight: '600',
+                  color: 'var(--text1)',
+                  fontSize: '13px'
+                }}>
+                  "{video.title}"
+                </div>
               </div>
               <button
                 className="btn-primary"
                 onClick={() => setStep(hasPostTest ? 'post-test' : 'result')}
-                style={{ background: '#2563eb', borderColor: '#2563eb', padding: '12px 32px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}
+                style={{
+                  background: isAckHovered ? 'var(--accent)' : 'var(--navy)',
+                  borderColor: isAckHovered ? 'var(--accent)' : 'var(--navy)',
+                  padding: '12px 32px',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  width: isMobile ? '100%' : 'auto',
+                  borderRadius: '8px',
+                  color: '#ffffff',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isAckHovered ? '0 4px 12px rgba(47, 123, 255, 0.25)' : 'none'
+                }}
+                onMouseEnter={() => setIsAckHovered(true)}
+                onMouseLeave={() => setIsAckHovered(false)}
               >
-                ✓ Saya Konfirmasi & Lanjutkan
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Saya Konfirmasi & Lanjutkan
               </button>
-              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '14px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '16px' }}>
                 Pernyataan ini dicatat sebagai bukti kehadiran pelatihan Anda.
               </div>
             </div>
@@ -1284,18 +1329,42 @@ export const QuizModal = ({ video, onClose }) => {
           {/* STEP: RESULT SCREEN */}
           {step === 'result' && (
             <div style={{ flex: 1, padding: '36px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-              <div style={{ fontSize: '64px', marginBottom: '14px' }}>⏳</div>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '20px',
+                boxShadow: '0 4px 14px rgba(245, 158, 11, 0.15)'
+              }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 2h14M5 22h14M19 2v4a7 7 0 0 1-7 7 7 7 0 0 1-7-7V2M5 22v-4a7 7 0 0 1 7-7 7 7 0 0 1 7 7v4" />
+                </svg>
+              </div>
               <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text1)', marginBottom: '8px' }}>
                 {postScore === null ? 'Jawaban Berhasil Dikirim!' : `Kuis Selesai — Skor Anda: ${postScore}%`}
               </h3>
 
               {/* Pending verification notice */}
               <div style={{
-                background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px',
-                padding: '16px 20px', maxWidth: '420px', marginBottom: '20px', textAlign: 'left'
+                background: 'linear-gradient(to bottom right, #fffdf5, #fffbeb)',
+                border: '1px solid #fde68a',
+                borderRadius: '12px',
+                padding: '18px 22px',
+                maxWidth: '440px',
+                marginBottom: '24px',
+                textAlign: 'left',
+                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.05)'
               }}>
-                <div style={{ fontWeight: '700', fontSize: '13px', color: '#92400e', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  🔍 Menunggu Verifikasi HRD
+                <div style={{ fontWeight: '700', fontSize: '13px', color: '#92400e', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  Menunggu Verifikasi HRD
                 </div>
                 <p style={{ fontSize: '12px', color: '#78350f', lineHeight: '1.6', margin: 0 }}>
                   {postScore === null
@@ -1310,7 +1379,7 @@ export const QuizModal = ({ video, onClose }) => {
                 <div style={{
                   display: 'inline-flex', gap: '24px', padding: '12px 24px',
                   background: '#f8fafc', border: '1px solid var(--border)', borderRadius: '10px',
-                  marginBottom: '20px'
+                  marginBottom: '24px'
                 }}>
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '2px' }}>Skor Kuis</div>
@@ -1326,7 +1395,24 @@ export const QuizModal = ({ video, onClose }) => {
                 </div>
               )}
 
-              <button className="btn-primary" onClick={onClose} style={{ padding: '10px 32px', background: '#002D72' }}>
+              <button
+                className="btn-primary"
+                onClick={onClose}
+                style={{
+                  padding: '12px 36px',
+                  background: isResultHovered ? 'var(--accent)' : 'var(--navy)',
+                  borderColor: isResultHovered ? 'var(--accent)' : 'var(--navy)',
+                  color: '#ffffff',
+                  fontWeight: '700',
+                  fontSize: '14px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  boxShadow: isResultHovered ? '0 4px 12px rgba(47, 123, 255, 0.25)' : 'none'
+                }}
+                onMouseEnter={() => setIsResultHovered(true)}
+                onMouseLeave={() => setIsResultHovered(false)}
+              >
                 Kembali ke Beranda
               </button>
             </div>
