@@ -118,28 +118,45 @@ export const SOPManager = ({ onSelectVideo }) => {
                         </span>
                       )}
                     </div>
+
                     {(() => {
                       if (!video.deadline || isCompleted) return null;
                       const today = new Date(); today.setHours(0,0,0,0);
                       const dl = new Date(video.deadline);
                       const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
                       if (diff < 0) return (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fef2f2', color: '#ef4444', padding: '2px 8px', borderRadius: '4px' }}>
-                          ⚠️ Deadline terlewat
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fef2f2', border: '1px solid #fee2e2', color: '#ef4444', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                          Deadline terlewat
                         </span>
                       );
                       if (diff <= 3) return (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: '4px' }}>
-                          🔔 Deadline {diff === 0 ? 'hari ini' : `${diff} hari lagi`}
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fffbeb', border: '1px solid #fef3c7', color: '#d97706', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                          Deadline {diff === 0 ? 'hari ini' : `${diff} hari lagi`}
                         </span>
                       );
                       if (diff <= 7) return (
-                        <span style={{ fontSize: '11px', fontWeight: '600', background: '#fffbeb', color: '#b45309', padding: '2px 8px', borderRadius: '4px' }}>
-                          📅 Deadline {diff} hari lagi
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fffaf8', border: '1px solid #ffedd5', color: '#ea580c', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                          </svg>
+                          Deadline {diff} hari lagi
                         </span>
                       );
                       return null;
                     })()}
+
                     <div className="sop-title" style={{ fontSize: '14px', fontWeight: '600', marginTop: '6px', marginBottom: '6px' }}>{video.title}</div>
                     
                     <div className="sop-prog">
