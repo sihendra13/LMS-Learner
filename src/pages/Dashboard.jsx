@@ -72,31 +72,54 @@ export const Dashboard = ({ onSelectVideo }) => {
         </div>
       </div>
 
-      {/* STATS ROW */}
       <div className="stats-row">
         <div className="stat-mini">
-          <div className="stat-ic blue">📚</div>
+          <div className="stat-ic blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val">{totalMandatory}</div>
             <div className="s-lbl">SOP wajib divisi</div>
           </div>
         </div>
         <div className="stat-mini">
-          <div className="stat-ic green">✓</div>
+          <div className="stat-ic green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val">{completedMandatory}</div>
             <div className="s-lbl">Sudah lulus kuis</div>
           </div>
         </div>
         <div className="stat-mini">
-          <div className="stat-ic amber">⏳</div>
+          <div className="stat-ic amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 2h14"/>
+              <path d="M5 22h14"/>
+              <path d="M19 2v4c0 3-2 5-5 7 3 2 5 4 5 7v4"/>
+              <path d="M5 2v4c0 3 2 5 5 7-3 2-5 4-5 7v4"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val" style={{ color: 'var(--amber)' }}>{ongoingMandatory + newMandatory}</div>
             <div className="s-lbl">Tersisa / Belum Selesai</div>
           </div>
         </div>
         <div className="stat-mini">
-          <div className="stat-ic purple">🏆</div>
+          <div className="stat-ic purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+              <path d="M4 22h16"/>
+              <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"/>
+              <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val">{totalCertificates}</div>
             <div className="s-lbl">Sertifikat aktif</div>

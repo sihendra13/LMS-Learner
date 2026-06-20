@@ -85,28 +85,52 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
       {/* Summary Grid */}
       <div className="stats-row" style={{ margin: 0, gap: '10px' }}>
         <div className="stat-mini" style={{ padding: '10px 12px', gap: '8px' }}>
-          <div className="stat-ic blue" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px' }}>📚</div>
+          <div className="stat-ic blue" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val" style={{ fontSize: '15px' }}>{totalMandatory}</div>
             <div className="s-lbl" style={{ fontSize: '9px' }}>SOP wajib divisi</div>
           </div>
         </div>
         <div className="stat-mini" style={{ padding: '10px 12px', gap: '8px' }}>
-          <div className="stat-ic green" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px' }}>✓</div>
+          <div className="stat-ic green" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val" style={{ fontSize: '15px' }}>{completedMandatory}</div>
             <div className="s-lbl" style={{ fontSize: '9px' }}>Sudah lulus kuis</div>
           </div>
         </div>
         <div className="stat-mini" style={{ padding: '10px 12px', gap: '8px' }}>
-          <div className="stat-ic amber" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px' }}>⏳</div>
+          <div className="stat-ic amber" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 2h14"/>
+              <path d="M5 22h14"/>
+              <path d="M19 2v4c0 3-2 5-5 7 3 2 5 4 5 7v4"/>
+              <path d="M5 2v4c0 3 2 5 5 7-3 2-5 4-5 7v4"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val" style={{ fontSize: '15px', color: 'var(--amber)' }}>{remainingCount}</div>
             <div className="s-lbl" style={{ fontSize: '9px' }}>Tersisa / Belum</div>
           </div>
         </div>
         <div className="stat-mini" style={{ padding: '10px 12px', gap: '8px' }}>
-          <div className="stat-ic purple" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px' }}>🏆</div>
+          <div className="stat-ic purple" style={{ width: '32px', height: '32px', borderRadius: '6px', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+              <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+              <path d="M4 22h16"/>
+              <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"/>
+              <path d="M12 2a6 6 0 0 1 6 6v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z"/>
+            </svg>
+          </div>
           <div>
             <div className="s-val" style={{ fontSize: '15px' }}>{totalCertificates}</div>
             <div className="s-lbl" style={{ fontSize: '9px' }}>Sertifikat aktif</div>
