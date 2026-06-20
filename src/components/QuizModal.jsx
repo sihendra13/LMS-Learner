@@ -719,8 +719,9 @@ export const QuizModal = ({ video, onClose }) => {
           )}
 
           {/* STEP: PPT PRESENTATION PLAYER (Custom slideshow dari slideImages array) */}
-          {step === 'presentation' && (() => {
-            const slides = video.slideImages;
+          {step === 'presentation' && (
+            (() => {
+              const slides = video.slideImages;
             const totalSlides = slides ? slides.length : 0;
 
             const goToSlide = (idx) => {
@@ -788,9 +789,9 @@ export const QuizModal = ({ video, onClose }) => {
             }
 
             return (
-              <div ref={presentationRef} className="presentation-player-container" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '0px' : '16px 24px 0px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
+              <div ref={presentationRef} className="presentation-player-container" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '0px' : '16px 0px 0px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
                 {/* Scrollable content: slide + thumbnail + narasi. Toolbar is OUTSIDE this div so it's always visible */}
-                <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column', WebkitOverflowScrolling: 'touch' }}>
+                <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column', WebkitOverflowScrolling: 'touch', paddingLeft: isFullscreen ? '0px' : (isMobile ? '16px' : '24px'), paddingRight: isFullscreen ? '0px' : (isMobile ? '16px' : '24px') }}>
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
                 <div style={{ flex: 1, position: 'relative', minHeight: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? '160px' : '220px') : '360px') }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
@@ -811,8 +812,8 @@ export const QuizModal = ({ video, onClose }) => {
 
                     {/* OVERLAY KUIS PEMICU SLIDE */}
                     {(!isMobile || isFullscreen) && activeSlideTrigger && (
-                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,15,29,0.92)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px', zIndex: 10 }}>
-                        <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,15,29,0.92)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px', zIndex: 10, overflowY: 'auto' }}>
+                        <div style={{ background: '#ffffff', borderRadius: '12px', padding: isMobile ? '16px 20px' : '24px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', boxSizing: 'border-box', margin: 'auto 0' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                             <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', fontWeight: '700', color: '#b45309' }}>
                               ⚡ KUIS SLIDE {currentSlide + 1}
@@ -1003,7 +1004,8 @@ export const QuizModal = ({ video, onClose }) => {
                   borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`,
                   paddingTop: '12px',
                   paddingBottom: '16px',
-                  ...(isFullscreen ? { paddingLeft: '24px', paddingRight: '24px' } : {})
+                  paddingLeft: isFullscreen ? '24px' : (isMobile ? '16px' : '24px'),
+                  paddingRight: isFullscreen ? '24px' : (isMobile ? '16px' : '24px')
                 }}>
                   <div style={{ 
                     fontSize: '12px', 
@@ -1113,9 +1115,10 @@ export const QuizModal = ({ video, onClose }) => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     padding: '16px',
-                    zIndex: 20
+                    zIndex: 20,
+                    overflowY: 'auto'
                   }}>
-                    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '20px 16px', maxWidth: '480px', width: '100%', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
+                    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '20px 16px', maxWidth: '480px', width: '100%', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', margin: 'auto 0' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
                         <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', fontWeight: '700', color: '#b45309' }}>
                           ⚡ KUIS SLIDE {currentSlide + 1}
@@ -1161,7 +1164,8 @@ export const QuizModal = ({ video, onClose }) => {
                 )}
               </div>
             );
-          })()}
+          })()
+        )}
 
           {/* STEP: POST-TEST */}
           {step === 'post-test' && (
