@@ -11,10 +11,14 @@ const AppContent = () => {
   const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore, tenant } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [syncOpen, setSyncOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
 
   React.useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      // Jika sedang fullscreen, kunci pendeteksian dan jangan ubah layout agar tidak unmount
+      if (document.fullscreenElement || window.isFullscreenActive) return;
+      setIsMobile(window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);

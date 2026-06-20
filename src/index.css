@@ -627,3 +627,98 @@ select {
   color: var(--accent);
   font-weight: 600;
 }
+
+@media (max-height: 500px), (max-width: 767px) {
+  .wizard-card {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* Force video container to take up entire window screen when browser native fullscreen is active */
+.video-player-container:fullscreen,
+.video-player-container:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  aspect-ratio: auto !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.video-player-container:fullscreen video,
+.video-player-container:-webkit-full-screen video {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+}
+
+/* Ganti object-fit dinamis berdasarkan orientasi layar saat fullscreen */
+@media (orientation: landscape) {
+  .video-player-container:fullscreen video,
+  .video-player-container:-webkit-full-screen video {
+    object-fit: cover !important;
+  }
+}
+
+@media (orientation: portrait) {
+  .video-player-container:fullscreen video,
+  .video-player-container:-webkit-full-screen video {
+    object-fit: contain !important;
+  }
+}
+
+/* Force presentation container to take up entire window screen when browser native fullscreen is active */
+.presentation-player-container:fullscreen,
+.presentation-player-container:-webkit-full-screen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Optimasi Tema Gelap Khusus Mobile Landscape (Tinggi < 500px) agar Video Menyatu Sempurna */
+@media (max-height: 500px) and (max-width: 950px) {
+  .wizard-card {
+    background: #090f1d !important;
+    color: #ffffff !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+  }
+  
+  .wizard-card h3,
+  .wizard-card h4,
+  .wizard-card span:not([style*="color"]) {
+    color: #ffffff !important;
+  }
+
+  .wizard-card > div:first-child {
+    background: #090f1d !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .wizard-card .video-player-container {
+    max-height: calc(100vh - 100px) !important;
+    background: #000000 !important;
+  }
+
+  .wizard-card button.btn-primary {
+    border-color: #3b82f6 !important;
+  }
+}
+

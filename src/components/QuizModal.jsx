@@ -788,7 +788,9 @@ export const QuizModal = ({ video, onClose }) => {
             }
 
             return (
-              <div ref={presentationRef} className="presentation-player-container" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '0px' : '16px 24px 16px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
+              <div ref={presentationRef} className="presentation-player-container" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: isFullscreen ? '0px' : '16px 24px 0px', background: isFullscreen ? '#0f172a' : 'transparent', position: 'relative' }}>
+                {/* Scrollable content: slide + thumbnail + narasi. Toolbar is OUTSIDE this div so it's always visible */}
+                <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, display: 'flex', flexDirection: 'column', WebkitOverflowScrolling: 'touch' }}>
                 {/* Slide viewer — wrapper div tanpa overflow:hidden agar fullscreen button tidak ter-clip */}
                 <div style={{ flex: 1, position: 'relative', minHeight: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? '160px' : '220px') : '360px') }}>
                   {/* Inner div dengan overflow:hidden untuk border-radius & image clipping */}
@@ -989,16 +991,19 @@ export const QuizModal = ({ video, onClose }) => {
                     </div>
                   );
                 })()}
+                </div>{/* end scrollable content area */}
 
                 <div style={{
+                  flexShrink: 0,
                   display: 'flex',
                   flexDirection: isMobile ? (window.innerHeight < 500 ? 'row' : 'column') : 'row',
                   alignItems: isMobile ? (window.innerHeight < 500 ? 'center' : 'stretch') : 'center',
                   justifyContent: 'space-between',
                   gap: '12px',
-                  borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`, 
-                  paddingTop: '12px', 
-                  paddingBottom: '12px' 
+                  borderTop: `1px solid ${isFullscreen ? 'rgba(255,255,255,0.15)' : 'var(--border)'}`,
+                  paddingTop: '12px',
+                  paddingBottom: '16px',
+                  ...(isFullscreen ? { paddingLeft: '24px', paddingRight: '24px' } : {})
                 }}>
                   <div style={{ 
                     fontSize: '12px', 
@@ -1038,17 +1043,18 @@ export const QuizModal = ({ video, onClose }) => {
                             fontSize: '12px', 
                             padding: '0 32px 0 10px',
                             borderRadius: '6px',
-                            border: '1px solid var(--border)',
-                            color: 'var(--text2)',
+                            border: isFullscreen ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--border)',
+                            background: isFullscreen ? 'rgba(255,255,255,0.08)' : '#fff',
+                            color: isFullscreen ? '#fff' : 'var(--text2)',
                             cursor: 'pointer',
                             boxSizing: 'border-box',
                             flex: isMobile ? (window.innerHeight < 500 ? 'none' : 1) : 'none'
                           }}
                         >
-                          <option value={3}>Tiap 3 detik</option>
-                          <option value={5}>Tiap 5 detik</option>
-                          <option value={8}>Tiap 8 detik</option>
-                          <option value={10}>Tiap 10 detik</option>
+                          <option value={3} style={{ background: isFullscreen ? '#1e293b' : '#fff', color: isFullscreen ? '#fff' : '#000' }}>Tiap 3 detik</option>
+                          <option value={5} style={{ background: isFullscreen ? '#1e293b' : '#fff', color: isFullscreen ? '#fff' : '#000' }}>Tiap 5 detik</option>
+                          <option value={8} style={{ background: isFullscreen ? '#1e293b' : '#fff', color: isFullscreen ? '#fff' : '#000' }}>Tiap 8 detik</option>
+                          <option value={10} style={{ background: isFullscreen ? '#1e293b' : '#fff', color: isFullscreen ? '#fff' : '#000' }}>Tiap 10 detik</option>
                         </select>
                         <button
                           onClick={() => setAutoPlay(prev => !prev)}
@@ -1060,9 +1066,9 @@ export const QuizModal = ({ video, onClose }) => {
                             gap: '5px', 
                             padding: '0 14px', 
                             borderRadius: '8px', 
-                            border: 'none', 
-                            background: autoPlay ? '#7c3aed' : '#f3f0ff', 
-                            color: autoPlay ? '#fff' : '#7c3aed', 
+                            border: isFullscreen ? '1px solid rgba(255,255,255,0.15)' : 'none', 
+                            background: autoPlay ? '#7c3aed' : (isFullscreen ? 'rgba(255,255,255,0.08)' : '#f3f0ff'), 
+                            color: autoPlay ? '#fff' : (isFullscreen ? '#fff' : '#7c3aed'), 
                             fontSize: '13px', 
                             fontWeight: '600', 
                             cursor: 'pointer', 
@@ -1081,8 +1087,9 @@ export const QuizModal = ({ video, onClose }) => {
                       onClick={() => { setAutoPlay(false); setStep(hasPostTest ? 'post-test' : 'result'); }}
                       style={{ 
                         whiteSpace: 'nowrap', 
-                        background: hasSeenAll ? '#002D72' : '#94a3b8', 
-                        borderColor: hasSeenAll ? '#002D72' : '#94a3b8', 
+                        background: hasSeenAll ? (isFullscreen ? '#2563eb' : '#002D72') : (isFullscreen ? 'rgba(255,255,255,0.08)' : '#94a3b8'), 
+                        borderColor: hasSeenAll ? (isFullscreen ? '#2563eb' : '#002D72') : (isFullscreen ? 'transparent' : '#94a3b8'), 
+                        color: hasSeenAll ? '#fff' : (isFullscreen ? 'rgba(255,255,255,0.3)' : '#fff'),
                         cursor: hasSeenAll ? 'pointer' : 'not-allowed',
                         width: isMobile ? (window.innerHeight < 500 ? 'auto' : '100%') : 'auto',
                         padding: '10px 16px',
