@@ -5,7 +5,7 @@ import MobileSOPSaya from './MobileSOPSaya';
 import MobileSertifikat from './MobileSertifikat';
 import MobileProfil from './MobileProfil';
 
-const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
+const MobileLayout = ({ onSelectVideo }) => {
   const { currentUser, tenant, videos, quizSubmissions, passingScore } = useTenant();
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'sop' | 'certificates' | 'profile'
 
@@ -24,7 +24,7 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
       case 'sop':
         return <MobileSOPSaya onSelectVideo={onSelectVideo} />;
       case 'certificates':
-        return <MobileSertifikat onOpenSync={onOpenSync} />;
+        return <MobileSertifikat />;
       case 'profile':
         return <MobileProfil />;
       default:
@@ -72,13 +72,6 @@ const MobileLayout = ({ onSelectVideo, onOpenSync }) => {
           <div className="streak-pill" style={{ padding: '4px 10px', fontSize: '11px', margin: 0 }}>
             🔥 {currentUser.streak} Hari Streak
           </div>
-          <button 
-            className="btn-sync" 
-            onClick={onOpenSync}
-            style={{ padding: '4px 8px', fontSize: '10px' }}
-          >
-            🔄 Sync State
-          </button>
         </div>
       </header>
 

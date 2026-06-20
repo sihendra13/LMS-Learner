@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 
-const MobileSertifikat = ({ onOpenSync }) => {
+const MobileSertifikat = () => {
   const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant } = useTenant();
   const [activeTab, setActiveTab] = useState('sertifikat');
-  const [syncing, setSyncing] = useState(false);
-  const [syncSuccess, setSyncSuccess] = useState(false);
   const [previewCert, setPreviewCert] = useState(null);
 
   const mySubmissions = quizSubmissions.filter(s => s.employeeName === currentUser.name);
@@ -40,20 +38,6 @@ const MobileSertifikat = ({ onOpenSync }) => {
     const video = videos.find(v => v.title === sub.videoTitle);
     if (!video) return;
     retakeQuiz(video.id, sub.id);
-  };
-
-  const handleLocalSync = () => {
-    setSyncing(true);
-    setTimeout(() => {
-      setSyncing(false);
-      setSyncSuccess(true);
-      if (onOpenSync) {
-        onOpenSync();
-      }
-      setTimeout(() => {
-        setSyncSuccess(false);
-      }, 2000);
-    }, 1200);
   };
 
   return (
@@ -295,37 +279,6 @@ const MobileSertifikat = ({ onOpenSync }) => {
           )}
         </div>
       )}
-
-      {/* Sync Data Action Section */}
-      <div className="card" style={{ padding: '16px', borderStyle: 'dashed', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', textAlign: 'center' }}>
-        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#eff6ff', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '20px' }}>🔄</div>
-        <div>
-          <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text1)' }}>Data Belum Sinkron?</div>
-          <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '2px' }}>
-            Hubungkan dan sinkronkan data hasil kuis dan status sertifikat Anda dengan database admin.
-          </div>
-        </div>
-        <button 
-          onClick={handleLocalSync}
-          disabled={syncing}
-          className="btn-sync"
-          style={{
-            background: syncSuccess ? 'var(--green)' : 'var(--navy2)',
-            color: '#fff',
-            border: 'none',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            fontSize: '12px',
-            fontWeight: '600',
-            cursor: syncing ? 'default' : 'pointer',
-            width: '100%',
-            justifyContent: 'center',
-            height: '36px'
-          }}
-        >
-          {syncing ? 'Menyinkronkan...' : syncSuccess ? 'Berhasil Disinkronkan ✓' : 'Sinkronkan State Database'}
-        </button>
-      </div>
 
       {/* CERTIFICATE PREVIEW MODAL */}
       {previewCert && (

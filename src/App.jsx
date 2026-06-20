@@ -4,13 +4,11 @@ import { Dashboard } from './pages/Dashboard';
 import { SOPManager } from './pages/SOPManager';
 import { Certifications } from './pages/Certifications';
 import { QuizModal } from './components/QuizModal';
-import { SyncPanel } from './components/SyncPanel';
 import MobileLayout from './components/mobile/MobileLayout';
 
 const AppContent = () => {
   const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore, tenant } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [syncOpen, setSyncOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
 
   React.useEffect(() => {
@@ -47,21 +45,15 @@ const AppContent = () => {
   if (isMobile) {
     return (
       <>
-        <MobileLayout onSelectVideo={setSelectedVideo} onOpenSync={() => setSyncOpen(true)} />
-        
+        <MobileLayout onSelectVideo={setSelectedVideo} />
+
         {/* SOP INTERACTIVE MODAL WIZARD */}
         {selectedVideo && (
-          <QuizModal 
-            video={selectedVideo} 
-            onClose={() => setSelectedVideo(null)} 
+          <QuizModal
+            video={selectedVideo}
+            onClose={() => setSelectedVideo(null)}
           />
         )}
-
-        {/* SYNC TOOL MODAL */}
-        <SyncPanel 
-          isOpen={syncOpen} 
-          onClose={() => setSyncOpen(false)} 
-        />
       </>
     );
   }
@@ -158,14 +150,6 @@ const AppContent = () => {
             Sertifikat
           </button>
 
-          <div className="nav-section">Integrasi</div>
-          <button 
-            className="nav-item"
-            onClick={() => setSyncOpen(true)}
-            style={{ background: 'none', border: 'none', width: '90%', textAlign: 'left', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-          >
-            🔄 Sync Data DB
-          </button>
         </nav>
 
         {/* LOGOUT + BRANDING BOTTOM */}
@@ -203,13 +187,6 @@ const AppContent = () => {
               🔥 {currentUser.streak} Hari Streak
             </div>
             
-            <button 
-              className="btn-sync" 
-              onClick={() => setSyncOpen(true)}
-              title="Hubungkan state database dengan Admin"
-            >
-              🔄 Sync State
-            </button>
           </div>
         </header>
 
@@ -225,11 +202,6 @@ const AppContent = () => {
         />
       )}
 
-      {/* SYNC TOOL MODAL */}
-      <SyncPanel 
-        isOpen={syncOpen} 
-        onClose={() => setSyncOpen(false)} 
-      />
     </>
   );
 };
