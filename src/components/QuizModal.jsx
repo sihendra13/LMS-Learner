@@ -1046,7 +1046,7 @@ export const QuizModal = ({ video, onClose }) => {
                             padding: '0 32px 0 10px',
                             borderRadius: '6px',
                             border: isFullscreen ? '1px solid rgba(255,255,255,0.2)' : '1px solid var(--border)',
-                            background: isFullscreen ? 'rgba(255,255,255,0.08)' : '#fff',
+                            backgroundColor: isFullscreen ? 'rgba(255,255,255,0.08)' : '#fff',
                             color: isFullscreen ? '#fff' : 'var(--text2)',
                             cursor: 'pointer',
                             boxSizing: 'border-box',
