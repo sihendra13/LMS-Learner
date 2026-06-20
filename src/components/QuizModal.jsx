@@ -277,7 +277,7 @@ export const QuizModal = ({ video, onClose }) => {
         employeeName: currentUser.name,
         dept: currentUser.dept,
         videoTitle: video.title,
-        date: 'Hari ini',
+        date: new Date().toISOString(),
         questions: essayQuestions
       };
 
@@ -301,7 +301,8 @@ export const QuizModal = ({ video, onClose }) => {
         videoTitle: video.title,
         preScore: preScore,
         postScore: calculatedScore,
-        date: 'Hari ini',
+        date: new Date().toISOString(),
+        acknowledged: true,
         status: isPassed ? 'Lulus' : 'Remedi (Butuh Ujian Ulang)'
       };
 
@@ -628,10 +629,10 @@ export const QuizModal = ({ video, onClose }) => {
                 <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
                   *Anda wajib menonton hingga 100% sebelum kuis pasca-materi terbuka.
                 </span>
-                <button 
+                <button
                   className="btn-primary"
                   disabled={playProgress < 100}
-                  onClick={() => setStep(hasPostTest ? 'post-test' : 'result')}
+                  onClick={() => setStep('acknowledge')}
                   style={{
                     background: playProgress < 100 ? 'var(--text3)' : '#002D72',
                     borderColor: playProgress < 100 ? 'var(--text3)' : '#002D72',
@@ -781,7 +782,7 @@ export const QuizModal = ({ video, onClose }) => {
                     </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
-                    <button className="btn-primary" onClick={() => setStep(hasPostTest ? 'post-test' : 'result')} style={{ background: '#002D72', cursor: 'pointer' }}>
+                    <button className="btn-primary" onClick={() => setStep('acknowledge')} style={{ background: '#002D72', cursor: 'pointer' }}>
                       {hasPostTest ? 'Selesai → Kuis Post-Test' : 'Selesaikan Materi'}
                     </button>
                   </div>
@@ -1087,7 +1088,7 @@ export const QuizModal = ({ video, onClose }) => {
                     <button
                       className="btn-primary"
                       disabled={!hasSeenAll}
-                      onClick={() => { setAutoPlay(false); setStep(hasPostTest ? 'post-test' : 'result'); }}
+                      onClick={() => { setAutoPlay(false); setStep('acknowledge'); }}
                       style={{ 
                         whiteSpace: 'nowrap', 
                         background: hasSeenAll ? (isFullscreen ? '#2563eb' : '#002D72') : (isFullscreen ? 'rgba(255,255,255,0.08)' : '#94a3b8'), 
@@ -1167,6 +1168,32 @@ export const QuizModal = ({ video, onClose }) => {
             );
           })()
         )}
+
+          {/* STEP: ACKNOWLEDGE */}
+          {step === 'acknowledge' && (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '32px 24px', textAlign: 'center' }}>
+              <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <div style={{ fontSize: '17px', fontWeight: '700', color: '#1e293b', marginBottom: '10px' }}>Konfirmasi Pemahaman Materi</div>
+              <div style={{ fontSize: '13px', color: '#64748b', lineHeight: '1.7', marginBottom: '28px', maxWidth: '340px' }}>
+                Dengan melanjutkan, saya menyatakan telah menonton dan memahami materi:<br />
+                <strong style={{ color: '#1e293b' }}>"{video.title}"</strong>
+              </div>
+              <button
+                className="btn-primary"
+                onClick={() => setStep(hasPostTest ? 'post-test' : 'result')}
+                style={{ background: '#2563eb', borderColor: '#2563eb', padding: '12px 32px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}
+              >
+                ✓ Saya Konfirmasi & Lanjutkan
+              </button>
+              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '14px' }}>
+                Pernyataan ini dicatat sebagai bukti kehadiran pelatihan Anda.
+              </div>
+            </div>
+          )}
 
           {/* STEP: POST-TEST */}
           {step === 'post-test' && (

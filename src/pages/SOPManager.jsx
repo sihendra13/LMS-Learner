@@ -96,7 +96,7 @@ export const SOPManager = ({ onSelectVideo }) => {
                     )}
                   </div>
                   <div className="sop-info" style={{ marginLeft: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <span className={`dept-tag ${video.tagClass}`}>{video.dept}</span>
                       {video.type === 'ppt' ? (
                         <span style={{ fontSize: '11px', fontWeight: '700', background: '#ede9fe', color: '#7c3aed', padding: '2px 8px', borderRadius: '4px' }}>
@@ -118,6 +118,28 @@ export const SOPManager = ({ onSelectVideo }) => {
                         </span>
                       )}
                     </div>
+                    {(() => {
+                      if (!video.deadline || isCompleted) return null;
+                      const today = new Date(); today.setHours(0,0,0,0);
+                      const dl = new Date(video.deadline);
+                      const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
+                      if (diff < 0) return (
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fef2f2', color: '#ef4444', padding: '2px 8px', borderRadius: '4px' }}>
+                          ⚠️ Deadline terlewat
+                        </span>
+                      );
+                      if (diff <= 3) return (
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fef3c7', color: '#d97706', padding: '2px 8px', borderRadius: '4px' }}>
+                          🔔 Deadline {diff === 0 ? 'hari ini' : `${diff} hari lagi`}
+                        </span>
+                      );
+                      if (diff <= 7) return (
+                        <span style={{ fontSize: '11px', fontWeight: '600', background: '#fffbeb', color: '#b45309', padding: '2px 8px', borderRadius: '4px' }}>
+                          📅 Deadline {diff} hari lagi
+                        </span>
+                      );
+                      return null;
+                    })()}
                     <div className="sop-title" style={{ fontSize: '14px', fontWeight: '600', marginTop: '6px', marginBottom: '6px' }}>{video.title}</div>
                     
                     <div className="sop-prog">
