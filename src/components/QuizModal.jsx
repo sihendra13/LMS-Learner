@@ -63,6 +63,7 @@ export const QuizModal = ({ video, onClose }) => {
 
   const [isAckHovered, setIsAckHovered] = useState(false);
   const [isResultHovered, setIsResultHovered] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
 
   const [videoError, setVideoError] = useState(false);
   const [triggerToast, setTriggerToast] = useState(false);
@@ -314,8 +315,18 @@ export const QuizModal = ({ video, onClose }) => {
     }
   };
 
+  const isInActiveQuiz = (step === 'pre-test' && !preSubmitted) || (step === 'post-test' && !postSubmitted);
+
+  const handleClose = () => {
+    if (isInActiveQuiz) {
+      setShowCloseConfirm(true);
+    } else {
+      onClose();
+    }
+  };
+
   return (
-    <div className="wizard-modal" onClick={onClose}>
+    <div className="wizard-modal" onClick={handleClose}>
       <div className="wizard-card" onClick={e => e.stopPropagation()}>
         {/* Wizard Header */}
         <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -327,7 +338,7 @@ export const QuizModal = ({ video, onClose }) => {
               Divisi {video.dept} · {isPpt ? `${video.slideCount || '?'} slide` : `Durasi ${video.duration}`}
             </span>
           </div>
-          <button style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }} onClick={onClose}>✕</button>
+          <button style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }} onClick={handleClose}>✕</button>
         </div>
 
         {/* Wizard Body */}
@@ -1419,6 +1430,52 @@ export const QuizModal = ({ video, onClose }) => {
           )}
 
         </div>
+
+        {/* Close Confirmation Overlay */}
+        {showCloseConfirm && (
+          <div style={{
+            position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: 'inherit', zIndex: 10
+          }}>
+            <div style={{
+              background: 'var(--card)', borderRadius: '14px', padding: '28px 32px',
+              maxWidth: '340px', width: '90%', textAlign: 'center',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.28)'
+            }}>
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚠️</div>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 8px' }}>
+                Keluar dari kuis?
+              </h3>
+              <p style={{ fontSize: '13px', color: 'var(--text3)', margin: '0 0 24px', lineHeight: '1.5' }}>
+                Jawaban yang sudah diisi akan hilang. Kamu harus mengulang dari awal.
+              </p>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => setShowCloseConfirm(false)}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: '8px', fontSize: '14px',
+                    fontWeight: '600', cursor: 'pointer',
+                    background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text2)'
+                  }}
+                >
+                  Lanjut Kuis
+                </button>
+                <button
+                  onClick={onClose}
+                  style={{
+                    flex: 1, padding: '10px', borderRadius: '8px', fontSize: '14px',
+                    fontWeight: '700', cursor: 'pointer',
+                    background: '#dc2626', border: 'none', color: '#fff'
+                  }}
+                >
+                  Ya, Keluar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
