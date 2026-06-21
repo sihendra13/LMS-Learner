@@ -15,7 +15,7 @@ export const SOPManager = ({ onSelectVideo }) => {
       return;
     }
     if (cs === 'approved') {
-      if (submission?.approvalNote) setDetailVideo({ video, submission });
+      if (submission?.approvalNote || submission?.supervisorNote) setDetailVideo({ video, submission });
       return;
     }
     if (cs === 'rejected') {
@@ -89,7 +89,7 @@ export const SOPManager = ({ onSelectVideo }) => {
             {filteredVideos.map(video => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
               const cs = submission?.certStatus;
-              const hasNote = (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'approved' && submission?.approvalNote);
+              const hasNote = (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote));
               const isBlocked = cs === 'pending' || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
               const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
               const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
@@ -147,7 +147,7 @@ export const SOPManager = ({ onSelectVideo }) => {
                     </div>
 
                     {(() => {
-                      const note = (cs === 'approved' && submission?.approvalNote) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
+                      const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
                       if (!note) return null;
                       return (
                         <span style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', background: '#f3f4f6', border: '1px solid #e5e7eb', padding: '3px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px', cursor: 'pointer' }}>
@@ -241,7 +241,7 @@ export const SOPManager = ({ onSelectVideo }) => {
     {detailVideo && (() => {
       const cs = detailVideo.submission?.certStatus;
       const cfg = cs === 'approved'
-        ? { badge: '✅ Sertifikat Aktif', badgeBg: '#f0fdf4', badgeColor: '#15803d', badgeBorder: '#86efac', noteLabel: '💬 Pesan dari HRD:', noteBg: '#f0fdf4', noteBorder: '#86efac', noteColor: '#15803d', note: detailVideo.submission.approvalNote, canRetake: false }
+        ? { badge: '✅ Sertifikat Aktif', badgeBg: '#f0fdf4', badgeColor: '#15803d', badgeBorder: '#86efac', noteLabel: detailVideo.submission.approvalNote ? "💬 Pesan dari HRD:" : "💬 Catatan Supervisor:", noteBg: "#f0fdf4", noteBorder: "#86efac", noteColor: "#15803d", note: detailVideo.submission.approvalNote || detailVideo.submission.supervisorNote, canRetake: false }
         : cs === 'supervisor_ok'
         ? { badge: '📋 Catatan dari Supervisor', badgeBg: '#eff6ff', badgeColor: '#1d4ed8', badgeBorder: '#93c5fd', noteLabel: '💬 Catatan Supervisor:', noteBg: '#eff6ff', noteBorder: '#93c5fd', noteColor: '#1d4ed8', note: detailVideo.submission.supervisorNote, canRetake: false }
         : cs === 'rejected'
