@@ -519,7 +519,9 @@ export const QuizModal = ({ video, onClose }) => {
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'rgba(9,15,29,0.95)',
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
                     borderRadius: '12px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -528,34 +530,59 @@ export const QuizModal = ({ video, onClose }) => {
                     padding: '24px',
                     zIndex: 10
                   }}>
-                    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', maxWidth: '480px', width: '100%' }}>
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#1d4ed8', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.05em' }}>
-                        📋 Kuis — Video Dijeda Sementara
+                    <div style={{ 
+                      background: 'var(--card)', 
+                      borderRadius: '16px', 
+                      padding: '28px 24px', 
+                      maxWidth: '450px', 
+                      width: '90%',
+                      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.15)',
+                      border: '1px solid var(--border)',
+                      boxSizing: 'border-box'
+                    }}>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        fontWeight: '700', 
+                        color: 'var(--accent)', 
+                        textTransform: 'uppercase', 
+                        marginBottom: '12px', 
+                        letterSpacing: '0.05em',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        background: 'rgba(59, 130, 246, 0.1)',
+                        padding: '4px 10px',
+                        borderRadius: '6px'
+                      }}>
+                        <span>📋</span> Kuis — Video Dijeda Sementara
                       </div>
-                      <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
+                      <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text1)', marginBottom: '20px', lineHeight: '1.5' }}>
                         {activeTrigger.question}
                       </h4>
                       {activeTrigger.options && activeTrigger.options.length > 0 ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
                           {activeTrigger.options.map((opt, idx) => {
                             const letter = String.fromCharCode(65 + idx);
+                            const isSelected = triggerAnswer === letter;
                             return (
                               <button
                                 key={idx}
                                 onClick={() => setTriggerAnswer(letter)}
                                 style={{
-                                  padding: '10px 14px',
-                                  border: triggerAnswer === letter ? '2px solid #002D72' : '1px solid #e2e8f0',
-                                  background: triggerAnswer === letter ? '#eff6ff' : '#f8fafc',
-                                  color: triggerAnswer === letter ? '#002D72' : '#0f172a',
-                                  borderRadius: '8px',
+                                  padding: '12px 14px',
+                                  border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                  background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'var(--bg2)',
+                                  color: isSelected ? 'var(--accent)' : 'var(--text2)',
+                                  borderRadius: '10px',
                                   textAlign: 'left',
                                   fontSize: '13px',
                                   cursor: 'pointer',
-                                  fontWeight: triggerAnswer === letter ? '600' : 'normal'
+                                  fontWeight: isSelected ? '700' : '500',
+                                  transition: 'all 0.15s ease',
+                                  outline: 'none'
                                 }}
                               >
-                                <strong>{letter}.</strong> {opt}
+                                <strong style={{ marginRight: '6px', color: isSelected ? 'var(--accent)' : 'var(--text3)' }}>{letter}.</strong> {opt}
                               </button>
                             );
                           })}
@@ -563,22 +590,32 @@ export const QuizModal = ({ video, onClose }) => {
                       ) : (
                         <textarea
                           className="form-input"
-                          style={{ width: '100%', height: '80px', resize: 'none', fontSize: '13px', marginBottom: '16px', boxSizing: 'border-box' }}
+                          style={{ 
+                            width: '100%', height: '84px', resize: 'none', fontSize: '13px', 
+                            marginBottom: '20px', boxSizing: 'border-box',
+                            borderRadius: '10px', padding: '12px',
+                            border: '1px solid var(--border)', background: 'var(--bg2)', color: 'var(--text1)'
+                          }}
                           placeholder="Ketik jawaban Anda..."
                           value={triggerAnswer}
                           onChange={(e) => setTriggerAnswer(e.target.value)}
                         />
                       )}
                       <button
-                        className="btn-primary"
                         disabled={!triggerAnswer}
                         onClick={handleTriggerSubmit}
                         style={{
                           width: '100%',
-                          background: !triggerAnswer ? '#94a3b8' : '#002D72',
+                          background: !triggerAnswer ? 'var(--border)' : 'var(--accent)',
+                          color: !triggerAnswer ? 'var(--text3)' : '#ffffff',
                           cursor: !triggerAnswer ? 'not-allowed' : 'pointer',
-                          padding: '10px',
-                          border: 'none'
+                          padding: '12px',
+                          border: 'none',
+                          borderRadius: '10px',
+                          fontWeight: '700',
+                          fontSize: '13px',
+                          transition: 'all 0.2s ease',
+                          boxShadow: triggerAnswer ? '0 4px 12px rgba(59, 130, 246, 0.2)' : 'none'
                         }}
                       >
                         Jawab & Lanjutkan Video ▶
@@ -665,43 +702,70 @@ export const QuizModal = ({ video, onClose }) => {
                 <div style={{
                   position: 'absolute',
                   inset: 0,
-                  background: 'rgba(9,15,29,0.96)',
+                  background: 'rgba(15, 23, 42, 0.82)',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
                   borderRadius: '12px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  padding: '16px',
+                  padding: '12px',
                   zIndex: 20
                 }}>
-                  <div style={{ background: '#ffffff', borderRadius: '12px', padding: '20px 16px', maxWidth: '480px', width: '100%', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#1d4ed8', textTransform: 'uppercase', marginBottom: '10px', letterSpacing: '0.05em' }}>
+                  <div style={{ 
+                    background: 'var(--card)', 
+                    borderRadius: '16px', 
+                    padding: '24px 20px', 
+                    maxWidth: '400px', 
+                    width: '90%', 
+                    boxSizing: 'border-box', 
+                    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)',
+                    border: '1px solid var(--border)'
+                  }}>
+                    <div style={{ 
+                      fontSize: '11px', 
+                      fontWeight: '700', 
+                      color: 'var(--accent)', 
+                      textTransform: 'uppercase', 
+                      marginBottom: '10px', 
+                      letterSpacing: '0.05em',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      padding: '3px 8px',
+                      borderRadius: '4px'
+                    }}>
                       📋 Kuis — Video Dijeda Sementara
                     </div>
-                    <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
+                    <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text1)', marginBottom: '16px', lineHeight: '1.5' }}>
                       {activeTrigger.question}
                     </h4>
                     {activeTrigger.options && activeTrigger.options.length > 0 ? (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', marginBottom: '20px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '20px' }}>
                         {activeTrigger.options.map((opt, idx) => {
                           const letter = String.fromCharCode(65 + idx);
+                          const isSelected = triggerAnswer === letter;
                           return (
                             <button
                               key={idx}
                               onClick={() => setTriggerAnswer(letter)}
                               style={{
-                                padding: '10px 14px',
-                                border: triggerAnswer === letter ? '2px solid #002D72' : '1px solid #e2e8f0',
-                                background: triggerAnswer === letter ? '#eff6ff' : '#f8fafc',
-                                color: triggerAnswer === letter ? '#002D72' : '#0f172a',
+                                padding: '10px 12px',
+                                border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'var(--bg2)',
+                                color: isSelected ? 'var(--accent)' : 'var(--text2)',
                                 borderRadius: '8px',
                                 textAlign: 'left',
                                 fontSize: '13px',
                                 cursor: 'pointer',
-                                fontWeight: triggerAnswer === letter ? '600' : 'normal'
+                                fontWeight: isSelected ? '700' : '500',
+                                transition: 'all 0.12s ease',
+                                outline: 'none'
                               }}
                             >
-                              <strong>{letter}.</strong> {opt}
+                              <strong style={{ marginRight: '6px', color: isSelected ? 'var(--accent)' : 'var(--text3)' }}>{letter}.</strong> {opt}
                             </button>
                           );
                         })}
@@ -709,22 +773,32 @@ export const QuizModal = ({ video, onClose }) => {
                     ) : (
                       <textarea
                         className="form-input"
-                        style={{ width: '100%', height: '80px', resize: 'none', fontSize: '13px', marginBottom: '16px', boxSizing: 'border-box' }}
+                        style={{ 
+                          width: '100%', height: '80px', resize: 'none', fontSize: '13px', 
+                          marginBottom: '16px', boxSizing: 'border-box',
+                          borderRadius: '8px', padding: '10px',
+                          border: '1px solid var(--border)', background: 'var(--bg2)', color: 'var(--text1)'
+                        }}
                         placeholder="Ketik jawaban Anda..."
                         value={triggerAnswer}
                         onChange={(e) => setTriggerAnswer(e.target.value)}
                       />
                     )}
                     <button
-                      className="btn-primary"
                       disabled={!triggerAnswer}
                       onClick={handleTriggerSubmit}
                       style={{
                         width: '100%',
-                        background: !triggerAnswer ? '#94a3b8' : '#002D72',
+                        background: !triggerAnswer ? 'var(--border)' : 'var(--accent)',
+                        color: !triggerAnswer ? 'var(--text3)' : '#ffffff',
                         cursor: !triggerAnswer ? 'not-allowed' : 'pointer',
-                        padding: '10px',
-                        border: 'none'
+                        padding: '11px',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: '700',
+                        fontSize: '13px',
+                        transition: 'all 0.2s ease',
+                        boxShadow: triggerAnswer ? '0 4px 10px rgba(59, 130, 246, 0.15)' : 'none'
                       }}
                     >
                       Jawab & Lanjutkan Video ▶
@@ -829,18 +903,36 @@ export const QuizModal = ({ video, onClose }) => {
 
                     {/* OVERLAY KUIS PEMICU SLIDE */}
                     {(!isMobile || isFullscreen) && activeSlideTrigger && (
-                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,15,29,0.92)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px', zIndex: 10, overflowY: 'auto' }}>
-                        <div style={{ background: '#ffffff', borderRadius: '12px', padding: isMobile ? '16px 20px' : '24px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', boxSizing: 'border-box', margin: 'auto 0' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                            <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', fontWeight: '700', color: '#b45309' }}>
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px', zIndex: 10, overflowY: 'auto' }}>
+                        <div style={{ 
+                          background: 'var(--card)', 
+                          borderRadius: '16px', 
+                          padding: '28px 24px', 
+                          maxWidth: '450px', 
+                          width: '90%', 
+                          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.15)', 
+                          border: '1px solid var(--border)',
+                          boxSizing: 'border-box', 
+                          margin: 'auto 0' 
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                            <div style={{ 
+                              background: 'rgba(59, 130, 246, 0.1)', 
+                              border: '1px solid rgba(59, 130, 246, 0.2)', 
+                              borderRadius: '6px', 
+                              padding: '4px 8px', 
+                              fontSize: '11px', 
+                              fontWeight: '700', 
+                              color: 'var(--accent)' 
+                            }}>
                               ⚡ KUIS SLIDE {currentSlide + 1}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#94a3b8' }}>Jawab dulu untuk lanjut ke slide berikutnya</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Jawab dulu untuk lanjut ke slide berikutnya</div>
                           </div>
-                          <h4 style={{ fontSize: '15px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
+                          <h4 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text1)', marginBottom: '20px', lineHeight: '1.5' }}>
                             {activeSlideTrigger.question}
                           </h4>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
                             {(activeSlideTrigger.options || []).map((opt, oi) => {
                               const letter = String.fromCharCode(65 + oi);
                               const isSelected = slideTriggerAnswer === letter;
@@ -849,13 +941,20 @@ export const QuizModal = ({ video, onClose }) => {
                                   key={oi}
                                   onClick={() => setSlideTriggerAnswer(letter)}
                                   style={{
-                                    padding: '10px 14px', border: isSelected ? '2px solid #b45309' : '1px solid #e2e8f0',
-                                    background: isSelected ? '#fffbeb' : '#f8fafc', color: isSelected ? '#92400e' : '#0f172a',
-                                    borderRadius: '8px', textAlign: 'left', fontSize: '13px',
-                                    cursor: 'pointer', fontWeight: isSelected ? '600' : 'normal'
+                                    padding: '12px 14px',
+                                    border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                    background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'var(--bg2)',
+                                    color: isSelected ? 'var(--accent)' : 'var(--text2)',
+                                    borderRadius: '10px',
+                                    textAlign: 'left',
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    fontWeight: isSelected ? '700' : '500',
+                                    transition: 'all 0.15s ease',
+                                    outline: 'none'
                                   }}
                                 >
-                                  <strong>{letter}.</strong> {opt}
+                                  <strong style={{ marginRight: '6px', color: isSelected ? 'var(--accent)' : 'var(--text3)' }}>{letter}.</strong> {opt}
                                 </button>
                               );
                             })}
@@ -864,9 +963,17 @@ export const QuizModal = ({ video, onClose }) => {
                             onClick={handleSlideTriggerSubmit}
                             disabled={!slideTriggerAnswer}
                             style={{
-                              width: '100%', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700', fontSize: '13px',
-                              background: slideTriggerAnswer ? '#b45309' : '#94a3b8',
-                              color: '#fff', cursor: slideTriggerAnswer ? 'pointer' : 'not-allowed'
+                              width: '100%',
+                              padding: '12px',
+                              borderRadius: '10px',
+                              border: 'none',
+                              fontWeight: '700',
+                              fontSize: '13px',
+                              background: !slideTriggerAnswer ? 'var(--border)' : 'var(--accent)',
+                              color: !slideTriggerAnswer ? 'var(--text3)' : '#ffffff',
+                              cursor: slideTriggerAnswer ? 'pointer' : 'not-allowed',
+                              transition: 'all 0.2s ease',
+                              boxShadow: slideTriggerAnswer ? '0 4px 12px rgba(59, 130, 246, 0.2)' : 'none'
                             }}
                           >
                             Jawab & Lanjutkan Presentasi ›
@@ -1125,27 +1232,47 @@ export const QuizModal = ({ video, onClose }) => {
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'rgba(9,15,29,0.96)',
+                    background: 'rgba(15, 23, 42, 0.82)',
+                    backdropFilter: 'blur(6px)',
+                    WebkitBackdropFilter: 'blur(6px)',
                     borderRadius: '12px',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    padding: '16px',
+                    padding: '12px',
                     zIndex: 20,
                     overflowY: 'auto'
                   }}>
-                    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '20px 16px', maxWidth: '480px', width: '100%', boxSizing: 'border-box', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)', margin: 'auto 0' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                        <div style={{ background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px', padding: '6px 10px', fontSize: '11px', fontWeight: '700', color: '#b45309' }}>
+                    <div style={{ 
+                      background: 'var(--card)', 
+                      borderRadius: '16px', 
+                      padding: '24px 20px', 
+                      maxWidth: '400px', 
+                      width: '90%', 
+                      boxSizing: 'border-box', 
+                      boxShadow: '0 20px 25px -5px rgba(0,0,0,0.25)', 
+                      border: '1px solid var(--border)',
+                      margin: 'auto 0' 
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                        <div style={{ 
+                          background: 'rgba(59, 130, 246, 0.1)', 
+                          border: '1px solid rgba(59, 130, 246, 0.2)', 
+                          borderRadius: '4px', 
+                          padding: '3px 8px', 
+                          fontSize: '11px', 
+                          fontWeight: '700', 
+                          color: 'var(--accent)' 
+                        }}>
                           ⚡ KUIS SLIDE {currentSlide + 1}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#94a3b8' }}>Jawab dulu untuk lanjut</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Jawab dulu untuk lanjut</div>
                       </div>
-                      <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', marginBottom: '16px', lineHeight: '1.4' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text1)', marginBottom: '16px', lineHeight: '1.5' }}>
                         {activeSlideTrigger.question}
                       </h4>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', marginBottom: '20px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', marginBottom: '20px' }}>
                         {(activeSlideTrigger.options || []).map((opt, oi) => {
                           const letter = String.fromCharCode(65 + oi);
                           const isSelected = slideTriggerAnswer === letter;
@@ -1154,13 +1281,20 @@ export const QuizModal = ({ video, onClose }) => {
                               key={oi}
                               onClick={() => setSlideTriggerAnswer(letter)}
                               style={{
-                                padding: '10px 14px', border: isSelected ? '2px solid #b45309' : '1px solid #e2e8f0',
-                                background: isSelected ? '#fffbeb' : '#f8fafc', color: isSelected ? '#92400e' : '#0f172a',
-                                borderRadius: '8px', textAlign: 'left', fontSize: '13px',
-                                cursor: 'pointer', fontWeight: isSelected ? '600' : 'normal'
+                                padding: '10px 12px',
+                                border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border)',
+                                background: isSelected ? 'rgba(59, 130, 246, 0.08)' : 'var(--bg2)',
+                                color: isSelected ? 'var(--accent)' : 'var(--text2)',
+                                borderRadius: '8px',
+                                textAlign: 'left',
+                                fontSize: '13px',
+                                cursor: 'pointer',
+                                fontWeight: isSelected ? '700' : '500',
+                                transition: 'all 0.12s ease',
+                                outline: 'none'
                               }}
                             >
-                              <strong>{letter}.</strong> {opt}
+                              <strong style={{ marginRight: '6px', color: isSelected ? 'var(--accent)' : 'var(--text3)' }}>{letter}.</strong> {opt}
                             </button>
                           );
                         })}
@@ -1169,9 +1303,17 @@ export const QuizModal = ({ video, onClose }) => {
                         onClick={handleSlideTriggerSubmit}
                         disabled={!slideTriggerAnswer}
                         style={{
-                          width: '100%', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700', fontSize: '13px',
-                          background: slideTriggerAnswer ? '#b45309' : '#94a3b8',
-                          color: '#fff', cursor: slideTriggerAnswer ? 'pointer' : 'not-allowed'
+                          width: '100%',
+                          padding: '11px',
+                          borderRadius: '8px',
+                          border: 'none',
+                          fontWeight: '700',
+                          fontSize: '13px',
+                          background: !slideTriggerAnswer ? 'var(--border)' : 'var(--accent)',
+                          color: !slideTriggerAnswer ? 'var(--text3)' : '#ffffff',
+                          cursor: slideTriggerAnswer ? 'pointer' : 'not-allowed',
+                          transition: 'all 0.2s ease',
+                          boxShadow: slideTriggerAnswer ? '0 4px 10px rgba(59, 130, 246, 0.15)' : 'none'
                         }}
                       >
                         Jawab & Lanjutkan Presentasi ›
@@ -1435,41 +1577,66 @@ export const QuizModal = ({ video, onClose }) => {
         {/* Close Confirmation Overlay */}
         {showCloseConfirm && (
           <div style={{
-            position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)',
+            position: 'absolute', inset: 0, 
+            background: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: 'inherit', zIndex: 10
+            borderRadius: 'inherit', zIndex: 100
           }}>
             <div style={{
-              background: 'var(--card)', borderRadius: '14px', padding: '28px 32px',
-              maxWidth: '340px', width: '90%', textAlign: 'center',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.28)'
+              background: 'var(--card)', borderRadius: '16px', padding: '32px 28px',
+              maxWidth: '350px', width: '90%', textAlign: 'center',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
+              border: '1px solid var(--border)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center'
             }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px' }}>{isWatchingMedia ? '📹' : '⚠️'}</div>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 8px' }}>
+              <div style={{ 
+                width: '56px', height: '56px', borderRadius: '50%',
+                background: isWatchingMedia ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                color: isWatchingMedia ? '#3b82f6' : '#ef4444',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: '16px'
+              }}>
+                {isWatchingMedia ? (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="23 7 16 12 23 17 23 7" />
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                  </svg>
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                )}
+              </div>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 10px', fontFamily: 'inherit' }}>
                 {isWatchingMedia ? 'Keluar dari SOP?' : 'Keluar dari kuis?'}
               </h3>
-              <p style={{ fontSize: '13px', color: 'var(--text3)', margin: '0 0 24px', lineHeight: '1.5' }}>
+              <p style={{ fontSize: '13px', color: 'var(--text3)', margin: '0 0 24px', lineHeight: '1.6' }}>
                 {isWatchingMedia
                   ? 'Progress menontonmu tersimpan, tapi kamu perlu melanjutkan menonton sebelum bisa mengerjakan post-test.'
                   : 'Jawaban yang sudah diisi akan hilang. Kamu harus mengulang dari awal.'}
               </p>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
                 <button
                   onClick={() => setShowCloseConfirm(false)}
                   style={{
-                    flex: 1, padding: '10px', borderRadius: '8px', fontSize: '14px',
-                    fontWeight: '600', cursor: 'pointer',
+                    flex: 1, padding: '11px', borderRadius: '10px', fontSize: '13px',
+                    fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s',
                     background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text2)'
                   }}
                 >
-                  Lanjut Kuis
+                  Lanjut Belajar
                 </button>
                 <button
                   onClick={onClose}
                   style={{
-                    flex: 1, padding: '10px', borderRadius: '8px', fontSize: '14px',
-                    fontWeight: '700', cursor: 'pointer',
-                    background: '#dc2626', border: 'none', color: '#fff'
+                    flex: 1, padding: '11px', borderRadius: '10px', fontSize: '13px',
+                    fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s',
+                    background: '#ef4444', border: 'none', color: '#fff',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)'
                   }}
                 >
                   Ya, Keluar
