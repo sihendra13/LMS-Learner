@@ -489,24 +489,103 @@ export const Dashboard = ({ onSelectVideo }) => {
     {detailVideo && (() => {
       const cs = detailVideo.submission?.certStatus;
       const cfg = cs === 'approved'
-        ? { badge: '✅ Sertifikat Aktif', badgeBg: '#f0fdf4', badgeColor: '#15803d', badgeBorder: '#86efac', noteLabel: detailVideo.submission.approvalNote ? "💬 Pesan dari HRD:" : "💬 Catatan Supervisor:", noteBg: "#f0fdf4", noteBorder: "#86efac", noteColor: "#15803d", note: detailVideo.submission.approvalNote || detailVideo.submission.supervisorNote, canRetake: false }
+        ? { 
+            badge: 'Sertifikat Aktif', 
+            badgeBg: '#f0fdf4', 
+            badgeColor: '#15803d', 
+            badgeBorder: '#86efac', 
+            badgeIcon: (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                <circle cx="12" cy="8" r="7" />
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+              </svg>
+            ),
+            noteLabel: detailVideo.submission.approvalNote ? "Pesan dari HRD" : "Catatan Supervisor", 
+            noteBg: "#f0fdf4", 
+            noteBorder: "#86efac", 
+            noteColor: "#15803d", 
+            note: detailVideo.submission.approvalNote || detailVideo.submission.supervisorNote, 
+            canRetake: false 
+          }
         : cs === 'supervisor_ok'
-        ? { badge: '📋 Catatan dari Supervisor', badgeBg: '#eff6ff', badgeColor: '#1d4ed8', badgeBorder: '#93c5fd', noteLabel: '💬 Catatan Supervisor:', noteBg: '#eff6ff', noteBorder: '#93c5fd', noteColor: '#1d4ed8', note: detailVideo.submission.supervisorNote, canRetake: false }
+        ? { 
+            badge: 'Catatan dari Supervisor', 
+            badgeBg: '#eff6ff', 
+            badgeColor: '#1d4ed8', 
+            badgeBorder: '#93c5fd', 
+            badgeIcon: (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+            ),
+            noteLabel: 'Catatan Supervisor', 
+            noteBg: '#eff6ff', 
+            noteBorder: '#93c5fd', 
+            noteColor: '#1d4ed8', 
+            note: detailVideo.submission.supervisorNote, 
+            canRetake: false 
+          }
         : cs === 'rejected'
-        ? { badge: '❌ Ditolak HRD', badgeBg: '#fef2f2', badgeColor: '#b91c1c', badgeBorder: '#fecaca', noteLabel: '💬 Catatan HRD:', noteBg: '#fef2f2', noteBorder: '#fecaca', noteColor: '#b91c1c', note: detailVideo.submission.rejectionNote, canRetake: true }
-        : { badge: '⚠️ Perlu Remedial', badgeBg: '#fff7ed', badgeColor: '#b45309', badgeBorder: '#fed7aa', noteLabel: '💬 Catatan Supervisor:', noteBg: '#fffbeb', noteBorder: '#fde68a', noteColor: '#b45309', note: detailVideo.submission.supervisorNote, canRetake: true };
+        ? { 
+            badge: 'Ditolak Final', 
+            badgeBg: '#fef2f2', 
+            badgeColor: '#b91c1c', 
+            badgeBorder: '#fecaca', 
+            badgeIcon: (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+            ),
+            noteLabel: 'Catatan HRD', 
+            noteBg: '#fef2f2', 
+            noteBorder: '#fecaca', 
+            noteColor: '#b91c1c', 
+            note: detailVideo.submission.rejectionNote, 
+            canRetake: true 
+          }
+        : { 
+            badge: 'Perlu Remedial', 
+            badgeBg: '#fff7ed', 
+            badgeColor: '#b45309', 
+            badgeBorder: '#fed7aa', 
+            badgeIcon: (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            ),
+            noteLabel: 'Catatan Supervisor', 
+            noteBg: '#fffbeb', 
+            noteBorder: '#fde68a', 
+            noteColor: '#b45309', 
+            note: detailVideo.submission.supervisorNote, 
+            canRetake: true 
+          };
 
       return (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: 'var(--card)', borderRadius: '16px', padding: '28px', maxWidth: '460px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', webkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#ffffff', borderRadius: '16px', padding: '28px', maxWidth: '460px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
               <div>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 6px' }}>{detailVideo.video.title}</h3>
-                <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', background: cfg.badgeBg, color: cfg.badgeColor, border: `1px solid ${cfg.badgeBorder}` }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 8px' }}>{detailVideo.video.title}</h3>
+                <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', background: cfg.badgeBg, color: cfg.badgeColor, border: `1px solid ${cfg.badgeBorder}`, display: 'inline-flex', alignItems: 'center' }}>
+                  {cfg.badgeIcon}
                   {cfg.badge}
                 </span>
               </div>
-              <button onClick={() => setDetailVideo(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }}>✕</button>
+              <button onClick={() => setDetailVideo(null)} style={{ background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#9ca3af', padding: '4px', borderRadius: '50%', transition: 'background 0.2s' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
@@ -535,12 +614,17 @@ export const Dashboard = ({ onSelectVideo }) => {
             })()}
 
             <div style={{ background: cfg.noteBg, border: `1px solid ${cfg.noteBorder}`, borderRadius: '8px', padding: '14px', marginBottom: '24px' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: cfg.noteColor, marginBottom: '6px' }}>{cfg.noteLabel}</div>
-              <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6' }}>{cfg.note}</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: cfg.noteColor, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                {cfg.noteLabel}
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>{cfg.note}</div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setDetailVideo(null)} style={{ flex: 1, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
+              <button onClick={() => setDetailVideo(null)} style={{ flex: 1, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', background: '#ffffff', border: '1px solid #d1d5db', color: '#374151' }}>
                 {cfg.canRetake ? 'Batal' : 'Tutup'}
               </button>
               {cfg.canRetake && (
