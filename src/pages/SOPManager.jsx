@@ -147,6 +147,16 @@ export const SOPManager = ({ onSelectVideo }) => {
                     </div>
 
                     {(() => {
+                      const note = (cs === 'approved' && submission?.approvalNote) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
+                      if (!note) return null;
+                      return (
+                        <span style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', background: '#f3f4f6', border: '1px solid #e5e7eb', padding: '3px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px', cursor: 'pointer' }}>
+                          💬 Ada catatan — klik untuk lihat
+                        </span>
+                      );
+                    })()}
+
+                    {(() => {
                       if (!video.deadline || isCompleted) return null;
                       const today = new Date(); today.setHours(0,0,0,0);
                       const dl = new Date(video.deadline);
