@@ -210,10 +210,28 @@ export const Certifications = () => {
                 return (
                   <div key={sub.id} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text1)', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {sub.videoTitle}
-                        </div>
+                      <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                        {(() => {
+                          const targetVideo = videos.find(v => v.title === sub.videoTitle) || {};
+                          const isCompleted = sub.certStatus === 'approved';
+                          return (
+                            <div className="sop-thumb" style={{ background: targetVideo.color || 'var(--navy2)', width: '90px', height: '56px', flexShrink: 0, marginRight: '14px', borderRadius: '8px', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {isCompleted ? (
+                                <div className="sop-done-overlay" style={{ position: 'absolute', inset: 0, background: 'rgba(16, 185, 129, 0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'inherit', color: '#fff' }}>
+                                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '22px', height: '22px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                                </div>
+                              ) : (
+                                <div className="play-ic" style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <svg viewBox="0 0 24 24" fill="white" style={{ width: '12px', height: '12px' }}><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text1)', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {sub.videoTitle}
+                          </div>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '6px' }}>
                           <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
                             Pre-Test: <strong style={{ color: sub.preScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.preScore ?? '—'}%</strong>
@@ -254,6 +272,7 @@ export const Certifications = () => {
                           </div>
                         )}
                       </div>
+                    </div>
 
                       {/* Right: badge + action buttons in a row */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
