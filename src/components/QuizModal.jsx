@@ -64,6 +64,7 @@ export const QuizModal = ({ video, onClose }) => {
   const [isAckHovered, setIsAckHovered] = useState(false);
   const [isResultHovered, setIsResultHovered] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [completedAt, setCompletedAt] = useState(null);
 
   const [videoError, setVideoError] = useState(false);
   const [triggerToast, setTriggerToast] = useState(false);
@@ -288,6 +289,7 @@ export const QuizModal = ({ video, onClose }) => {
       submitEssay(essaySubmission);
       setPostSubmitted(true);
       setPostScore(null);
+      setCompletedAt(new Date());
       setStep('result');
     } else {
       let correct = 0;
@@ -311,6 +313,7 @@ export const QuizModal = ({ video, onClose }) => {
       };
 
       addSubmission(newSubmission);
+      setCompletedAt(new Date());
       setStep('result');
     }
   };
@@ -1546,6 +1549,15 @@ export const QuizModal = ({ video, onClose }) => {
                     <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '2px' }}>Standar Lulus</div>
                     <div style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text2)' }}>{passingScore}%</div>
                   </div>
+                </div>
+              )}
+
+              {completedAt && (
+                <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Diselesaikan: {completedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} {completedAt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               )}
 

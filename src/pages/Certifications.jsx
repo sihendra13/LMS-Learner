@@ -221,7 +221,14 @@ export const Certifications = () => {
                           <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
                             Post-Test: <strong style={{ color: sub.postScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.postScore ?? '—'}%</strong>
                           </span>
-                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>{sub.date}</span>
+                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                            {sub.date && sub.date.length > 10
+                              ? (() => {
+                                  const d = new Date(sub.date);
+                                  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                                })()
+                              : sub.date || '—'}
+                          </span>
                           {retakeCount > 0 && (
                             <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px' }}>
                               Percobaan ke-{retakeCount + 1} dari {MAX_RETAKES}
