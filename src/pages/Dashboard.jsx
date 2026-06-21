@@ -510,9 +510,9 @@ export const Dashboard = ({ onSelectVideo }) => {
               </svg>
             ),
             noteLabel: detailVideo.submission.approvalNote ? "Pesan dari HRD" : "Catatan Supervisor", 
-            noteBg: "#f0fdf4", 
-            noteBorder: "#86efac", 
-            noteColor: "#15803d", 
+            noteBg: "#f8fafc", 
+            noteBorder: "#e2e8f0", 
+            noteColor: "#475569", 
             note: detailVideo.submission.approvalNote || detailVideo.submission.supervisorNote, 
             canRetake: false 
           }
@@ -532,9 +532,9 @@ export const Dashboard = ({ onSelectVideo }) => {
               </svg>
             ),
             noteLabel: 'Catatan Supervisor', 
-            noteBg: '#eff6ff', 
-            noteBorder: '#93c5fd', 
-            noteColor: '#1d4ed8', 
+            noteBg: '#f8fafc', 
+            noteBorder: '#e2e8f0', 
+            noteColor: '#475569', 
             note: detailVideo.submission.supervisorNote, 
             canRetake: false 
           }
@@ -552,9 +552,9 @@ export const Dashboard = ({ onSelectVideo }) => {
               </svg>
             ),
             noteLabel: 'Catatan HRD', 
-            noteBg: '#fef2f2', 
-            noteBorder: '#fecaca', 
-            noteColor: '#b91c1c', 
+            noteBg: '#f8fafc', 
+            noteBorder: '#e2e8f0', 
+            noteColor: '#475569', 
             note: detailVideo.submission.rejectionNote, 
             canRetake: true 
           }
@@ -571,9 +571,9 @@ export const Dashboard = ({ onSelectVideo }) => {
               </svg>
             ),
             noteLabel: 'Catatan Supervisor', 
-            noteBg: '#fffbeb', 
-            noteBorder: '#fde68a', 
-            noteColor: '#b45309', 
+            noteBg: '#f8fafc', 
+            noteBorder: '#e2e8f0', 
+            noteColor: '#475569', 
             note: detailVideo.submission.supervisorNote, 
             canRetake: true 
           };
@@ -600,11 +600,11 @@ export const Dashboard = ({ onSelectVideo }) => {
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
               <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Pre-Test</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text1)' }}>{detailVideo.submission.preScore ?? '—'}%</div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: (detailVideo.submission.preScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.preScore ?? '—'}%</div>
               </div>
               <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Post-Test</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: cs === 'approved' ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: (detailVideo.submission.postScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
               </div>
             </div>
 
@@ -633,13 +633,27 @@ export const Dashboard = ({ onSelectVideo }) => {
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button onClick={() => setDetailVideo(null)} style={{ flex: 1, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', background: '#ffffff', border: '1px solid #d1d5db', color: '#374151' }}>
+              <button 
+                onClick={() => setDetailVideo(null)} 
+                style={{ 
+                  flex: 1, 
+                  padding: '11px', 
+                  borderRadius: '8px', 
+                  fontSize: '13px', 
+                  fontWeight: '600', 
+                  cursor: 'pointer', 
+                  background: cfg.canRetake ? '#ffffff' : '#0f172a', 
+                  border: cfg.canRetake ? '1px solid #d1d5db' : 'none', 
+                  color: cfg.canRetake ? '#374151' : '#ffffff',
+                  transition: 'all 0.15s'
+                }}
+              >
                 {cfg.canRetake ? 'Batal' : 'Tutup'}
               </button>
               {cfg.canRetake && (
                 <button
                   onClick={() => { setDetailVideo(null); onSelectVideo(detailVideo.video); }}
-                  style={{ flex: 2, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', background: 'var(--navy)', border: 'none', color: '#fff' }}
+                  style={{ flex: 2, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', background: '#0f172a', border: 'none', color: '#fff' }}
                 >
                   Mulai SOP Ulang
                 </button>
