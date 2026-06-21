@@ -243,14 +243,51 @@ export const Certifications = () => {
                           <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text1)', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {sub.videoTitle}
                           </div>
-                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '6px' }}>
-                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                            Pre-Test: <strong style={{ color: sub.preScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.preScore ?? '—'}%</strong>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '6px' }}>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            background: sub.preScore >= passingScore ? '#ecfdf5' : '#fef2f2',
+                            color: sub.preScore >= passingScore ? '#15803d' : '#dc2626',
+                            border: `1px solid ${sub.preScore >= passingScore ? '#a7f3d0' : '#fca5a5'}`,
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center'
+                          }}>
+                            Pre-Test: <strong style={{ marginLeft: '4px' }}>{sub.preScore ?? '—'}%</strong>
                           </span>
-                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
-                            Post-Test: <strong style={{ color: sub.postScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.postScore ?? '—'}%</strong>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            background: sub.postScore >= passingScore ? '#ecfdf5' : '#fef2f2',
+                            color: sub.postScore >= passingScore ? '#15803d' : '#dc2626',
+                            border: `1px solid ${sub.postScore >= passingScore ? '#a7f3d0' : '#fca5a5'}`,
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center'
+                          }}>
+                            Post-Test: <strong style={{ marginLeft: '4px' }}>{sub.postScore ?? '—'}%</strong>
                           </span>
-                          <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            background: '#f3f4f6',
+                            color: '#4b5563',
+                            border: '1px solid #e5e7eb',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#6b7280', flexShrink: 0 }}>
+                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                              <line x1="16" y1="2" x2="16" y2="6" />
+                              <line x1="8" y1="2" x2="8" y2="6" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
                             {sub.date && sub.date.length > 10
                               ? (() => {
                                   const d = new Date(sub.date);
