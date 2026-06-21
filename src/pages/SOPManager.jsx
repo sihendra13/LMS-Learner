@@ -91,6 +91,10 @@ export const SOPManager = ({ onSelectVideo }) => {
               const isBlocked = cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved';
               const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
               const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
+              const displayProgress =
+                (cs === 'approved' || cs === 'pending' || cs === 'supervisor_ok') ? 100
+                : (cs === 'remedial' || cs === 'rejected') ? 0
+                : video.progress;
 
               const getStatusBadge = (sub) => {
                 if (!sub) return null;
@@ -182,15 +186,15 @@ export const SOPManager = ({ onSelectVideo }) => {
                     
                     <div className="sop-prog">
                       <div className="prog-bar">
-                        <div 
-                          className="prog-fill" 
-                          style={{ 
-                            width: `${video.progress}%`, 
-                            background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)' 
+                        <div
+                          className="prog-fill"
+                          style={{
+                            width: `${displayProgress}%`,
+                            background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)'
                           }}
                         />
                       </div>
-                      <div className="prog-pct">{video.progress}% menonton</div>
+                      <div className="prog-pct">{displayProgress}% menonton</div>
                     </div>
                   </div>
                   

@@ -176,6 +176,10 @@ export const Dashboard = ({ onSelectVideo }) => {
               const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
               const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
               const isNew = !isCompleted && video.progress === 0;
+              const displayProgress =
+                (cs === 'approved' || cs === 'pending' || cs === 'supervisor_ok') ? 100
+                : (cs === 'remedial' || cs === 'rejected') ? 0
+                : video.progress;
 
               return (
                 <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)} style={{ cursor: isBlocked ? 'default' : 'pointer' }}>
@@ -234,15 +238,15 @@ export const Dashboard = ({ onSelectVideo }) => {
                     })()}
                     <div className="sop-prog">
                       <div className="prog-bar">
-                        <div 
-                          className="prog-fill" 
-                          style={{ 
-                            width: `${video.progress}%`, 
-                            background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)' 
+                        <div
+                          className="prog-fill"
+                          style={{
+                            width: `${displayProgress}%`,
+                            background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)'
                           }}
                         />
                       </div>
-                      <div className="prog-pct">{video.progress}%</div>
+                      <div className="prog-pct">{displayProgress}%</div>
                     </div>
                   </div>
                   <div className="sop-status">
