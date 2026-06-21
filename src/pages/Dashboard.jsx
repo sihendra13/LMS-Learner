@@ -583,7 +583,7 @@ export const Dashboard = ({ onSelectVideo }) => {
       return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', webkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#ffffff', borderRadius: '16px', padding: '28px', maxWidth: '460px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 8px' }}>{detailVideo.video.title}</h3>
                 <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', background: cfg.badgeBg, color: cfg.badgeColor, border: `1px solid ${cfg.badgeBorder}`, display: 'inline-flex', alignItems: 'center' }}>
@@ -599,14 +599,17 @@ export const Dashboard = ({ onSelectVideo }) => {
               </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+            <div style={{ height: '1px', background: '#e2e8f0', margin: '0 0 16px 0' }} />
+
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ flex: 1, padding: '8px', textAlign: 'center' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Pre-Test</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: (detailVideo.submission.preScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.preScore ?? '—'}%</div>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: (detailVideo.submission.preScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.preScore ?? '—'}%</div>
               </div>
-              <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+              <div style={{ width: '1px', height: '40px', background: '#e2e8f0' }} />
+              <div style={{ flex: 1, padding: '8px', textAlign: 'center' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Post-Test</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: (detailVideo.submission.postScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: (detailVideo.submission.postScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
               </div>
             </div>
 
