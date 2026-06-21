@@ -278,6 +278,7 @@ nav { padding: 8px 0; flex: 1; }
 .dt-fin { background: #ede9fe; color: #6d28d9; }
 .dt-cs { background: #cffafe; color: #0e7490; }
 .dt-it { background: #fce7f3; color: #9d174d; }
+.dt-semua { background: #f1f5f9; color: #475569; }
 .sop-dur { font-size: 11px; color: var(--text3); }
 .sop-prog { display: flex; align-items: center; gap: 8px; }
 .prog-bar { flex: 1; height: 4px; background: var(--surface3); border-radius: 99px; overflow: hidden; }
