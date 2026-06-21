@@ -69,6 +69,7 @@ export const Dashboard = ({ onSelectVideo }) => {
   const recentActivities = activities.slice(0, 5);
 
   return (
+    <>
     <div className="content">
       {/* HERO SECTION */}
       <div className="hero-bar">
@@ -483,5 +484,6 @@ export const Dashboard = ({ onSelectVideo }) => {
         </div>
       );
     })()}
+    </>
   );
 };

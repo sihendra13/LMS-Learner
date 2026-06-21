@@ -48,6 +48,7 @@ export const SOPManager = ({ onSelectVideo }) => {
   });
 
   return (
+    <>
     <div className="content">
       {/* HEADER */}
       <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -296,5 +297,6 @@ export const SOPManager = ({ onSelectVideo }) => {
         </div>
       );
     })()}
+    </>
   );
 };
