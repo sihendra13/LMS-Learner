@@ -131,6 +131,11 @@ export const SOPManager = ({ onSelectVideo }) => {
                       ) : (
                         <span className="sop-dur">⏱ {video.duration}</span>
                       )}
+                      {submission && (
+                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: submission.postScore >= passingScore ? 'var(--green)' : 'var(--red)' }}>
+                          Skor: {submission.postScore}%
+                        </span>
+                      )}
                       {statusBadge && (
                         <span style={{
                           fontSize: '11px',
