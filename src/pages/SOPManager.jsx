@@ -328,12 +328,14 @@ export const SOPManager = ({ onSelectVideo }) => {
                 <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
               </svg>
             ),
-            noteLabel: detailVideo.submission.approvalNote ? "Pesan dari HRD" : "Catatan Supervisor", 
-            noteBg: "#f8fafc", 
-            noteBorder: "#e2e8f0", 
-            noteColor: "#475569", 
-            note: detailVideo.submission.approvalNote || detailVideo.submission.supervisorNote, 
-            canRetake: false 
+            noteLabel: detailVideo.submission.supervisorNote ? "Catatan Supervisor" : "Pesan dari HRD",
+            noteBg: "#f8fafc",
+            noteBorder: "#e2e8f0",
+            noteColor: "#475569",
+            note: detailVideo.submission.supervisorNote || detailVideo.submission.approvalNote,
+            secondNoteLabel: (detailVideo.submission.supervisorNote && detailVideo.submission.approvalNote) ? "Pesan dari HRD" : null,
+            secondNote: (detailVideo.submission.supervisorNote && detailVideo.submission.approvalNote) ? detailVideo.submission.approvalNote : null,
+            canRetake: false
           }
         : cs === 'supervisor_ok'
         ? { 
@@ -444,14 +446,27 @@ export const SOPManager = ({ onSelectVideo }) => {
               );
             })()}
 
-            <div style={{ background: cfg.noteBg, border: `1px solid ${cfg.noteBorder}`, borderRadius: '8px', padding: '14px', marginBottom: '24px' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: cfg.noteColor, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                {cfg.noteLabel}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+              <div style={{ background: cfg.noteBg, border: `1px solid ${cfg.noteBorder}`, borderRadius: '8px', padding: '14px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '700', color: cfg.noteColor, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  {cfg.noteLabel}
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>{cfg.note}</div>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>{cfg.note}</div>
+              {cfg.secondNote && (
+                <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '14px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#15803d', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    {cfg.secondNoteLabel}
+                  </div>
+                  <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>{cfg.secondNote}</div>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
