@@ -27,11 +27,22 @@ export const Certifications = () => {
     });
 
   const certStatusLabel = (sub) => {
-    if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+    if (sub.certStatus === 'approved') return {
+      label: 'Sertifikat Aktif',
+      color: '#15803d',
+      bg: '#f0fdf4',
+      border: '#86efac',
+      icon: (
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+          <circle cx="12" cy="8" r="7" />
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+        </svg>
+      )
+    };
     if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
     if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
     if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
-    return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
+    return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
   };
 
   const handleRetake = (sub) => {
@@ -276,7 +287,20 @@ export const Certifications = () => {
 
                       {/* Right: badge + action buttons in a row */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                        <span style={{ fontSize: '11px', fontWeight: '700', padding: '5px 12px', borderRadius: '8px', background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          padding: '6px 14px',
+                          borderRadius: '99px',
+                          background: s.bg,
+                          color: s.color,
+                          border: `1px solid ${s.border}`,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {s.icon}
                           {s.label}
                         </span>
                         {sub.certStatus === 'approved' && (() => {
@@ -324,7 +348,7 @@ export const Certifications = () => {
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
           background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(4px)',
           display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 9999
-        }} onClick={() => setPreviewCert(null)}>
+        }}>
           <div style={{
             background: '#ffffff', padding: '32px', borderRadius: '16px',
             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', width: '750px',
@@ -343,11 +367,11 @@ export const Certifications = () => {
             }}>
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '150px', height: '150px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
               {tenant?.logo ? (
-                <div style={{ marginBottom: '16px' }}>
-                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '52px', maxWidth: '180px', objectFit: 'contain' }} />
+                <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '52px', maxWidth: '180px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
                 </div>
               ) : (
-                <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '20px' }}>
+                <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '20px', textAlign: 'center' }}>
                   🏢 {tenant?.name || 'PT Maju Bersama'} · Corporate LMS
                 </div>
               )}
