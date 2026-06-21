@@ -134,7 +134,7 @@ export const SOPManager = ({ onSelectVideo }) => {
               const statusBadge = getStatusBadge(submission);
 
               return (
-                <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)} style={{ cursor: isBlocked ? 'default' : 'pointer' }}>
+                <div key={video.id} className="sop-item" style={{ cursor: 'default' }}>
                   <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '90px', height: '56px' }}>
                     {isCompleted ? (
                       <div className="sop-done-overlay">
@@ -204,20 +204,22 @@ export const SOPManager = ({ onSelectVideo }) => {
                       const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
                       if (!note) return null;
                       return (
-                        <span style={{ 
-                          fontSize: '11px', 
-                          fontWeight: '600', 
-                          color: '#2563eb', 
-                          background: 'rgba(59, 130, 246, 0.08)', 
-                          border: '1px solid rgba(59, 130, 246, 0.2)', 
-                          padding: '3px 10px', 
-                          borderRadius: '6px', 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px', 
-                          marginTop: '6px', 
-                          cursor: 'pointer' 
-                        }}>
+                        <span
+                          onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }}
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            color: '#2563eb',
+                            background: 'rgba(59, 130, 246, 0.08)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            padding: '3px 10px',
+                            borderRadius: '6px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            marginTop: '6px',
+                            cursor: 'pointer'
+                          }}>
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                           </svg>
@@ -294,11 +296,11 @@ export const SOPManager = ({ onSelectVideo }) => {
                         Menunggu HRD
                       </span>
                     ) : (cs === 'remedial' || cs === 'rejected') ? (
-                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', fontWeight: '600' }}>
+                      <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
                         Mulai SOP Ulang
                       </button>
                     ) : (
-                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '8px', fontWeight: '600' }}>
+                      <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
                         {isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
                       </button>
                     )}
