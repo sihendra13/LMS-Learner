@@ -1557,7 +1557,7 @@ export const QuizModal = ({ video, onClose }) => {
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                   </svg>
-                  Diselesaikan: {completedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} {completedAt.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                  Diselesaikan: {completedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} {String(completedAt.getHours()).padStart(2,'0')}:{String(completedAt.getMinutes()).padStart(2,'0')}
                 </div>
               )}
 

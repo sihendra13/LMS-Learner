@@ -225,7 +225,7 @@ export const Certifications = () => {
                             {sub.date && sub.date.length > 10
                               ? (() => {
                                   const d = new Date(sub.date);
-                                  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                                  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
                                 })()
                               : sub.date || '—'}
                           </span>
