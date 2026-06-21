@@ -67,18 +67,11 @@ export const SOPManager = ({ onSelectVideo }) => {
 
               const getStatusBadge = (sub) => {
                 if (!sub) return null;
-                if (sub.certStatus === 'approved')      return { label: `Lulus ✓ (${sub.postScore}%)`,              color: '#15803d', bg: '#f0fdf4' };
-                if (sub.certStatus === 'supervisor_ok') return { label: `Direkomendasi — Menunggu HRD (${sub.postScore}%)`, color: '#1d4ed8', bg: '#eff6ff' };
-                if (sub.certStatus === 'remedial') {
-                  const attempt = (sub.retakeCount || 0) + 2;
-                  const remaining = MAX_RETAKES - (sub.retakeCount || 0);
-                  return { label: `Perlu Mengulang — Percobaan ke-${attempt} dari ${MAX_RETAKES} (Sisa ${remaining}x)`, color: '#b45309', bg: '#fff7ed' };
-                }
-                if (sub.certStatus === 'rejected') return { label: `Ditolak Final (${sub.postScore}%)`, color: '#b91c1c', bg: '#fff5f5' };
-                // pending: submitted or retaken, waiting for review
-                if (sub.postScore >= passingScore) return { label: `Lulus — Menunggu Review (${sub.postScore}%)`, color: '#15803d', bg: '#e6f4ea' };
-                if (sub.retakeCount > 0) return { label: `Menunggu Review — Percobaan ke-${sub.retakeCount + 1} dari ${MAX_RETAKES} (${sub.postScore}%)`, color: '#92400e', bg: '#fffbeb' };
-                return { label: `Menunggu Review Supervisor (${sub.postScore}%)`, color: '#92400e', bg: '#fffbeb' };
+                if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+                if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+                if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
               };
               const statusBadge = getStatusBadge(submission);
 
@@ -108,11 +101,12 @@ export const SOPManager = ({ onSelectVideo }) => {
                       {statusBadge && (
                         <span style={{
                           fontSize: '11px',
-                          fontWeight: 'bold',
+                          fontWeight: '700',
                           color: statusBadge.color,
                           background: statusBadge.bg,
-                          padding: '1px 8px',
-                          borderRadius: '4px'
+                          border: `1px solid ${statusBadge.border}`,
+                          padding: '4px 10px',
+                          borderRadius: '8px'
                         }}>
                           {statusBadge.label}
                         </span>
