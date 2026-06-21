@@ -150,14 +150,24 @@ export const SOPManager = ({ onSelectVideo }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <span className={`dept-tag ${video.tagClass}`}>{video.dept}</span>
                       {video.type === 'ppt' ? (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#ede9fe', color: '#7c3aed', padding: '2px 8px', borderRadius: '4px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                           📊 {video.slideCount || '?'} slide
                         </span>
                       ) : (
-                        <span className="sop-dur">⏱ {video.duration}</span>
+                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          ⏱ {video.duration}
+                        </span>
                       )}
                       {submission && (
-                        <span style={{ fontSize: '11px', fontWeight: 'bold', color: submission.postScore >= passingScore ? 'var(--green)' : 'var(--red)' }}>
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          background: submission.postScore >= passingScore ? '#ecfdf5' : '#fef2f2',
+                          color: submission.postScore >= passingScore ? '#15803d' : '#dc2626',
+                          border: `1px solid ${submission.postScore >= passingScore ? '#a7f3d0' : '#fca5a5'}`,
+                          padding: '2px 8px',
+                          borderRadius: '4px'
+                        }}>
                           Skor: {submission.postScore}%
                         </span>
                       )}
