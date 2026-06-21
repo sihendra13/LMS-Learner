@@ -1585,7 +1585,7 @@ export const QuizModal = ({ video, onClose }) => {
             borderRadius: 'inherit', zIndex: 100
           }}>
             <div style={{
-              background: 'var(--card)', borderRadius: '16px', padding: '32px 28px',
+              background: '#ffffff', borderRadius: '16px', padding: '32px 28px',
               maxWidth: '350px', width: '90%', textAlign: 'center',
               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
               border: '1px solid var(--border)',
