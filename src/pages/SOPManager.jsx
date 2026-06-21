@@ -89,7 +89,8 @@ export const SOPManager = ({ onSelectVideo }) => {
             {filteredVideos.map(video => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
               const cs = submission?.certStatus;
-              const isBlocked = cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved';
+              const hasNote = (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'approved' && submission?.approvalNote);
+              const isBlocked = cs === 'pending' || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
               const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
               const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
               const displayProgress =
