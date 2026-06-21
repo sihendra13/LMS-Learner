@@ -304,7 +304,7 @@ export const SOPManager = ({ onSelectVideo }) => {
                         }}
                       />
                     </div>
-                    <div className="prog-pct">{displayProgress}% menonton</div>
+                    <div className="prog-pct">{displayProgress}%</div>
                   </div>
                 </div>
               );
