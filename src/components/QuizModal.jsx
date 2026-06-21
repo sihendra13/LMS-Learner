@@ -1623,9 +1623,10 @@ export const QuizModal = ({ video, onClose }) => {
                 <button
                   onClick={() => setShowCloseConfirm(false)}
                   style={{
-                    flex: 1, padding: '11px', borderRadius: '10px', fontSize: '13px',
+                    flex: 1, padding: '12px 16px', borderRadius: '10px', fontSize: '13px',
                     fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s',
-                    background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text2)'
+                    background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text1)',
+                    outline: 'none', display: 'block', width: '100%', boxSizing: 'border-box'
                   }}
                 >
                   Lanjut Belajar
@@ -1633,10 +1634,11 @@ export const QuizModal = ({ video, onClose }) => {
                 <button
                   onClick={onClose}
                   style={{
-                    flex: 1, padding: '11px', borderRadius: '10px', fontSize: '13px',
+                    flex: 1, padding: '12px 16px', borderRadius: '10px', fontSize: '13px',
                     fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s',
-                    background: '#ef4444', border: 'none', color: '#fff',
-                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)'
+                    background: '#ef4444', border: '1px solid #ef4444', color: '#ffffff',
+                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+                    outline: 'none', display: 'block', width: '100%', boxSizing: 'border-box'
                   }}
                 >
                   Ya, Keluar
