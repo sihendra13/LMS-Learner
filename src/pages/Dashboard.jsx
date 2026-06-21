@@ -7,7 +7,9 @@ export const Dashboard = ({ onSelectVideo }) => {
 
   const handleVideoClick = (video) => {
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
-    if (submission?.certStatus === 'remedial' && submission?.supervisorNote) {
+    const cs = submission?.certStatus;
+    if (cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved') return;
+    if (cs === 'remedial' && submission?.supervisorNote) {
       setDetailVideo({ video, submission });
     } else {
       onSelectVideo(video);
@@ -149,12 +151,14 @@ export const Dashboard = ({ onSelectVideo }) => {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {mandatoryVideos.map(video => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
+              const cs = submission?.certStatus;
+              const isBlocked = cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved';
               const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
               const isOngoing = video.progress > 0 && video.progress < 100;
               const isNew = video.progress === 0;
 
               return (
-                <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)}>
+                <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)} style={{ cursor: isBlocked ? 'default' : 'pointer' }}>
                   <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)' }}>
                     {isCompleted ? (
                       <div className="sop-done-overlay">
@@ -222,7 +226,17 @@ export const Dashboard = ({ onSelectVideo }) => {
                     </div>
                   </div>
                   <div className="sop-status">
-                    {isCompleted ? (
+                    {cs === 'pending' ? (
+                      <span className="status-pill" style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', fontSize: '10px', whiteSpace: 'nowrap' }}>Menunggu Supervisor</span>
+                    ) : cs === 'supervisor_ok' ? (
+                      <span className="status-pill" style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #93c5fd', fontSize: '10px', whiteSpace: 'nowrap' }}>Menunggu HRD</span>
+                    ) : cs === 'remedial' ? (
+                      <span className="status-pill" style={{ background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', fontSize: '10px' }}>Perlu Remedial</span>
+                    ) : cs === 'rejected' ? (
+                      <span className="status-pill" style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', fontSize: '10px' }}>Ditolak HRD</span>
+                    ) : cs === 'approved' ? (
+                      <span className="status-pill sp-done">Sertifikat Aktif</span>
+                    ) : isCompleted ? (
                       <span className="status-pill sp-done">Lulus</span>
                     ) : isOngoing ? (
                       <span className="status-pill sp-ongoing">Lanjutkan</span>

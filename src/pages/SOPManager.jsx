@@ -8,7 +8,9 @@ export const SOPManager = ({ onSelectVideo }) => {
 
   const handleVideoClick = (video) => {
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
-    if (submission?.certStatus === 'remedial' && submission?.supervisorNote) {
+    const cs = submission?.certStatus;
+    if (cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved') return;
+    if (cs === 'remedial' && submission?.supervisorNote) {
       setDetailVideo({ video, submission });
     } else {
       onSelectVideo(video);
@@ -72,6 +74,8 @@ export const SOPManager = ({ onSelectVideo }) => {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {filteredVideos.map(video => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
+              const cs = submission?.certStatus;
+              const isBlocked = cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved';
               const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
               const isOngoing = video.progress > 0 && video.progress < 100;
 
@@ -86,7 +90,7 @@ export const SOPManager = ({ onSelectVideo }) => {
               const statusBadge = getStatusBadge(submission);
 
               return (
-                <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)}>
+                <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)} style={{ cursor: isBlocked ? 'default' : 'pointer' }}>
                   <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '90px', height: '56px' }}>
                     {isCompleted ? (
                       <div className="sop-done-overlay">
@@ -178,12 +182,23 @@ export const SOPManager = ({ onSelectVideo }) => {
                   </div>
                   
                   <div style={{ marginLeft: '20px' }}>
-                    <button 
-                      className="btn-sec"
-                      style={{ fontSize: '12px', padding: '6px 14px' }}
-                    >
-                      {isCompleted ? 'Pelajari Ulang' : isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
-                    </button>
+                    {cs === 'approved' ? null : cs === 'pending' ? (
+                      <button className="btn-sec" disabled style={{ fontSize: '12px', padding: '6px 14px', opacity: 0.5, cursor: 'not-allowed' }}>
+                        Menunggu Supervisor
+                      </button>
+                    ) : cs === 'supervisor_ok' ? (
+                      <button className="btn-sec" disabled style={{ fontSize: '12px', padding: '6px 14px', opacity: 0.5, cursor: 'not-allowed' }}>
+                        Menunggu HRD
+                      </button>
+                    ) : (cs === 'remedial' || cs === 'rejected') ? (
+                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa' }}>
+                        Mulai SOP Ulang
+                      </button>
+                    ) : (
+                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px' }}>
+                        {isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
+                      </button>
+                    )}
                   </div>
                 </div>
               );
