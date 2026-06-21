@@ -185,13 +185,34 @@ export const Dashboard = ({ onSelectVideo }) => {
 
               const getStatusBadge = (sub) => {
                 if (sub) {
-                  if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+                  if (sub.certStatus === 'approved') return {
+                    label: 'Sertifikat Aktif',
+                    color: '#15803d',
+                    bg: '#f0fdf4',
+                    border: '#86efac',
+                    icon: (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '4px' }}>
+                        <circle cx="12" cy="8" r="7" />
+                        <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                      </svg>
+                    )
+                  };
                   if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
                   if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                   if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
-                  return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
+                  return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
                 }
-                if (isCompleted) return { label: 'Lulus', color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+                if (isCompleted) return {
+                  label: 'Lulus',
+                  color: '#15803d',
+                  bg: '#f0fdf4',
+                  border: '#86efac',
+                  icon: (
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '4px' }}>
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  )
+                };
                 if (isOngoing)   return { label: 'Lanjutkan', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
                 return { label: 'Baru', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
               };
@@ -224,20 +245,6 @@ export const Dashboard = ({ onSelectVideo }) => {
                       {submission && (
                         <span style={{ fontSize: '11px', fontWeight: 'bold', color: submission.postScore >= passingScore ? 'var(--green)' : 'var(--red)' }}>
                           Skor: {submission.postScore}%
-                        </span>
-                      )}
-                      {statusBadge && (
-                        <span style={{
-                          fontSize: '11px',
-                          fontWeight: '700',
-                          color: statusBadge.color,
-                          background: statusBadge.bg,
-                          border: `1px solid ${statusBadge.border}`,
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {statusBadge.label}
                         </span>
                       )}
                     </div>
@@ -303,6 +310,26 @@ export const Dashboard = ({ onSelectVideo }) => {
                       </div>
                       <div className="prog-pct">{displayProgress}%</div>
                     </div>
+                  </div>
+                  <div className="sop-status" style={{ marginLeft: '12px', flexShrink: 0 }}>
+                    {statusBadge && (
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        color: statusBadge.color,
+                        background: statusBadge.bg,
+                        border: `1px solid ${statusBadge.border}`,
+                        padding: '6px 14px',
+                        borderRadius: '99px',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {statusBadge.icon}
+                        {statusBadge.label}
+                      </span>
+                    )}
                   </div>
                 </div>
               );

@@ -236,21 +236,25 @@ export const SOPManager = ({ onSelectVideo }) => {
                     </div>
                   </div>
                   
-                  <div style={{ marginLeft: '20px' }}>
-                    {cs === 'approved' ? null : cs === 'pending' ? (
-                      <button className="btn-sec" disabled style={{ fontSize: '12px', padding: '6px 14px', opacity: 0.5, cursor: 'not-allowed' }}>
+                  <div style={{ marginLeft: '20px', flexShrink: 0 }}>
+                    {cs === 'approved' ? (
+                      <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#ecfdf5', color: '#15803d', border: '1px solid #d1fae5', display: 'inline-block', whiteSpace: 'nowrap' }}>
+                        Selesai
+                      </span>
+                    ) : cs === 'pending' ? (
+                      <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
                         Menunggu Supervisor
-                      </button>
+                      </span>
                     ) : cs === 'supervisor_ok' ? (
-                      <button className="btn-sec" disabled style={{ fontSize: '12px', padding: '6px 14px', opacity: 0.5, cursor: 'not-allowed' }}>
+                      <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
                         Menunggu HRD
-                      </button>
+                      </span>
                     ) : (cs === 'remedial' || cs === 'rejected') ? (
-                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa' }}>
+                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', fontWeight: '600' }}>
                         Mulai SOP Ulang
                       </button>
                     ) : (
-                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px' }}>
+                      <button className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '8px', fontWeight: '600' }}>
                         {isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
                       </button>
                     )}
