@@ -585,9 +585,9 @@ export const Dashboard = ({ onSelectVideo }) => {
       return (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', webkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#ffffff', borderRadius: '16px', padding: '28px', maxWidth: '460px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-              <div>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 8px' }}>{detailVideo.video.title}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: 0 }}>{detailVideo.video.title}</h3>
                 <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', background: cfg.badgeBg, color: cfg.badgeColor, border: `1px solid ${cfg.badgeBorder}`, display: 'inline-flex', alignItems: 'center' }}>
                   {cfg.badgeIcon}
                   {cfg.badge}
@@ -629,25 +629,29 @@ export const Dashboard = ({ onSelectVideo }) => {
               );
             })()}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
-              <div style={{ background: cfg.noteBg, border: `1px solid ${cfg.noteBorder}`, borderRadius: '8px', padding: '14px' }}>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: cfg.noteColor, marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+              <div style={{ border: `1px solid ${cfg.noteBorder}`, borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ background: '#f8fafc', padding: '10px 14px', borderBottom: `1px solid ${cfg.noteBorder}`, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: cfg.noteColor }}>
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
-                  {cfg.noteLabel}
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: cfg.noteColor }}>{cfg.noteLabel}</span>
                 </div>
-                <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>{cfg.note}</div>
+                <div style={{ background: '#ffffff', padding: '14px', fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>
+                  {cfg.note}
+                </div>
               </div>
               {cfg.secondNote && (
-                <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', padding: '14px' }}>
-                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#15803d', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <div style={{ border: '1px solid #86efac', borderRadius: '8px', overflow: 'hidden' }}>
+                  <div style={{ background: '#f0fdf4', padding: '10px 14px', borderBottom: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#15803d' }}>
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
-                    {cfg.secondNoteLabel}
+                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#15803d' }}>{cfg.secondNoteLabel}</span>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>{cfg.secondNote}</div>
+                  <div style={{ background: '#ffffff', padding: '14px', fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6', fontWeight: '500' }}>
+                    {cfg.secondNote}
+                  </div>
                 </div>
               )}
             </div>
