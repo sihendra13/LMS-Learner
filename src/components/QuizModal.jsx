@@ -329,6 +329,11 @@ export const QuizModal = ({ video, onClose }) => {
     }
   };
 
+  const handleConfirmClose = () => {
+    updateProgress(video.id, 0);
+    onClose();
+  };
+
   return (
     <div className="wizard-modal">
       <div className="wizard-card" onClick={e => e.stopPropagation()}>
@@ -1644,7 +1649,7 @@ export const QuizModal = ({ video, onClose }) => {
                   Lanjut Belajar
                 </button>
                 <button
-                  onClick={onClose}
+                  onClick={handleConfirmClose}
                   style={{
                     flex: 1, padding: '12px 16px', borderRadius: '10px', fontSize: '13px',
                     fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s',
