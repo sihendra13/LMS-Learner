@@ -134,176 +134,177 @@ export const SOPManager = ({ onSelectVideo }) => {
               const statusBadge = getStatusBadge(submission);
 
               return (
-                <div key={video.id} className="sop-item" style={{ cursor: 'default' }}>
-                  <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '90px', height: '56px' }}>
-                    {isCompleted ? (
-                      <div className="sop-done-overlay">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '22px', height: '22px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                      </div>
-                    ) : (
-                      <div className="play-ic">
-                        <svg viewBox="0 0 24 24" fill="white" style={{ width: '12px', height: '12px' }}><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                      </div>
-                    )}
-                  </div>
-                  <div className="sop-info" style={{ marginLeft: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <span className={`dept-tag ${video.dept === 'Semua' || video.dept === 'Umum' ? 'dt-semua' : video.tagClass || 'dt-sales'}`}>{video.dept}</span>
-                      {video.type === 'ppt' ? (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#6b7280', flexShrink: 0 }}>
-                            <line x1="18" y1="20" x2="18" y2="10" />
-                            <line x1="12" y1="20" x2="12" y2="4" />
-                            <line x1="6" y1="20" x2="6" y2="14" />
-                          </svg>
-                          {video.slideCount || '?'} slide
-                        </span>
+                <div key={video.id} className="sop-item" style={{ cursor: 'default', display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '100%' }}>
+                    <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '90px', height: '56px' }}>
+                      {isCompleted ? (
+                        <div className="sop-done-overlay">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '22px', height: '22px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
                       ) : (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#6b7280', flexShrink: 0 }}>
-                            <circle cx="12" cy="12" r="10" />
-                            <polyline points="12 6 12 12 16 14" />
-                          </svg>
-                          {video.duration}
-                        </span>
-                      )}
-                      {submission && (
-                        <span style={{
-                          fontSize: '11px',
-                          fontWeight: '700',
-                          background: submission.postScore >= passingScore ? '#ecfdf5' : '#fef2f2',
-                          color: submission.postScore >= passingScore ? '#15803d' : '#dc2626',
-                          border: `1px solid ${submission.postScore >= passingScore ? '#a7f3d0' : '#fca5a5'}`,
-                          padding: '2px 8px',
-                          borderRadius: '4px'
-                        }}>
-                          Skor: {submission.postScore}%
-                        </span>
-                      )}
-                      {statusBadge && (
-                        <span style={{
-                          fontSize: '11px',
-                          fontWeight: '700',
-                          color: statusBadge.color,
-                          background: statusBadge.bg,
-                          border: `1px solid ${statusBadge.border}`,
-                          padding: '3px 10px',
-                          borderRadius: '99px',
-                          whiteSpace: 'nowrap',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
-                          {statusBadge.icon}
-                          {statusBadge.label}
-                        </span>
+                        <div className="play-ic">
+                          <svg viewBox="0 0 24 24" fill="white" style={{ width: '12px', height: '12px' }}><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
                       )}
                     </div>
-
-                    {(() => {
-                      const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
-                      if (!note) return null;
-                      return (
-                        <span
-                          onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }}
-                          style={{
+                    <div className="sop-info" style={{ flex: 1, minWidth: 0, marginLeft: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span className={`dept-tag ${video.dept === 'Semua' || video.dept === 'Umum' ? 'dt-semua' : video.tagClass || 'dt-sales'}`}>{video.dept}</span>
+                        {video.type === 'ppt' ? (
+                          <span style={{ fontSize: '11px', fontWeight: '700', background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#6b7280', flexShrink: 0 }}>
+                              <line x1="18" y1="20" x2="18" y2="10" />
+                              <line x1="12" y1="20" x2="12" y2="4" />
+                              <line x1="6" y1="20" x2="6" y2="14" />
+                            </svg>
+                            {video.slideCount || '?'} slide
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '11px', fontWeight: '700', background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb', padding: '2px 8px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#6b7280', flexShrink: 0 }}>
+                              <circle cx="12" cy="12" r="10" />
+                              <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                            {video.duration}
+                          </span>
+                        )}
+                        {submission && (
+                          <span style={{
                             fontSize: '11px',
-                            fontWeight: '600',
-                            color: '#2563eb',
-                            background: 'rgba(59, 130, 246, 0.08)',
-                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            fontWeight: '700',
+                            background: submission.postScore >= passingScore ? '#ecfdf5' : '#fef2f2',
+                            color: submission.postScore >= passingScore ? '#15803d' : '#dc2626',
+                            border: `1px solid ${submission.postScore >= passingScore ? '#a7f3d0' : '#fca5a5'}`,
+                            padding: '2px 8px',
+                            borderRadius: '4px'
+                          }}>
+                            Skor: {submission.postScore}%
+                          </span>
+                        )}
+                        {statusBadge && (
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            color: statusBadge.color,
+                            background: statusBadge.bg,
+                            border: `1px solid ${statusBadge.border}`,
                             padding: '3px 10px',
-                            borderRadius: '6px',
+                            borderRadius: '99px',
+                            whiteSpace: 'nowrap',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px',
-                            marginTop: '6px',
-                            cursor: 'pointer'
+                            justifyContent: 'center'
                           }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                          </svg>
-                          Ada catatan — klik untuk lihat
-                        </span>
-                      );
-                    })()}
-
-                    {(() => {
-                      if (!video.deadline || isCompleted) return null;
-                      const today = new Date(); today.setHours(0,0,0,0);
-                      const dl = new Date(video.deadline);
-                      const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
-                      const dateStr = dl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-                      if (diff < 0) return (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                            <line x1="12" y1="9" x2="12" y2="13" />
-                            <line x1="12" y1="17" x2="12.01" y2="17" />
-                          </svg>
-                          Deadline terlewat · {dateStr}
-                        </span>
-                      );
-                      if (diff <= 3) return (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fffbeb', border: '1px solid #fde68a', color: '#d97706', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                          </svg>
-                          Deadline {diff === 0 ? 'hari ini' : `${diff} hari lagi`} · {dateStr}
-                        </span>
-                      );
-                      return (
-                        <span style={{ fontSize: '11px', fontWeight: '700', background: '#fff7ed', border: '1px solid #fed7aa', color: '#ea580c', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                          </svg>
-                          Deadline {diff} hari lagi · {dateStr}
-                        </span>
-                      );
-                    })()}
-
-                    <div className="sop-title" style={{ fontSize: '14px', fontWeight: '600', marginTop: '6px', marginBottom: '6px' }}>{video.title}</div>
-                    
-                    <div className="sop-prog">
-                      <div className="prog-bar">
-                        <div
-                          className="prog-fill"
-                          style={{
-                            width: `${displayProgress}%`,
-                            background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)'
-                          }}
-                        />
+                            {statusBadge.icon}
+                            {statusBadge.label}
+                          </span>
+                        )}
                       </div>
-                      <div className="prog-pct">{displayProgress}% menonton</div>
+
+                      {(() => {
+                        const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
+                        if (!note) return null;
+                        return (
+                          <span
+                            onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }}
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              color: '#2563eb',
+                              background: 'rgba(59, 130, 246, 0.08)',
+                              border: '1px solid rgba(59, 130, 246, 0.2)',
+                              padding: '3px 10px',
+                              borderRadius: '6px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              marginTop: '6px',
+                              cursor: 'pointer'
+                            }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            Ada catatan — klik untuk lihat
+                          </span>
+                        );
+                      })()}
+
+                      {(() => {
+                        if (!video.deadline || isCompleted) return null;
+                        const today = new Date(); today.setHours(0,0,0,0);
+                        const dl = new Date(video.deadline);
+                        const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
+                        const dateStr = dl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                        if (diff < 0) return (
+                          <span style={{ fontSize: '11px', fontWeight: '700', background: '#fef2f2', border: '1px solid #fecaca', color: '#ef4444', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                              <line x1="12" y1="9" x2="12" y2="13" />
+                              <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                            Deadline terlewat · {dateStr}
+                          </span>
+                        );
+                        if (diff <= 3) return (
+                          <span style={{ fontSize: '11px', fontWeight: '700', background: '#fffbeb', border: '1px solid #fde68a', color: '#d97706', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                            Deadline {diff === 0 ? 'hari ini' : `${diff} hari lagi`} · {dateStr}
+                          </span>
+                        );
+                        return (
+                          <span style={{ fontSize: '11px', fontWeight: '700', background: '#fff7ed', border: '1px solid #fed7aa', color: '#ea580c', padding: '4px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                              <line x1="16" y1="2" x2="16" y2="6" />
+                              <line x1="8" y1="2" x2="8" y2="6" />
+                              <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            Deadline {diff} hari lagi · {dateStr}
+                          </span>
+                        );
+                      })()}
+
+                      <div className="sop-title" style={{ fontSize: '14px', fontWeight: '600', marginTop: '6px', marginBottom: '6px' }}>{video.title}</div>
+                    </div>
+                    
+                    <div style={{ marginLeft: '20px', flexShrink: 0 }}>
+                      {cs === 'approved' ? (
+                        <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#ecfdf5', color: '#15803d', border: '1px solid #d1fae5', display: 'inline-block', whiteSpace: 'nowrap' }}>
+                          Selesai
+                        </span>
+                      ) : cs === 'pending' ? (
+                        <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
+                          Menunggu Supervisor
+                        </span>
+                      ) : cs === 'supervisor_ok' ? (
+                        <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
+                          Menunggu HRD
+                        </span>
+                      ) : (cs === 'remedial' || cs === 'rejected') ? (
+                        <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
+                          Mulai SOP Ulang
+                        </button>
+                      ) : (
+                        <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
+                          {isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
+                        </button>
+                      )}
                     </div>
                   </div>
-                  
-                  <div style={{ marginLeft: '20px', flexShrink: 0 }}>
-                    {cs === 'approved' ? (
-                      <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#ecfdf5', color: '#15803d', border: '1px solid #d1fae5', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                        Selesai
-                      </span>
-                    ) : cs === 'pending' ? (
-                      <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                        Menunggu Supervisor
-                      </span>
-                    ) : cs === 'supervisor_ok' ? (
-                      <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                        Menunggu HRD
-                      </span>
-                    ) : (cs === 'remedial' || cs === 'rejected') ? (
-                      <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
-                        Mulai SOP Ulang
-                      </button>
-                    ) : (
-                      <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
-                        {isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
-                      </button>
-                    )}
+                  <div className="sop-prog" style={{ marginLeft: '118px' }}>
+                    <div className="prog-bar">
+                      <div
+                        className="prog-fill"
+                        style={{
+                          width: `${displayProgress}%`,
+                          background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)'
+                        }}
+                      />
+                    </div>
+                    <div className="prog-pct">{displayProgress}% menonton</div>
                   </div>
                 </div>
               );
