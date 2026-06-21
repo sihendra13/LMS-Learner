@@ -35,13 +35,20 @@ export const Dashboard = ({ onSelectVideo }) => {
   // Calculations
   const totalMandatory = mandatoryVideos.length;
   const completedMandatory = mandatoryVideos.filter(v => {
-    // A video is completed if progress is 100% and it has a passed submission in quizSubmissions
     const sub = quizSubmissions.find(s => s.videoTitle === v.title && s.employeeName === currentUser.name);
-    return v.progress === 100 && sub && sub.postScore >= passingScore;
+    return sub?.certStatus === 'approved' || (v.progress === 100 && sub && sub.postScore >= passingScore);
   }).length;
 
-  const ongoingMandatory = mandatoryVideos.filter(v => v.progress > 0 && v.progress < 100).length;
-  const newMandatory = mandatoryVideos.filter(v => v.progress === 0).length;
+  const ongoingMandatory = mandatoryVideos.filter(v => {
+    const sub = quizSubmissions.find(s => s.videoTitle === v.title && s.employeeName === currentUser.name);
+    const done = sub?.certStatus === 'approved' || (v.progress === 100 && sub && sub.postScore >= passingScore);
+    return !done && v.progress > 0 && v.progress < 100;
+  }).length;
+  const newMandatory = mandatoryVideos.filter(v => {
+    const sub = quizSubmissions.find(s => s.videoTitle === v.title && s.employeeName === currentUser.name);
+    const done = sub?.certStatus === 'approved' || (v.progress === 100 && sub && sub.postScore >= passingScore);
+    return !done && v.progress === 0;
+  }).length;
 
   const completionPercent = totalMandatory > 0 ? Math.round((completedMandatory / totalMandatory) * 100) : 0;
   
@@ -166,9 +173,9 @@ export const Dashboard = ({ onSelectVideo }) => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
               const cs = submission?.certStatus;
               const isBlocked = cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved';
-              const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
-              const isOngoing = video.progress > 0 && video.progress < 100;
-              const isNew = video.progress === 0;
+              const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
+              const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
+              const isNew = !isCompleted && video.progress === 0;
 
               return (
                 <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)} style={{ cursor: isBlocked ? 'default' : 'pointer' }}>

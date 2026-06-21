@@ -89,8 +89,8 @@ export const SOPManager = ({ onSelectVideo }) => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
               const cs = submission?.certStatus;
               const isBlocked = cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved';
-              const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
-              const isOngoing = video.progress > 0 && video.progress < 100;
+              const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
+              const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
 
               const getStatusBadge = (sub) => {
                 if (!sub) return null;
