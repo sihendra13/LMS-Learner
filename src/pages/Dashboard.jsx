@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Dashboard = ({ onSelectVideo }) => {
   const { currentUser, videos, quizSubmissions, activities, passingScore } = useTenant();
+  const [detailVideo, setDetailVideo] = useState(null);
+
+  const handleVideoClick = (video) => {
+    const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
+    if (submission?.certStatus === 'remedial' && submission?.supervisorNote) {
+      setDetailVideo({ video, submission });
+    } else {
+      onSelectVideo(video);
+    }
+  };
 
   // Filter videos for Sales (the current employee dept)
   const mandatoryVideos = videos.filter(v => (v.dept === currentUser.dept || v.dept === 'Semua') && !v.archived);
@@ -144,7 +154,7 @@ export const Dashboard = ({ onSelectVideo }) => {
               const isNew = video.progress === 0;
 
               return (
-                <div key={video.id} className="sop-item" onClick={() => onSelectVideo(video)}>
+                <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)}>
                   <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)' }}>
                     {isCompleted ? (
                       <div className="sop-done-overlay">
@@ -363,5 +373,64 @@ export const Dashboard = ({ onSelectVideo }) => {
 
       </div>
     </div>
+
+    {/* DETAIL MODAL — hanya muncul saat remedial + ada catatan supervisor */}
+    {detailVideo && (
+      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+        <div style={{ background: 'var(--card)', borderRadius: '16px', padding: '28px', maxWidth: '460px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+            <div>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 6px' }}>{detailVideo.video.title}</h3>
+              <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa' }}>
+                ⚠️ Perlu Remedial
+              </span>
+            </div>
+            <button onClick={() => setDetailVideo(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }}>✕</button>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Pre-Test</div>
+              <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text1)' }}>{detailVideo.submission.preScore ?? '—'}%</div>
+            </div>
+            <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Post-Test</div>
+              <div style={{ fontSize: '18px', fontWeight: '700', color: '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
+            </div>
+          </div>
+
+          {detailVideo.video.deadline && (() => {
+            const today = new Date(); today.setHours(0,0,0,0);
+            const dl = new Date(detailVideo.video.deadline);
+            const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
+            const dateStr = dl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            const color = diff < 0 ? '#dc2626' : '#b45309';
+            const bg = diff < 0 ? '#fef2f2' : '#fff7ed';
+            return (
+              <div style={{ fontSize: '12px', color, background: bg, borderRadius: '6px', padding: '8px 12px', marginBottom: '16px' }}>
+                📅 {diff < 0 ? `Deadline terlewat · ${dateStr}` : diff === 0 ? `Deadline hari ini · ${dateStr}` : `Deadline ${diff} hari lagi · ${dateStr}`}
+              </div>
+            );
+          })()}
+
+          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '14px', marginBottom: '24px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: '#b45309', marginBottom: '6px' }}>💬 Catatan Supervisor:</div>
+            <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6' }}>{detailVideo.submission.supervisorNote}</div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={() => setDetailVideo(null)} style={{ flex: 1, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
+              Batal
+            </button>
+            <button
+              onClick={() => { setDetailVideo(null); onSelectVideo(detailVideo.video); }}
+              style={{ flex: 2, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', background: 'var(--navy)', border: 'none', color: '#fff' }}
+            >
+              Mulai SOP Ulang
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   );
 };
