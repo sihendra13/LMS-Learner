@@ -8,12 +8,25 @@ export const Dashboard = ({ onSelectVideo }) => {
   const handleVideoClick = (video) => {
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
     const cs = submission?.certStatus;
-    if (cs === 'pending' || cs === 'supervisor_ok' || cs === 'approved') return;
+    if (cs === 'pending') return;
+    if (cs === 'supervisor_ok') {
+      if (submission?.supervisorNote) setDetailVideo({ video, submission });
+      return;
+    }
+    if (cs === 'approved') {
+      if (submission?.approvalNote) setDetailVideo({ video, submission });
+      return;
+    }
+    if (cs === 'rejected') {
+      if (submission?.rejectionNote) setDetailVideo({ video, submission });
+      else onSelectVideo(video);
+      return;
+    }
     if (cs === 'remedial' && submission?.supervisorNote) {
       setDetailVideo({ video, submission });
-    } else {
-      onSelectVideo(video);
+      return;
     }
+    onSelectVideo(video);
   };
 
   // Filter videos for Sales (the current employee dept)
@@ -388,63 +401,76 @@ export const Dashboard = ({ onSelectVideo }) => {
       </div>
     </div>
 
-    {/* DETAIL MODAL — hanya muncul saat remedial + ada catatan supervisor */}
-    {detailVideo && (
-      <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-        <div style={{ background: 'var(--card)', borderRadius: '16px', padding: '28px', maxWidth: '460px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-            <div>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 6px' }}>{detailVideo.video.title}</h3>
-              <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa' }}>
-                ⚠️ Perlu Remedial
-              </span>
-            </div>
-            <button onClick={() => setDetailVideo(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }}>✕</button>
-          </div>
+    {/* DETAIL MODAL — catatan dari supervisor/HRD */}
+    {detailVideo && (() => {
+      const cs = detailVideo.submission?.certStatus;
+      const cfg = cs === 'approved'
+        ? { badge: '✅ Sertifikat Aktif', badgeBg: '#f0fdf4', badgeColor: '#15803d', badgeBorder: '#86efac', noteLabel: '💬 Pesan dari HRD:', noteBg: '#f0fdf4', noteBorder: '#86efac', noteColor: '#15803d', note: detailVideo.submission.approvalNote, canRetake: false }
+        : cs === 'supervisor_ok'
+        ? { badge: '📋 Catatan dari Supervisor', badgeBg: '#eff6ff', badgeColor: '#1d4ed8', badgeBorder: '#93c5fd', noteLabel: '💬 Catatan Supervisor:', noteBg: '#eff6ff', noteBorder: '#93c5fd', noteColor: '#1d4ed8', note: detailVideo.submission.supervisorNote, canRetake: false }
+        : cs === 'rejected'
+        ? { badge: '❌ Ditolak HRD', badgeBg: '#fef2f2', badgeColor: '#b91c1c', badgeBorder: '#fecaca', noteLabel: '💬 Catatan HRD:', noteBg: '#fef2f2', noteBorder: '#fecaca', noteColor: '#b91c1c', note: detailVideo.submission.rejectionNote, canRetake: true }
+        : { badge: '⚠️ Perlu Remedial', badgeBg: '#fff7ed', badgeColor: '#b45309', badgeBorder: '#fed7aa', noteLabel: '💬 Catatan Supervisor:', noteBg: '#fffbeb', noteBorder: '#fde68a', noteColor: '#b45309', note: detailVideo.submission.supervisorNote, canRetake: true };
 
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Pre-Test</div>
-              <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text1)' }}>{detailVideo.submission.preScore ?? '—'}%</div>
-            </div>
-            <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
-              <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Post-Test</div>
-              <div style={{ fontSize: '18px', fontWeight: '700', color: '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
-            </div>
-          </div>
-
-          {detailVideo.video.deadline && (() => {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const dl = new Date(detailVideo.video.deadline);
-            const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
-            const dateStr = dl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-            const color = diff < 0 ? '#dc2626' : '#b45309';
-            const bg = diff < 0 ? '#fef2f2' : '#fff7ed';
-            return (
-              <div style={{ fontSize: '12px', color, background: bg, borderRadius: '6px', padding: '8px 12px', marginBottom: '16px' }}>
-                📅 {diff < 0 ? `Deadline terlewat · ${dateStr}` : diff === 0 ? `Deadline hari ini · ${dateStr}` : `Deadline ${diff} hari lagi · ${dateStr}`}
+      return (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'var(--card)', borderRadius: '16px', padding: '28px', maxWidth: '460px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 6px' }}>{detailVideo.video.title}</h3>
+                <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '20px', background: cfg.badgeBg, color: cfg.badgeColor, border: `1px solid ${cfg.badgeBorder}` }}>
+                  {cfg.badge}
+                </span>
               </div>
-            );
-          })()}
+              <button onClick={() => setDetailVideo(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: 'var(--text3)' }}>✕</button>
+            </div>
 
-          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '14px', marginBottom: '24px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: '#b45309', marginBottom: '6px' }}>💬 Catatan Supervisor:</div>
-            <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6' }}>{detailVideo.submission.supervisorNote}</div>
-          </div>
+            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+              <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Pre-Test</div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text1)' }}>{detailVideo.submission.preScore ?? '—'}%</div>
+              </div>
+              <div style={{ flex: 1, background: 'var(--bg2)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Post-Test</div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: cs === 'approved' ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
+              </div>
+            </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => setDetailVideo(null)} style={{ flex: 1, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
-              Batal
-            </button>
-            <button
-              onClick={() => { setDetailVideo(null); onSelectVideo(detailVideo.video); }}
-              style={{ flex: 2, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', background: 'var(--navy)', border: 'none', color: '#fff' }}
-            >
-              Mulai SOP Ulang
-            </button>
+            {detailVideo.video.deadline && cs !== 'approved' && (() => {
+              const today = new Date(); today.setHours(0,0,0,0);
+              const dl = new Date(detailVideo.video.deadline);
+              const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
+              const dateStr = dl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+              const color = diff < 0 ? '#dc2626' : '#b45309';
+              const bg = diff < 0 ? '#fef2f2' : '#fff7ed';
+              return (
+                <div style={{ fontSize: '12px', color, background: bg, borderRadius: '6px', padding: '8px 12px', marginBottom: '16px' }}>
+                  📅 {diff < 0 ? `Deadline terlewat · ${dateStr}` : diff === 0 ? `Deadline hari ini · ${dateStr}` : `Deadline ${diff} hari lagi · ${dateStr}`}
+                </div>
+              );
+            })()}
+
+            <div style={{ background: cfg.noteBg, border: `1px solid ${cfg.noteBorder}`, borderRadius: '8px', padding: '14px', marginBottom: '24px' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: cfg.noteColor, marginBottom: '6px' }}>{cfg.noteLabel}</div>
+              <div style={{ fontSize: '13px', color: 'var(--text1)', lineHeight: '1.6' }}>{cfg.note}</div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => setDetailVideo(null)} style={{ flex: 1, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', background: 'var(--bg2)', border: '1px solid var(--border)', color: 'var(--text2)' }}>
+                {cfg.canRetake ? 'Batal' : 'Tutup'}
+              </button>
+              {cfg.canRetake && (
+                <button
+                  onClick={() => { setDetailVideo(null); onSelectVideo(detailVideo.video); }}
+                  style={{ flex: 2, padding: '11px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', background: 'var(--navy)', border: 'none', color: '#fff' }}
+                >
+                  Mulai SOP Ulang
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      );
+    })()}
   );
 };

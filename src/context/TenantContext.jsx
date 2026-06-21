@@ -51,6 +51,7 @@ const mapRow = (row) => ({
   supervisorDate: row.supervisor_date,
   approvedBy: row.approved_by,
   approvedDate: row.approved_date,
+  approvalNote: row.approval_note || '',
   rejectionNote: row.rejection_note || '',
 });
 
