@@ -316,9 +316,10 @@ export const QuizModal = ({ video, onClose }) => {
   };
 
   const isInActiveQuiz = (step === 'pre-test' && !preSubmitted) || (step === 'post-test' && !postSubmitted);
+  const isWatchingMedia = step === 'video' || step === 'presentation';
 
   const handleClose = () => {
-    if (isInActiveQuiz) {
+    if (isInActiveQuiz || isWatchingMedia) {
       setShowCloseConfirm(true);
     } else {
       onClose();
@@ -1443,12 +1444,14 @@ export const QuizModal = ({ video, onClose }) => {
               maxWidth: '340px', width: '90%', textAlign: 'center',
               boxShadow: '0 8px 32px rgba(0,0,0,0.28)'
             }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚠️</div>
+              <div style={{ fontSize: '32px', marginBottom: '12px' }}>{isWatchingMedia ? '📹' : '⚠️'}</div>
               <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text1)', margin: '0 0 8px' }}>
-                Keluar dari kuis?
+                {isWatchingMedia ? 'Keluar dari SOP?' : 'Keluar dari kuis?'}
               </h3>
               <p style={{ fontSize: '13px', color: 'var(--text3)', margin: '0 0 24px', lineHeight: '1.5' }}>
-                Jawaban yang sudah diisi akan hilang. Kamu harus mengulang dari awal.
+                {isWatchingMedia
+                  ? 'Progress menontonmu tersimpan, tapi kamu perlu melanjutkan menonton sebelum bisa mengerjakan post-test.'
+                  : 'Jawaban yang sudah diisi akan hilang. Kamu harus mengulang dari awal.'}
               </p>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
