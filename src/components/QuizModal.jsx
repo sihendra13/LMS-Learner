@@ -531,7 +531,7 @@ export const QuizModal = ({ video, onClose }) => {
                     zIndex: 10
                   }}>
                     <div style={{ 
-                      background: 'var(--card)', 
+                      background: '#ffffff', 
                       borderRadius: '16px', 
                       padding: '28px 24px', 
                       maxWidth: '450px', 
@@ -714,7 +714,7 @@ export const QuizModal = ({ video, onClose }) => {
                   zIndex: 20
                 }}>
                   <div style={{ 
-                    background: 'var(--card)', 
+                    background: '#ffffff', 
                     borderRadius: '16px', 
                     padding: '24px 20px', 
                     maxWidth: '400px', 
@@ -905,7 +905,7 @@ export const QuizModal = ({ video, onClose }) => {
                     {(!isMobile || isFullscreen) && activeSlideTrigger && (
                       <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '16px', zIndex: 10, overflowY: 'auto' }}>
                         <div style={{ 
-                          background: 'var(--card)', 
+                          background: '#ffffff', 
                           borderRadius: '16px', 
                           padding: '28px 24px', 
                           maxWidth: '450px', 
@@ -1245,7 +1245,7 @@ export const QuizModal = ({ video, onClose }) => {
                     overflowY: 'auto'
                   }}>
                     <div style={{ 
-                      background: 'var(--card)', 
+                      background: '#ffffff', 
                       borderRadius: '16px', 
                       padding: '24px 20px', 
                       maxWidth: '400px', 
