@@ -99,12 +99,16 @@ export const SOPManager = ({ onSelectVideo }) => {
                 : video.progress;
 
               const getStatusBadge = (sub) => {
-                if (!sub) return null;
-                if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
-                if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-                if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
-                if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
-                return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
+                if (sub) {
+                  if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+                  if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+                  if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                  if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                  return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
+                }
+                if (isCompleted) return { label: 'Lulus', color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+                if (isOngoing)   return { label: 'Lanjutkan', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                return { label: 'Baru', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
               };
               const statusBadge = getStatusBadge(submission);
 
@@ -143,8 +147,9 @@ export const SOPManager = ({ onSelectVideo }) => {
                           color: statusBadge.color,
                           background: statusBadge.bg,
                           border: `1px solid ${statusBadge.border}`,
-                          padding: '4px 10px',
-                          borderRadius: '8px'
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          whiteSpace: 'nowrap'
                         }}>
                           {statusBadge.label}
                         </span>
@@ -155,8 +160,24 @@ export const SOPManager = ({ onSelectVideo }) => {
                       const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
                       if (!note) return null;
                       return (
-                        <span style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', background: '#f3f4f6', border: '1px solid #e5e7eb', padding: '3px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '6px', cursor: 'pointer' }}>
-                          💬 Ada catatan — klik untuk lihat
+                        <span style={{ 
+                          fontSize: '11px', 
+                          fontWeight: '600', 
+                          color: '#2563eb', 
+                          background: 'rgba(59, 130, 246, 0.08)', 
+                          border: '1px solid rgba(59, 130, 246, 0.2)', 
+                          padding: '3px 10px', 
+                          borderRadius: '6px', 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '6px', 
+                          marginTop: '6px', 
+                          cursor: 'pointer' 
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                          </svg>
+                          Ada catatan — klik untuk lihat
                         </span>
                       );
                     })()}

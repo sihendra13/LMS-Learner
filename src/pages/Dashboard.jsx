@@ -183,6 +183,20 @@ export const Dashboard = ({ onSelectVideo }) => {
                 : (cs === 'remedial' || cs === 'rejected') ? 0
                 : video.progress;
 
+              const getStatusBadge = (sub) => {
+                if (sub) {
+                  if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+                  if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+                  if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                  if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                  return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
+                }
+                if (isCompleted) return { label: 'Lulus', color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
+                if (isOngoing)   return { label: 'Lanjutkan', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                return { label: 'Baru', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
+              };
+              const statusBadge = getStatusBadge(submission);
+
               return (
                 <div key={video.id} className="sop-item" onClick={() => handleVideoClick(video)} style={{ cursor: isBlocked ? 'default' : 'pointer' }}>
                   <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)' }}>
@@ -198,7 +212,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                   </div>
                   <div className="sop-info">
                     <div className="sop-title">{video.title}</div>
-                    <div className="sop-meta">
+                    <div className="sop-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <span className={`dept-tag ${video.tagClass}`}>{video.dept}</span>
                       {video.type === 'ppt' ? (
                         <span style={{ fontSize: '11px', fontWeight: '700', background: '#ede9fe', color: '#7c3aed', padding: '2px 8px', borderRadius: '4px' }}>
@@ -212,13 +226,43 @@ export const Dashboard = ({ onSelectVideo }) => {
                           Skor: {submission.postScore}%
                         </span>
                       )}
+                      {statusBadge && (
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          color: statusBadge.color,
+                          background: statusBadge.bg,
+                          border: `1px solid ${statusBadge.border}`,
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {statusBadge.label}
+                        </span>
+                      )}
                     </div>
                     {(() => {
                       const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
                       if (!note) return null;
                       return (
-                        <span style={{ fontSize: '11px', fontWeight: '600', color: '#6b7280', background: '#f3f4f6', border: '1px solid #e5e7eb', padding: '3px 10px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '4px', cursor: 'pointer' }}>
-                          💬 Ada catatan — klik untuk lihat
+                        <span style={{ 
+                          fontSize: '11px', 
+                          fontWeight: '600', 
+                          color: '#2563eb', 
+                          background: 'rgba(59, 130, 246, 0.08)', 
+                          border: '1px solid rgba(59, 130, 246, 0.2)', 
+                          padding: '3px 10px', 
+                          borderRadius: '6px', 
+                          display: 'inline-flex', 
+                          alignItems: 'center', 
+                          gap: '6px', 
+                          marginTop: '4px', 
+                          cursor: 'pointer' 
+                        }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                          </svg>
+                          Ada catatan — klik untuk lihat
                         </span>
                       );
                     })()}
@@ -259,25 +303,6 @@ export const Dashboard = ({ onSelectVideo }) => {
                       </div>
                       <div className="prog-pct">{displayProgress}%</div>
                     </div>
-                  </div>
-                  <div className="sop-status">
-                    {cs === 'pending' ? (
-                      <span className="status-pill" style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', fontSize: '10px', whiteSpace: 'nowrap' }}>Menunggu Supervisor</span>
-                    ) : cs === 'supervisor_ok' ? (
-                      <span className="status-pill" style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #93c5fd', fontSize: '10px', whiteSpace: 'nowrap' }}>Menunggu HRD</span>
-                    ) : cs === 'remedial' ? (
-                      <span className="status-pill" style={{ background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', fontSize: '10px' }}>Perlu Remedial</span>
-                    ) : cs === 'rejected' ? (
-                      <span className="status-pill" style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', fontSize: '10px' }}>Ditolak HRD</span>
-                    ) : cs === 'approved' ? (
-                      <span className="status-pill sp-done">Sertifikat Aktif</span>
-                    ) : isCompleted ? (
-                      <span className="status-pill sp-done">Lulus</span>
-                    ) : isOngoing ? (
-                      <span className="status-pill sp-ongoing">Lanjutkan</span>
-                    ) : (
-                      <span className="status-pill sp-new">Baru</span>
-                    )}
                   </div>
                 </div>
               );
