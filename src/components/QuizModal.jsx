@@ -1628,7 +1628,7 @@ export const QuizModal = ({ video, onClose }) => {
               </h3>
               <p style={{ fontSize: '13px', color: 'var(--text3)', margin: '0 0 24px', lineHeight: '1.6' }}>
                 {isWatchingMedia
-                  ? 'Progress menontonmu tersimpan, tapi kamu perlu melanjutkan menonton sebelum bisa mengerjakan post-test.'
+                  ? 'Jika keluar sekarang, jawaban pre-test dan progress menonton tidak tersimpan. Kamu harus mengulang dari awal.'
                   : 'Jawaban yang sudah diisi akan hilang. Kamu harus mengulang dari awal.'}
               </p>
               <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
