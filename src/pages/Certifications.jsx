@@ -209,7 +209,7 @@ export const Certifications = () => {
                 const maxReached = isRemedial && retakeCount >= MAX_RETAKES;
                 return (
                   <div key={sub.id} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: '600', fontSize: '14px', color: 'var(--text1)', marginBottom: '5px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {sub.videoTitle}
@@ -255,9 +255,9 @@ export const Certifications = () => {
                         )}
                       </div>
 
-                      {/* Right: badge + action buttons */}
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
-                        <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
+                      {/* Right: badge + action buttons in a row */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                        <span style={{ fontSize: '11px', fontWeight: '700', padding: '5px 12px', borderRadius: '8px', background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
                           {s.label}
                         </span>
                         {sub.certStatus === 'approved' && (() => {
@@ -266,12 +266,13 @@ export const Certifications = () => {
                             <button
                               onClick={() => setPreviewCert(cert)}
                               style={{
-                                padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '700',
-                                background: '#f0fdf4', border: '1px solid #86efac', color: '#15803d',
-                                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                padding: '5px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '600',
+                                background: '#ffffff', border: '1px solid var(--border)', color: 'var(--text1)',
+                                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                transition: 'all 0.15s'
                               }}
                             >
-                              🏆 Lihat Sertifikat
+                              👁 Lihat
                             </button>
                           ) : null;
                         })()}
