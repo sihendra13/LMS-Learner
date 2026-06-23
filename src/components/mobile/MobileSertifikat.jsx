@@ -238,7 +238,7 @@ const MobileSertifikat = () => {
                     {/* Max retake warning */}
                     {maxReached && (
                       <div style={{ fontSize: '11px', color: '#b91c1c', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 10px', marginTop: '4px', lineHeight: '1.5' }}>
-                        ⚠️ Batas maksimal {MAX_RETAKES}x percobaan telah tercapai. Hubungi HRD untuk tindak lanjut.
+                        Anda telah mencapai batas maksimal {MAX_RETAKES}x remedial. Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.
                       </div>
                     )}
 
