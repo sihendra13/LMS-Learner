@@ -209,6 +209,7 @@ export const TenantProvider = ({ children }) => {
   const retakeQuiz = async (videoId, submissionId) => {
     const sub = quizSubmissions.find(s => s.id === submissionId);
     if (!sub) return;
+    if ((sub.retakeCount || 0) >= MAX_RETAKES) return;
     const newRetakeCount = (sub.retakeCount || 0) + 1;
 
     await supabase.from('quiz_submissions').update({
