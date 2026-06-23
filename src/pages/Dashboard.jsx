@@ -177,6 +177,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                 const hasNote = (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote));
                 const isPendingMaxed = cs === 'pending' && (submission?.retakeCount || 0) >= MAX_RETAKES;
                 const isBlocked = (cs === 'pending' && !isPendingMaxed) || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
+                const isMaxReached = (cs === 'remedial' || cs === 'pending') && (submission?.retakeCount || 0) >= MAX_RETAKES;
                 const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
                 const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
                 const isNew = !isCompleted && !isOngoing;
@@ -272,6 +273,11 @@ export const Dashboard = ({ onSelectVideo }) => {
                               Skor: {submission.postScore}%
                             </span>
                           )}
+                          {isMaxReached && (
+                            <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '99px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center' }}>
+                              Tidak Lulus
+                            </span>
+                          )}
                         </div>
                         {(() => {
                           const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
@@ -327,7 +333,11 @@ export const Dashboard = ({ onSelectVideo }) => {
                         })()}
                       </div>
                       <div className="sop-status" style={{ marginLeft: '12px', flexShrink: 0 }}>
-                        {statusBadge && (
+                        {isMaxReached ? (
+                          <span onClick={() => setDetailVideo({ video, submission })} style={{ fontSize: '11px', fontWeight: '600', padding: '6px 10px', borderRadius: '8px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', lineHeight: '1.4', textAlign: 'center', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                            Hubungi HRD/Supervisor
+                          </span>
+                        ) : statusBadge ? (
                           <span style={{
                             fontSize: '11px',
                             fontWeight: '700',
@@ -344,7 +354,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                             {statusBadge.icon}
                             {statusBadge.label}
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                     <div className="sop-prog" style={{ marginLeft: '86px' }}>
@@ -361,14 +371,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                     </div>
 
                     {/* Action button row */}
-                    {!isCompleted && !isBlocked && (() => {
-                      const retakeCount = submission?.retakeCount || 0;
-                      const isMaxReached = (cs === 'remedial' || cs === 'pending') && retakeCount >= MAX_RETAKES;
-                      if (isMaxReached) return (
-                        <span onClick={() => setDetailVideo({ video, submission })} style={{ marginLeft: '86px', marginTop: '4px', fontSize: '11px', color: '#b91c1c', fontWeight: '600', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '8px', padding: '6px 10px', display: 'inline-block', cursor: 'pointer' }}>
-                          Hubungi HRD/Supervisor
-                        </span>
-                      );
+                    {!isCompleted && !isBlocked && !isMaxReached && (() => {
                       if (cs === 'remedial') return (
                         <button onClick={() => handleVideoClick(video)} style={{ marginLeft: '86px', marginTop: '6px', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', cursor: 'pointer' }}>
                           ↩ Mulai SOP Ulang
