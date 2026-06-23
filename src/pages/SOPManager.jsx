@@ -113,7 +113,9 @@ export const SOPManager = ({ onSelectVideo }) => {
                     )
                   };
                   if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-                  if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                  if (sub.certStatus === 'remedial')      return (sub.retakeCount || 0) >= MAX_RETAKES
+                    ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
+                    : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                   if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
                   return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
                 }
@@ -284,9 +286,15 @@ export const SOPManager = ({ onSelectVideo }) => {
                           Menunggu HRD
                         </span>
                       ) : (cs === 'remedial' || cs === 'rejected') ? (
-                        <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
-                          Mulai SOP Ulang
-                        </button>
+                        (submission?.retakeCount || 0) >= MAX_RETAKES ? (
+                          <span style={{ fontSize: '11px', fontWeight: '600', padding: '6px 10px', borderRadius: '8px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', lineHeight: '1.4', textAlign: 'center' }}>
+                            Hubungi HRD/Supervisor
+                          </span>
+                        ) : (
+                          <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
+                            Mulai SOP Ulang
+                          </button>
+                        )
                       ) : (
                         <button onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} className="btn-sec" style={{ fontSize: '12px', padding: '6px 14px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>
                           {isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
@@ -380,11 +388,25 @@ export const SOPManager = ({ onSelectVideo }) => {
             note: detailVideo.submission.rejectionNote, 
             canRetake: true 
           }
-        : { 
-            badge: 'Perlu Remedial', 
-            badgeBg: '#fff7ed', 
-            badgeColor: '#b45309', 
-            badgeBorder: '#fed7aa', 
+        : (detailVideo.submission.retakeCount || 0) >= MAX_RETAKES
+        ? {
+            badge: 'Tidak Lulus',
+            badgeBg: '#fff5f5',
+            badgeColor: '#b91c1c',
+            badgeBorder: '#fecaca',
+            badgeIcon: null,
+            noteLabel: 'Informasi',
+            noteBg: '#fff5f5',
+            noteBorder: '#fecaca',
+            noteColor: '#b91c1c',
+            note: 'Anda telah mencapai batas maksimal 3x remedial. Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.',
+            canRetake: false
+          }
+        : {
+            badge: 'Perlu Remedial',
+            badgeBg: '#fff7ed',
+            badgeColor: '#b45309',
+            badgeBorder: '#fed7aa',
             badgeIcon: (
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -392,12 +414,12 @@ export const SOPManager = ({ onSelectVideo }) => {
                 <line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
             ),
-            noteLabel: 'Catatan Supervisor', 
-            noteBg: '#f8fafc', 
-            noteBorder: '#e2e8f0', 
-            noteColor: '#475569', 
-            note: detailVideo.submission.supervisorNote, 
-            canRetake: true 
+            noteLabel: 'Catatan Supervisor',
+            noteBg: '#f8fafc',
+            noteBorder: '#e2e8f0',
+            noteColor: '#475569',
+            note: detailVideo.submission.supervisorNote,
+            canRetake: true
           };
 
       return (
