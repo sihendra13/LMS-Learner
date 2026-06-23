@@ -284,7 +284,7 @@ export const SOPManager = ({ onSelectVideo }) => {
                         </span>
                       ) : cs === 'pending' ? (
                         (submission?.retakeCount || 0) >= MAX_RETAKES ? (
-                          <span style={{ fontSize: '11px', fontWeight: '600', padding: '6px 10px', borderRadius: '8px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', lineHeight: '1.4', textAlign: 'center' }}>
+                          <span onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }} style={{ fontSize: '11px', fontWeight: '600', padding: '6px 10px', borderRadius: '8px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', lineHeight: '1.4', textAlign: 'center', cursor: 'pointer' }}>
                             Hubungi HRD/Supervisor
                           </span>
                         ) : (
@@ -298,7 +298,7 @@ export const SOPManager = ({ onSelectVideo }) => {
                         </span>
                       ) : (cs === 'remedial' || cs === 'rejected') ? (
                         (submission?.retakeCount || 0) >= MAX_RETAKES ? (
-                          <span style={{ fontSize: '11px', fontWeight: '600', padding: '6px 10px', borderRadius: '8px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', lineHeight: '1.4', textAlign: 'center' }}>
+                          <span onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }} style={{ fontSize: '11px', fontWeight: '600', padding: '6px 10px', borderRadius: '8px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', lineHeight: '1.4', textAlign: 'center', cursor: 'pointer' }}>
                             Hubungi HRD/Supervisor
                           </span>
                         ) : (
