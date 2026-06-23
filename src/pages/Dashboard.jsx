@@ -8,7 +8,10 @@ export const Dashboard = ({ onSelectVideo }) => {
   const handleVideoClick = (video) => {
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
     const cs = submission?.certStatus;
-    if (cs === 'pending') return;
+    if (cs === 'pending') {
+      if ((submission?.retakeCount || 0) >= MAX_RETAKES) setDetailVideo({ video, submission });
+      return;
+    }
     if (cs === 'supervisor_ok') {
       if (submission?.supervisorNote) setDetailVideo({ video, submission });
       return;
@@ -331,7 +334,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                             color: statusBadge.color,
                             background: statusBadge.bg,
                             border: `1px solid ${statusBadge.border}`,
-                            padding: '6px 14px',
+                            padding: '3px 10px',
                             borderRadius: '99px',
                             whiteSpace: 'nowrap',
                             display: 'inline-flex',
@@ -362,9 +365,9 @@ export const Dashboard = ({ onSelectVideo }) => {
                       const retakeCount = submission?.retakeCount || 0;
                       const isMaxReached = (cs === 'remedial' || cs === 'pending') && retakeCount >= MAX_RETAKES;
                       if (isMaxReached) return (
-                        <div style={{ marginLeft: '86px', marginTop: '4px', fontSize: '11.5px', color: '#b91c1c', fontWeight: '600', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 12px' }}>
-                          Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.
-                        </div>
+                        <span onClick={() => setDetailVideo({ video, submission })} style={{ marginLeft: '86px', marginTop: '4px', fontSize: '11px', color: '#b91c1c', fontWeight: '600', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '8px', padding: '6px 10px', display: 'inline-block', cursor: 'pointer' }}>
+                          Hubungi HRD/Supervisor
+                        </span>
                       );
                       if (cs === 'remedial') return (
                         <button onClick={() => handleVideoClick(video)} style={{ marginLeft: '86px', marginTop: '6px', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', cursor: 'pointer' }}>
@@ -573,11 +576,11 @@ export const Dashboard = ({ onSelectVideo }) => {
             canRetake: false 
           }
         : cs === 'rejected'
-        ? { 
-            badge: 'Ditolak Final', 
-            badgeBg: '#fef2f2', 
-            badgeColor: '#b91c1c', 
-            badgeBorder: '#fecaca', 
+        ? {
+            badge: 'Ditolak Final',
+            badgeBg: '#fef2f2',
+            badgeColor: '#b91c1c',
+            badgeBorder: '#fecaca',
             badgeIcon: (
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
                 <circle cx="12" cy="12" r="10" />
@@ -585,14 +588,28 @@ export const Dashboard = ({ onSelectVideo }) => {
                 <line x1="9" y1="9" x2="15" y2="15" />
               </svg>
             ),
-            noteLabel: 'Catatan HRD', 
-            noteBg: '#f8fafc', 
-            noteBorder: '#e2e8f0', 
-            noteColor: '#475569', 
-            note: detailVideo.submission.rejectionNote, 
-            canRetake: true 
+            noteLabel: 'Catatan HRD',
+            noteBg: '#f8fafc',
+            noteBorder: '#e2e8f0',
+            noteColor: '#475569',
+            note: detailVideo.submission.rejectionNote,
+            canRetake: true
           }
-        : { 
+        : (detailVideo.submission.retakeCount || 0) >= MAX_RETAKES
+        ? {
+            badge: 'Tidak Lulus',
+            badgeBg: '#fff5f5',
+            badgeColor: '#b91c1c',
+            badgeBorder: '#fecaca',
+            badgeIcon: null,
+            noteLabel: 'Informasi',
+            noteBg: '#fff5f5',
+            noteBorder: '#fecaca',
+            noteColor: '#b91c1c',
+            note: `Anda telah mencapai batas maksimal ${MAX_RETAKES}x remedial. Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.`,
+            canRetake: false
+          }
+        : {
             badge: 'Perlu Remedial', 
             badgeBg: '#fff7ed', 
             badgeColor: '#b45309', 
