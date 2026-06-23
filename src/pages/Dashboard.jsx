@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Dashboard = ({ onSelectVideo }) => {
-  const { currentUser, videos, quizSubmissions, activities, passingScore } = useTenant();
+  const { currentUser, videos, quizSubmissions, activities, passingScore, MAX_RETAKES } = useTenant();
   const [detailVideo, setDetailVideo] = useState(null);
 
   const handleVideoClick = (video) => {
@@ -196,7 +196,9 @@ export const Dashboard = ({ onSelectVideo }) => {
                       )
                     };
                     if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-                    if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                    if (sub.certStatus === 'remedial')      return (sub.retakeCount || 0) >= MAX_RETAKES
+                      ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
+                      : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                     if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
                     return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
                   }
@@ -352,6 +354,33 @@ export const Dashboard = ({ onSelectVideo }) => {
                       </div>
                       <div className="prog-pct">{displayProgress}%</div>
                     </div>
+
+                    {/* Action button row */}
+                    {!isCompleted && !isBlocked && (() => {
+                      const retakeCount = submission?.retakeCount || 0;
+                      const isMaxReached = cs === 'remedial' && retakeCount >= MAX_RETAKES;
+                      if (isMaxReached) return (
+                        <div style={{ marginLeft: '86px', marginTop: '4px', fontSize: '11.5px', color: '#b91c1c', fontWeight: '600', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 12px' }}>
+                          Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.
+                        </div>
+                      );
+                      if (cs === 'remedial') return (
+                        <button onClick={() => handleVideoClick(video)} style={{ marginLeft: '86px', marginTop: '6px', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', cursor: 'pointer' }}>
+                          ↩ Mulai SOP Ulang
+                        </button>
+                      );
+                      if (isNew) return (
+                        <button onClick={() => handleVideoClick(video)} style={{ marginLeft: '86px', marginTop: '6px', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', background: '#0B1628', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                          ▶ Mulai SOP
+                        </button>
+                      );
+                      if (isOngoing) return (
+                        <button onClick={() => handleVideoClick(video)} style={{ marginLeft: '86px', marginTop: '6px', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', background: '#eff6ff', color: '#1d4ed8', border: '1px solid #93c5fd', cursor: 'pointer' }}>
+                          ▶ Lanjutkan
+                        </button>
+                      );
+                      return null;
+                    })()}
                   </div>
                 );
               })}
