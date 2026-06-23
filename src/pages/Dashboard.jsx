@@ -200,6 +200,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                       ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
                       : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                     if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                    if ((sub.retakeCount || 0) >= MAX_RETAKES) return { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
                     return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
                   }
                   if (isCompleted) return {
@@ -358,7 +359,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                     {/* Action button row */}
                     {!isCompleted && !isBlocked && (() => {
                       const retakeCount = submission?.retakeCount || 0;
-                      const isMaxReached = cs === 'remedial' && retakeCount >= MAX_RETAKES;
+                      const isMaxReached = (cs === 'remedial' || cs === 'pending') && retakeCount >= MAX_RETAKES;
                       if (isMaxReached) return (
                         <div style={{ marginLeft: '86px', marginTop: '4px', fontSize: '11.5px', color: '#b91c1c', fontWeight: '600', background: '#fff5f5', border: '1px solid #fecaca', borderRadius: '6px', padding: '6px 12px' }}>
                           Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.
