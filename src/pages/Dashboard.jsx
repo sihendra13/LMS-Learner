@@ -172,7 +172,8 @@ export const Dashboard = ({ onSelectVideo }) => {
                 const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
                 const cs = submission?.certStatus;
                 const hasNote = (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote));
-                const isBlocked = cs === 'pending' || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
+                const isPendingMaxed = cs === 'pending' && (submission?.retakeCount || 0) >= MAX_RETAKES;
+                const isBlocked = (cs === 'pending' && !isPendingMaxed) || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
                 const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
                 const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
                 const isNew = !isCompleted && !isOngoing;
