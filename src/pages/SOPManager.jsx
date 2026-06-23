@@ -9,7 +9,10 @@ export const SOPManager = ({ onSelectVideo }) => {
   const handleVideoClick = (video) => {
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
     const cs = submission?.certStatus;
-    if (cs === 'pending') return;
+    if (cs === 'pending') {
+      if ((submission?.retakeCount || 0) >= MAX_RETAKES) setDetailVideo({ video, submission });
+      return;
+    }
     if (cs === 'supervisor_ok') {
       if (submission?.supervisorNote) setDetailVideo({ video, submission });
       return;
@@ -90,7 +93,8 @@ export const SOPManager = ({ onSelectVideo }) => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
               const cs = submission?.certStatus;
               const hasNote = (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote));
-              const isBlocked = cs === 'pending' || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
+              const isPendingMaxed = cs === 'pending' && (submission?.retakeCount || 0) >= MAX_RETAKES;
+              const isBlocked = (cs === 'pending' && !isPendingMaxed) || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
               const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
               const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
               const displayProgress =
@@ -117,6 +121,7 @@ export const SOPManager = ({ onSelectVideo }) => {
                     ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
                     : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                   if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                  if ((sub.retakeCount || 0) >= MAX_RETAKES) return { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
                   return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
                 }
                 if (isCompleted) return {
@@ -278,9 +283,15 @@ export const SOPManager = ({ onSelectVideo }) => {
                           Selesai
                         </span>
                       ) : cs === 'pending' ? (
-                        <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
-                          Menunggu Supervisor
-                        </span>
+                        (submission?.retakeCount || 0) >= MAX_RETAKES ? (
+                          <span style={{ fontSize: '11px', fontWeight: '600', padding: '6px 10px', borderRadius: '8px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', lineHeight: '1.4', textAlign: 'center' }}>
+                            Hubungi HRD/Supervisor
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
+                            Menunggu Supervisor
+                          </span>
+                        )
                       ) : cs === 'supervisor_ok' ? (
                         <span style={{ fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '8px', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', display: 'inline-block', whiteSpace: 'nowrap' }}>
                           Menunggu HRD
