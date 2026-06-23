@@ -175,7 +175,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                 const isBlocked = cs === 'pending' || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
                 const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
                 const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
-                const isNew = !isCompleted && video.progress === 0;
+                const isNew = !isCompleted && !isOngoing;
                 const displayProgress =
                   (cs === 'approved' || cs === 'pending' || cs === 'supervisor_ok') ? 100
                   : (cs === 'remedial' || cs === 'rejected') ? 0
