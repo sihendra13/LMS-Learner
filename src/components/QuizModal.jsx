@@ -10,8 +10,16 @@ export const QuizModal = ({ video, onClose }) => {
   // Use Number() to handle both numeric 0 and string "0" from older saved data
   const isMidTrigger = (q) => { const t = Number(q.triggerTime); return !isNaN(t) && t > 0; };
   const midVideoTriggers = isPpt ? [] : [...(video.preQuizzes || []), ...(video.postQuizzes || [])].filter(isMidTrigger);
-  const regularPreQuizzes = (video.preQuizzes || []).filter(q => !isMidTrigger(q));
-  const regularPostQuizzes = (video.postQuizzes || []).filter(q => !isMidTrigger(q));
+  const shuffleArray = (arr) => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const [regularPreQuizzes] = useState(() => shuffleArray((video.preQuizzes || []).filter(q => !isMidTrigger(q))));
+  const [regularPostQuizzes] = useState(() => shuffleArray((video.postQuizzes || []).filter(q => !isMidTrigger(q))));
   const hasPreTest = regularPreQuizzes.length > 0;
   const hasPostTest = regularPostQuizzes.length > 0;
 
