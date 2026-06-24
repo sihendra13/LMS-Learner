@@ -301,7 +301,7 @@ export const Certifications = () => {
                           </span>
                           {retakeCount > 0 && (
                             <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px' }}>
-                              Percobaan ke-{retakeCount + 1} dari {MAX_RETAKES}
+                              Remedial ke-{retakeCount} dari {MAX_RETAKES}
                             </span>
                           )}
                         </div>
