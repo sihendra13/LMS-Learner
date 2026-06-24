@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getDB, saveDB } from '../utils/db';
 import { supabase } from '../utils/supabase';
+import larisiLogo from '../assets/logo-larisi.svg';
 
 const fromDbRow = (row) => ({
   id: row.id,
@@ -143,6 +144,7 @@ export const TenantProvider = ({ children }) => {
         submission_date: submission.date,
         status: submission.status,
         cert_status: 'pending',
+        acknowledged: submission.acknowledged ?? true,
         ...(wasRemedial && { retake_count: newRetakeCount }),
       }).eq('id', existing.id);
     } else {
@@ -156,6 +158,7 @@ export const TenantProvider = ({ children }) => {
         status: submission.status,
         cert_status: 'pending',
         retake_count: 0,
+        acknowledged: submission.acknowledged ?? true,
       });
     }
 
@@ -261,13 +264,13 @@ export const TenantProvider = ({ children }) => {
 
   const [tenant, setTenant] = useState(() => {
     const base = db.tenant || { name: 'PT Maju Bersama', plan: 'business', status: 'Aktif', avatar: 'MB' };
-    return { ...base, logo: localStorage.getItem('axara_lms_logo') || base.logo || null };
+    return { ...base, logo: localStorage.getItem('axara_lms_logo') || base.logo || larisiLogo };
   });
 
   // Keep tenant state synced when db changes
   useEffect(() => {
     if (db.tenant) {
-      setTenant({ ...db.tenant, logo: localStorage.getItem('axara_lms_logo') || db.tenant?.logo || null });
+      setTenant({ ...db.tenant, logo: localStorage.getItem('axara_lms_logo') || db.tenant?.logo || larisiLogo });
     }
   }, [db]);
 
