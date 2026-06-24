@@ -428,21 +428,15 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
           : (detailVideo.submission?.retakeCount || 0) >= MAX_RETAKES
           ? {
               badge: 'Tidak Lulus',
-              badgeBg: '#fef2f2',
+              badgeBg: '#fff5f5',
               badgeColor: '#b91c1c',
               badgeBorder: '#fecaca',
-              badgeIcon: (
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="15" y1="9" x2="9" y2="15" />
-                  <line x1="9" y1="9" x2="15" y2="15" />
-                </svg>
-              ),
-              noteLabel: 'Catatan HRD/Supervisor',
-              noteBg: '#f8fafc',
-              noteBorder: '#e2e8f0',
-              noteColor: '#475569',
-              note: detailVideo.submission.rejectionNote || detailVideo.submission.supervisorNote || 'Batas pengerjaan ulang (remedial) telah habis. Silakan hubungi HRD/Supervisor Anda.',
+              badgeIcon: null,
+              noteLabel: 'Informasi',
+              noteBg: '#fff5f5',
+              noteBorder: '#fecaca',
+              noteColor: '#b91c1c',
+              note: `Anda telah mencapai batas maksimal ${MAX_RETAKES}x remedial. Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.`,
               canRetake: false
             }
           : { 
