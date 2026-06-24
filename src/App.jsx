@@ -5,10 +5,18 @@ import { SOPManager } from './pages/SOPManager';
 import { Certifications } from './pages/Certifications';
 import { QuizModal } from './components/QuizModal';
 import MobileLayout from './components/mobile/MobileLayout';
+import { supabase } from './utils/supabase';
 
 const AppContent = () => {
   const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore, tenant } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
+
+  const handleSelectVideo = (video) => {
+    if (video?.id) {
+      supabase.from('sop_videos').update({ views: (video.views || 0) + 1 }).eq('id', video.id);
+    }
+    setSelectedVideo(video);
+  };
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
 
   React.useEffect(() => {
@@ -32,20 +40,20 @@ const AppContent = () => {
   const renderActivePage = () => {
     switch (activePage) {
       case 'dashboard':
-        return <Dashboard onSelectVideo={setSelectedVideo} />;
+        return <Dashboard onSelectVideo={handleSelectVideo} />;
       case 'sop':
-        return <SOPManager onSelectVideo={setSelectedVideo} />;
+        return <SOPManager onSelectVideo={handleSelectVideo} />;
       case 'sertifikasi':
         return <Certifications />;
       default:
-        return <Dashboard onSelectVideo={setSelectedVideo} />;
+        return <Dashboard onSelectVideo={handleSelectVideo} />;
     }
   };
 
   if (isMobile) {
     return (
       <>
-        <MobileLayout onSelectVideo={setSelectedVideo} />
+        <MobileLayout onSelectVideo={handleSelectVideo} />
 
         {/* SOP INTERACTIVE MODAL WIZARD */}
         {selectedVideo && (
