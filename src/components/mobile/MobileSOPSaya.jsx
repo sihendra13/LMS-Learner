@@ -145,7 +145,9 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                 } else {
                   onSelectVideo(video);
                 }
-                           return (
+              };
+
+              return (
                 <div key={video.id} className="sop-item" style={{ padding: '16px', gap: '10px', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }} onClick={handleItemClick}>
                   {/* Top Section: Thumbnail + Info */}
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', width: '100%' }}>
