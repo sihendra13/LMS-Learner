@@ -2,7 +2,8 @@ import React from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
-  const { currentUser, videos, quizSubmissions, passingScore, activities } = useTenant();
+  const { currentUser, videos, quizSubmissions, passingScore, activities, MAX_RETAKES } = useTenant();
+  const [detailVideo, setDetailVideo] = React.useState(null);
 
   // Filter videos for user's department
   const mandatoryVideos = videos.filter(v => (v.dept === currentUser.dept || v.dept === 'Semua') && !v.archived);
@@ -147,54 +148,156 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {mandatoryVideos.map(video => {
             const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
-            const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
-            const isOngoing = video.progress > 0 && video.progress < 100;
+            const cs = submission?.certStatus;
+            const isMaxReached = submission && (submission.retakeCount || 0) >= MAX_RETAKES && submission.postScore < passingScore;
+            const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
+            const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
+
+            const getStatusBadge = (sub) => {
+              if (sub) {
+                if (sub.certStatus === 'approved') return {
+                  label: 'Sertifikat Aktif',
+                  color: '#15803d',
+                  bg: '#f0fdf4',
+                  border: '#86efac',
+                  icon: (
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '3px' }}>
+                      <circle cx="12" cy="8" r="7" />
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                    </svg>
+                  )
+                };
+                if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+                if (sub.certStatus === 'remedial')      return (sub.retakeCount || 0) >= MAX_RETAKES
+                  ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
+                  : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                if ((sub.retakeCount || 0) >= MAX_RETAKES) return { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+                return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
+              }
+              if (isCompleted) return {
+                label: 'Lulus',
+                color: '#15803d',
+                bg: '#f0fdf4',
+                border: '#86efac',
+                icon: (
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '3px' }}>
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                )
+              };
+              if (isOngoing)   return { label: 'Lanjutkan', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+              return { label: 'Baru', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
+            };
+            const statusBadge = getStatusBadge(submission);
+
+            const handleItemClick = () => {
+              if (isMaxReached) {
+                setDetailVideo({ video, submission });
+              } else if (isCompleted && cs === 'approved') {
+                setDetailVideo({ video, submission });
+              } else {
+                onSelectVideo(video);
+              }
+            };
 
             return (
-              <div key={video.id} className="sop-item" style={{ padding: '10px 16px', gap: '10px' }} onClick={() => onSelectVideo(video)}>
-                <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '60px', height: '38px', borderRadius: '6px' }}>
-                  {isCompleted ? (
-                    <div className="sop-done-overlay" style={{ background: 'rgba(16,185,129,0.7)' }}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '14px', height: '14px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                  ) : (
-                    <div className="play-ic" style={{ width: '20px', height: '20px' }}>
-                      <svg viewBox="0 0 24 24" fill="white" style={{ width: '8px', height: '8px' }}><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    </div>
-                  )}
-                </div>
-                <div className="sop-info">
-                  <div className="sop-title" style={{ fontSize: '12px', fontWeight: '600', marginBottom: '2px' }}>{video.title}</div>
-                  <div className="sop-meta" style={{ gap: '6px', marginBottom: '3px' }}>
-                    <span className={`dept-tag ${video.tagClass}`} style={{ fontSize: '8px', padding: '1px 5px' }}>{video.dept}</span>
-                    <span className="sop-dur" style={{ fontSize: '10px' }}>⏱ {video.duration}</span>
-                    {submission && (
-                      <span style={{ fontSize: '10px', fontWeight: 'bold', color: submission.postScore >= passingScore ? 'var(--green)' : 'var(--red)' }}>
-                        Skor: {submission.postScore}%
-                      </span>
+              <div key={video.id} className="sop-item" style={{ padding: '10px 16px', gap: '8px', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }} onClick={handleItemClick}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                  <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '60px', height: '38px', borderRadius: '6px', flexShrink: 0 }}>
+                    {isCompleted ? (
+                      <div className="sop-done-overlay" style={{ background: 'rgba(16,185,129,0.7)' }}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '14px', height: '14px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    ) : (
+                      <div className="play-ic" style={{ width: '20px', height: '20px' }}>
+                        <svg viewBox="0 0 24 24" fill="white" style={{ width: '8px', height: '8px' }}><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                      </div>
                     )}
                   </div>
-                  <div className="sop-prog">
-                    <div className="prog-bar">
-                      <div 
-                        className="prog-fill" 
-                        style={{ 
-                          width: `${video.progress}%`, 
-                          background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)' 
-                        }}
-                      />
+                  <div className="sop-info" style={{ flex: 1, minWidth: 0 }}>
+                    <div className="sop-title" style={{ fontSize: '12px', fontWeight: '600', marginBottom: '2px' }}>{video.title}</div>
+                    <div className="sop-meta" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px', flexWrap: 'wrap' }}>
+                      <span className={`dept-tag ${video.tagClass}`} style={{ fontSize: '8px', padding: '1px 5px' }}>{video.dept}</span>
+                      <span className="sop-dur" style={{ fontSize: '10px' }}>⏱ {video.duration}</span>
+                      {submission && (
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          background: submission.postScore >= passingScore ? '#ecfdf5' : '#fef2f2',
+                          color: submission.postScore >= passingScore ? '#15803d' : '#dc2626',
+                          border: `1px solid ${submission.postScore >= passingScore ? '#a7f3d0' : '#fca5a5'}`,
+                          padding: '1px 6px',
+                          borderRadius: '4px'
+                        }}>
+                          Skor: {submission.postScore}%
+                        </span>
+                      )}
                     </div>
-                    <div className="prog-pct" style={{ fontSize: '10px', minWidth: '22px' }}>{video.progress}%</div>
+                    {(() => {
+                      const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
+                      if (!note) return null;
+                      return (
+                        <span
+                          onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }}
+                          style={{
+                            fontSize: '9px',
+                            fontWeight: '600',
+                            color: '#2563eb',
+                            background: 'rgba(59, 130, 246, 0.08)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            marginTop: '2px',
+                            cursor: 'pointer'
+                          }}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                          </svg>
+                          Ada catatan
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <div className="sop-status" style={{ flexShrink: 0, marginLeft: '6px' }}>
+                    {isMaxReached ? (
+                      <span onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }} style={{ fontSize: '8px', fontWeight: '600', padding: '4px 8px', borderRadius: '6px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+                        Hubungi HRD/Supervisor
+                      </span>
+                    ) : statusBadge ? (
+                      <span style={{
+                        fontSize: '8px',
+                        fontWeight: '700',
+                        color: statusBadge.color,
+                        background: statusBadge.bg,
+                        border: `1px solid ${statusBadge.border}`,
+                        padding: '4px 8px',
+                        borderRadius: '99px',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {statusBadge.icon}
+                        {statusBadge.label}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
-                <div className="sop-status">
-                  {isCompleted ? (
-                    <span className="status-pill sp-done" style={{ fontSize: '8px', padding: '2px 6px' }}>Lulus</span>
-                  ) : isOngoing ? (
-                    <span className="status-pill sp-ongoing" style={{ fontSize: '8px', padding: '2px 6px' }}>Lanjutkan</span>
-                  ) : (
-                    <span className="status-pill sp-new" style={{ fontSize: '8px', padding: '2px 6px' }}>Baru</span>
-                  )}
+                <div className="sop-prog" style={{ marginLeft: '70px' }}>
+                  <div className="prog-bar">
+                    <div 
+                      className="prog-fill" 
+                      style={{ 
+                        width: `${video.progress}%`, 
+                        background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)' 
+                      }}
+                    />
+                  </div>
+                  <div className="prog-pct" style={{ fontSize: '10px', minWidth: '22px' }}>{video.progress}%</div>
                 </div>
               </div>
             );
@@ -329,6 +432,219 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
           </div>
         </div>
       </div>
+
+      {detailVideo && (() => {
+        const cs = detailVideo.submission?.certStatus;
+        const cfg = cs === 'approved'
+          ? { 
+              badge: 'Sertifikat Aktif', 
+              badgeBg: '#f0fdf4', 
+              badgeColor: '#15803d', 
+              badgeBorder: '#86efac', 
+              badgeIcon: (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                  <circle cx="12" cy="8" r="7" />
+                  <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                </svg>
+              ),
+              noteLabel: detailVideo.submission.supervisorNote ? "Catatan Supervisor" : "Pesan dari HRD", 
+              noteBg: "#f8fafc", 
+              noteBorder: "#e2e8f0", 
+              noteColor: "#475569", 
+              note: detailVideo.submission.supervisorNote || detailVideo.submission.approvalNote,
+              secondNoteLabel: (detailVideo.submission.supervisorNote && detailVideo.submission.approvalNote) ? "Pesan dari HRD" : null,
+              secondNote: (detailVideo.submission.supervisorNote && detailVideo.submission.approvalNote) ? detailVideo.submission.approvalNote : null,
+              canRetake: false 
+            }
+          : cs === 'supervisor_ok'
+          ? { 
+              badge: 'Catatan dari Supervisor', 
+              badgeBg: '#eff6ff', 
+              badgeColor: '#1d4ed8', 
+              badgeBorder: '#93c5fd', 
+              badgeIcon: (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                  <polyline points="10 9 9 9 8 9" />
+                </svg>
+              ),
+              noteLabel: 'Catatan Supervisor', 
+              noteBg: '#f8fafc', 
+              noteBorder: '#e2e8f0', 
+              noteColor: '#475569', 
+              note: detailVideo.submission.supervisorNote, 
+              canRetake: false 
+            }
+          : cs === 'rejected'
+          ? { 
+              badge: 'Ditolak Final', 
+              badgeBg: '#fef2f2', 
+              badgeColor: '#b91c1c', 
+              badgeBorder: '#fecaca', 
+              badgeIcon: (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+              ),
+              noteLabel: 'Catatan HRD', 
+              noteBg: '#f8fafc', 
+              noteBorder: '#e2e8f0', 
+              noteColor: '#475569', 
+              note: detailVideo.submission.rejectionNote, 
+              canRetake: true 
+            }
+          : (detailVideo.submission?.retakeCount || 0) >= MAX_RETAKES
+          ? {
+              badge: 'Tidak Lulus',
+              badgeBg: '#fef2f2',
+              badgeColor: '#b91c1c',
+              badgeBorder: '#fecaca',
+              badgeIcon: (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="15" y1="9" x2="9" y2="15" />
+                  <line x1="9" y1="9" x2="15" y2="15" />
+                </svg>
+              ),
+              noteLabel: 'Catatan HRD/Supervisor',
+              noteBg: '#f8fafc',
+              noteBorder: '#e2e8f0',
+              noteColor: '#475569',
+              note: detailVideo.submission.rejectionNote || detailVideo.submission.supervisorNote || 'Batas pengerjaan ulang (remedial) telah habis. Silakan hubungi HRD/Supervisor Anda.',
+              canRetake: false
+            }
+          : { 
+              badge: 'Perlu Remedial', 
+              badgeBg: '#fff7ed', 
+              badgeColor: '#b45309', 
+              badgeBorder: '#fed7aa', 
+              badgeIcon: (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '4px', flexShrink: 0 }}>
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              ),
+              noteLabel: 'Catatan Supervisor', 
+              noteBg: '#f8fafc', 
+              noteBorder: '#e2e8f0', 
+              noteColor: '#475569', 
+              note: detailVideo.submission.supervisorNote, 
+              canRetake: true 
+            };
+
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', webkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000 }}>
+            <div style={{ background: '#ffffff', borderRadius: '16px', padding: '24px', maxWidth: '340px', width: '90%', boxShadow: '0 20px 40px rgba(0,0,0,0.15)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text1)', margin: 0 }}>{detailVideo.video.title}</h3>
+                  <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px', background: cfg.badgeBg, color: cfg.badgeColor, border: `1px solid ${cfg.badgeBorder}`, display: 'inline-flex', alignItems: 'center' }}>
+                    {cfg.badgeIcon}
+                    {cfg.badge}
+                  </span>
+                </div>
+                <button onClick={() => setDetailVideo(null)} style={{ background: 'none', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#9ca3af', padding: '4px', borderRadius: '50%', transition: 'background 0.2s' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              <div style={{ height: '1px', background: '#e2e8f0', margin: '0 0 16px 0' }} />
+
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ flex: 1, padding: '8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Pre-Test</div>
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: (detailVideo.submission.preScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.preScore ?? '—'}%</div>
+                </div>
+                <div style={{ width: '1px', height: '36px', background: '#e2e8f0' }} />
+                <div style={{ flex: 1, padding: '8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '10px', color: 'var(--text3)', marginBottom: '4px' }}>Skor Post-Test</div>
+                  <div style={{ fontSize: '20px', fontWeight: '800', color: (detailVideo.submission.postScore ?? 0) >= passingScore ? '#16a34a' : '#dc2626' }}>{detailVideo.submission.postScore ?? '—'}%</div>
+                </div>
+              </div>
+
+              {detailVideo.video.deadline && cs !== 'approved' && (() => {
+                const today = new Date(); today.setHours(0,0,0,0);
+                const dl = new Date(detailVideo.video.deadline);
+                const diff = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
+                const dateStr = dl.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+                const color = diff < 0 ? '#dc2626' : '#b45309';
+                const bg = diff < 0 ? '#fef2f2' : '#fff7ed';
+                return (
+                  <div style={{ fontSize: '11px', color, background: bg, borderRadius: '6px', padding: '6px 10px', marginBottom: '16px' }}>
+                    📅 {diff < 0 ? `Deadline terlewat · ${dateStr}` : diff === 0 ? `Deadline hari ini · ${dateStr}` : `Deadline ${diff} hari lagi · ${dateStr}`}
+                  </div>
+                );
+              })()}
+
+              {cfg.note && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                  <div style={{ border: `1px solid ${cfg.noteBorder}`, borderRadius: '8px', overflow: 'hidden' }}>
+                    <div style={{ background: '#f8fafc', padding: '8px 12px', borderBottom: `1px solid ${cfg.noteBorder}`, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: cfg.noteColor }}>
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      </svg>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: cfg.noteColor }}>{cfg.noteLabel}</span>
+                    </div>
+                    <div style={{ background: '#ffffff', padding: '12px', fontSize: '12px', color: 'var(--text1)', lineHeight: '1.5', fontWeight: '500' }}>
+                      {cfg.note}
+                    </div>
+                  </div>
+                  {cfg.secondNote && (
+                    <div style={{ border: '1px solid #86efac', borderRadius: '8px', overflow: 'hidden' }}>
+                      <div style={{ background: '#f0fdf4', padding: '8px 12px', borderBottom: '1px solid #86efac', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: '#15803d' }}>
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#15803d' }}>{cfg.secondNoteLabel}</span>
+                      </div>
+                      <div style={{ background: '#ffffff', padding: '12px', fontSize: '12px', color: 'var(--text1)', lineHeight: '1.5', fontWeight: '500' }}>
+                        {cfg.secondNote}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  onClick={() => setDetailVideo(null)} 
+                  style={{ 
+                    flex: 1, 
+                    padding: '9px', 
+                    borderRadius: '8px', 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    cursor: 'pointer', 
+                    background: cfg.canRetake ? '#ffffff' : '#0f172a', 
+                    border: cfg.canRetake ? '1px solid #d1d5db' : 'none', 
+                    color: cfg.canRetake ? '#374151' : '#ffffff',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {cfg.canRetake ? 'Batal' : 'Tutup'}
+                </button>
+                {cfg.canRetake && (
+                  <button
+                    onClick={() => { setDetailVideo(null); onSelectVideo(detailVideo.video); }}
+                    style={{ flex: 2, padding: '9px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', background: '#0f172a', border: 'none', color: '#fff' }}
+                  >
+                    Mulai SOP Ulang
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
