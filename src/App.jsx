@@ -13,7 +13,7 @@ const AppContent = () => {
 
   const handleSelectVideo = (video) => {
     if (video?.id) {
-      supabase.from('sop_videos').update({ views: (video.views || 0) + 1 }).eq('id', video.id);
+      supabase.rpc('increment_video_views', { video_id: video.id });
     }
     setSelectedVideo(video);
   };
