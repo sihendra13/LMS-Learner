@@ -202,15 +202,13 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                 setDetailVideo({ video, submission });
               } else {
                 onSelectVideo(video);
-              }
-            };
-
-            return (
-              <div key={video.id} className="sop-item" style={{ padding: '10px 16px', gap: '8px', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }} onClick={handleItemClick}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
-                  <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '60px', height: '38px', borderRadius: '6px', flexShrink: 0 }}>
+              }            return (
+              <div key={video.id} className="sop-item" style={{ padding: '16px', gap: '10px', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }} onClick={handleItemClick}>
+                {/* Top Section: Thumbnail + Info */}
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', width: '100%' }}>
+                  <div className="sop-thumb" style={{ background: video.color || 'var(--navy2)', width: '64px', height: '40px', borderRadius: '6px', flexShrink: 0, position: 'relative' }}>
                     {isCompleted ? (
-                      <div className="sop-done-overlay" style={{ background: 'rgba(16,185,129,0.7)' }}>
+                      <div className="sop-done-overlay" style={{ background: 'rgba(16,185,129,0.7)', borderRadius: '6px' }}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ width: '14px', height: '14px' }}><polyline points="20 6 9 17 4 12"/></svg>
                       </div>
                     ) : (
@@ -220,11 +218,26 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                     )}
                   </div>
                   <div className="sop-info" style={{ flex: 1, minWidth: 0 }}>
-                    <div className="sop-title" style={{ fontSize: '12px', fontWeight: '600', marginBottom: '2px' }}>{video.title}</div>
-                    <div className="sop-meta" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px', flexWrap: 'wrap' }}>
+                    <div className="sop-title" style={{
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      marginBottom: '4px',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      lineHeight: '1.4',
+                      color: 'var(--text1)'
+                    }}>
+                      {video.title}
+                    </div>
+                    <div className="sop-meta" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px', flexWrap: 'wrap' }}>
                       <span className={`dept-tag ${video.tagClass}`} style={{ fontSize: '8px', padding: '1px 5px' }}>{video.dept}</span>
                       <span className="sop-dur" style={{ fontSize: '10px' }}>⏱ {video.duration}</span>
-                      {submission && (
+                    </div>
+                    {submission && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                         <span style={{
                           fontSize: '10px',
                           fontWeight: '700',
@@ -236,34 +249,34 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                         }}>
                           Skor: {submission.postScore}%
                         </span>
-                      )}
-                      {isMaxReached && (
-                        <span style={{
-                          fontSize: '10px',
-                          fontWeight: '700',
-                          background: '#fff5f5',
-                          color: '#b91c1c',
-                          border: '1px solid #fecaca',
-                          padding: '1px 6px',
-                          borderRadius: '4px'
-                        }}>
-                          Tidak Lulus
-                        </span>
-                      )}
-                      {!isMaxReached && cs === 'remedial' && (
-                        <span style={{
-                          fontSize: '10px',
-                          fontWeight: '700',
-                          background: '#fff7ed',
-                          color: '#b45309',
-                          border: '1px solid #fed7aa',
-                          padding: '1px 6px',
-                          borderRadius: '4px'
-                        }}>
-                          Perlu Remedial
-                        </span>
-                      )}
-                    </div>
+                        {isMaxReached && (
+                          <span style={{
+                            fontSize: '10px',
+                            fontWeight: '700',
+                            background: '#fff5f5',
+                            color: '#b91c1c',
+                            border: '1px solid #fecaca',
+                            padding: '1px 6px',
+                            borderRadius: '4px'
+                          }}>
+                            Tidak Lulus
+                          </span>
+                        )}
+                        {!isMaxReached && cs === 'remedial' && (
+                          <span style={{
+                            fontSize: '10px',
+                            fontWeight: '700',
+                            background: '#fff7ed',
+                            color: '#b45309',
+                            border: '1px solid #fed7aa',
+                            padding: '1px 6px',
+                            borderRadius: '4px'
+                          }}>
+                            Perlu Remedial
+                          </span>
+                        )}
+                      </div>
+                    )}
                     {(() => {
                       const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
                       if (!note) return null;
@@ -281,7 +294,7 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '4px',
-                            marginTop: '2px',
+                            marginTop: '4px',
                             cursor: 'pointer'
                           }}>
                           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -292,32 +305,10 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                       );
                     })()}
                   </div>
-                  <div className="sop-status" style={{ flexShrink: 0, marginLeft: '6px' }}>
-                    {isMaxReached ? (
-                      <span onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }} style={{ fontSize: '8px', fontWeight: '600', padding: '4px 8px', borderRadius: '6px', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', display: 'inline-block', whiteSpace: 'nowrap', cursor: 'pointer' }}>
-                        Hubungi HRD/Supervisor
-                      </span>
-                    ) : statusBadge ? (
-                      <span style={{
-                        fontSize: '8px',
-                        fontWeight: '700',
-                        color: statusBadge.color,
-                        background: statusBadge.bg,
-                        border: `1px solid ${statusBadge.border}`,
-                        padding: '4px 8px',
-                        borderRadius: '99px',
-                        whiteSpace: 'nowrap',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        {statusBadge.icon}
-                        {statusBadge.label}
-                      </span>
-                    ) : null}
-                  </div>
                 </div>
-                <div className="sop-prog" style={{ marginLeft: '70px' }}>
+                
+                {/* Middle Section: Progress Bar */}
+                <div className="sop-prog" style={{ marginLeft: '0px', marginTop: '4px', marginBottom: '4px' }}>
                   <div className="prog-bar">
                     <div 
                       className="prog-fill" 
@@ -328,6 +319,51 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                     />
                   </div>
                   <div className="prog-pct" style={{ fontSize: '10px', minWidth: '22px' }}>{displayProgress}%</div>
+                </div>
+
+                {/* Bottom Section: Full-width Action Button */}
+                <div style={{ marginTop: '4px' }}>
+                  {isMaxReached ? (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }} 
+                      style={{ width: '100%', background: '#fff5f5', color: '#b91c1c', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+                    >
+                      Hubungi HRD/Supervisor
+                    </button>
+                  ) : cs === 'approved' ? (
+                    <div 
+                      onClick={(e) => { e.stopPropagation(); setDetailVideo({ video, submission }); }}
+                      style={{ width: '100%', background: '#ecfdf4', color: '#15803d', border: '1px solid #d1fae5', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+                    >
+                      Selesai
+                    </div>
+                  ) : cs === 'pending' ? (
+                    <div 
+                      style={{ width: '100%', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}
+                    >
+                      Menunggu Supervisor
+                    </div>
+                  ) : cs === 'supervisor_ok' ? (
+                    <div 
+                      style={{ width: '100%', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}
+                    >
+                      Menunggu HRD
+                    </div>
+                  ) : (cs === 'remedial' || cs === 'rejected') ? (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} 
+                      style={{ width: '100%', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+                    >
+                      Mulai SOP Ulang
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} 
+                      style={{ width: '100%', background: 'var(--navy)', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
+                    >
+                      {isOngoing ? 'Lanjutkan' : 'Mulai SOP'}
+                    </button>
+                  )}
                 </div>
               </div>
             );
