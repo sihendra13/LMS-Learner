@@ -196,13 +196,25 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
             const statusBadge = getStatusBadge(submission);
 
             const handleItemClick = () => {
-              if (isMaxReached) {
-                setDetailVideo({ video, submission });
-              } else if (isCompleted && cs === 'approved') {
-                setDetailVideo({ video, submission });
-              } else {
-                onSelectVideo(video);
+              if (cs === 'pending') {
+                if ((submission?.retakeCount || 0) >= MAX_RETAKES) {
+                  setDetailVideo({ video, submission });
+                }
+                return;
               }
+              if (cs === 'supervisor_ok') {
+                if (submission?.supervisorNote) {
+                  setDetailVideo({ video, submission });
+                }
+                return;
+              }
+              if (cs === 'approved') {
+                if (submission?.approvalNote || submission?.supervisorNote) {
+                  setDetailVideo({ video, submission });
+                }
+                return;
+              }
+              onSelectVideo(video);
             };
 
             return (
