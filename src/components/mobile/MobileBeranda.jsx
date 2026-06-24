@@ -152,6 +152,10 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
             const isMaxReached = submission && (submission.retakeCount || 0) >= MAX_RETAKES && submission.postScore < passingScore;
             const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
             const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
+            const displayProgress =
+              (cs === 'approved' || cs === 'pending' || cs === 'supervisor_ok') ? 100
+              : (cs === 'remedial' || cs === 'rejected') ? 0
+              : video.progress;
 
             const getStatusBadge = (sub) => {
               if (sub) {
@@ -233,6 +237,32 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                           Skor: {submission.postScore}%
                         </span>
                       )}
+                      {isMaxReached && (
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          background: '#fff5f5',
+                          color: '#b91c1c',
+                          border: '1px solid #fecaca',
+                          padding: '1px 6px',
+                          borderRadius: '4px'
+                        }}>
+                          Tidak Lulus
+                        </span>
+                      )}
+                      {!isMaxReached && cs === 'remedial' && (
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: '700',
+                          background: '#fff7ed',
+                          color: '#b45309',
+                          border: '1px solid #fed7aa',
+                          padding: '1px 6px',
+                          borderRadius: '4px'
+                        }}>
+                          Perlu Remedial
+                        </span>
+                      )}
                     </div>
                     {(() => {
                       const note = (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote)) || (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'rejected' && submission?.rejectionNote) || (cs === 'remedial' && submission?.supervisorNote);
@@ -292,12 +322,12 @@ const MobileBeranda = ({ onSelectVideo, onNavigateToSOP }) => {
                     <div 
                       className="prog-fill" 
                       style={{ 
-                        width: `${video.progress}%`, 
+                        width: `${displayProgress}%`, 
                         background: isCompleted ? 'var(--green)' : isOngoing ? 'var(--accent)' : 'var(--text3)' 
                       }}
                     />
                   </div>
-                  <div className="prog-pct" style={{ fontSize: '10px', minWidth: '22px' }}>{video.progress}%</div>
+                  <div className="prog-pct" style={{ fontSize: '10px', minWidth: '22px' }}>{displayProgress}%</div>
                 </div>
               </div>
             );
