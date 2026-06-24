@@ -163,7 +163,11 @@ const MobileSertifikat = () => {
                       className="btn-sec"
                       style={{ fontSize: '11px', padding: '6px 10px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                     >
-                      👁 Lihat Sertifikat
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                      Lihat Sertifikat
                     </button>
                   </div>
                 </div>
@@ -218,7 +222,7 @@ const MobileSertifikat = () => {
                       </span>
                       {retakeCount > 0 && (
                         <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px' }}>
-                          Percobaan ke-{retakeCount + 1} dari {MAX_RETAKES}
+                          Remedial ke-{retakeCount} dari {MAX_RETAKES}
                         </span>
                       )}
                     </div>
