@@ -83,10 +83,40 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
   const [quizSubmissions, setQuizSubmissions] = useState([]);
   const [videos, setVideos] = useState([]);
   const [userProgress, setUserProgress] = useState({});
+  const [readIds, setReadIds] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem('axara_learner_notif_read') || '[]')); }
+    catch { return new Set(); }
+  });
+  const [toast, setToast] = useState(null);
+  const prevNotificationsRef = React.useRef([]);
 
   useEffect(() => {
     saveDB(db);
   }, [db]);
+
+  // Request browser Web Notification permission
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Sync read status from Supabase for Learner
+  useEffect(() => {
+    if (!db.currentUser?.email) return;
+    supabase
+      .from('notification_reads')
+      .select('read_keys')
+      .eq('user_id', db.currentUser.email)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.read_keys?.length) {
+          const keys = new Set(data.read_keys);
+          setReadIds(keys);
+          localStorage.setItem('axara_learner_notif_read', JSON.stringify([...keys]));
+        }
+      });
+  }, [db.currentUser?.email]);
 
   // Listener to sync across tabs if hosted on same port/origin
   useEffect(() => {
@@ -366,6 +396,146 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
     }
   }, [db]);
 
+  // --- BUILD NOTIFICATIONS DYNAMICALLY ---
+  const notifications = [];
+  const now = new Date();
+
+  // 1. Sertifikat terbit (certStatus === 'approved')
+  const approvedSubs = quizSubmissions.filter(s => s.certStatus === 'approved');
+  approvedSubs.forEach(s => {
+    notifications.push({
+      id: `cert-approved-${s.id}`,
+      type: 'approved',
+      title: `Sertifikat Terbit! 🎉`,
+      message: `Selamat, kuis untuk SOP "${s.videoTitle}" telah disetujui Admin.`,
+      date: s.approvedDate || s.date || new Date().toISOString(),
+      sub: `Disetujui oleh ${s.approvedBy || 'Admin'}`,
+      page: 'sertifikasi',
+      color: '#10b981',
+      bg: '#ecfdf5',
+    });
+  });
+
+  // 2. Perlu Remedial (certStatus === 'remedial')
+  const remedialSubs = quizSubmissions.filter(s => s.certStatus === 'remedial');
+  remedialSubs.forEach(s => {
+    notifications.push({
+      id: `cert-remedial-${s.id}`,
+      type: 'remedial',
+      title: `Perlu Remedial Kuis ⚠️`,
+      message: `Kuis untuk SOP "${s.videoTitle}" belum lulus. Silakan pelajari kembali.`,
+      date: s.supervisorDate || s.date || new Date().toISOString(),
+      sub: s.supervisorNote ? `Catatan: "${s.supervisorNote}"` : `Silakan putar ulang video dan kerjakan kuis kembali.`,
+      page: 'sop',
+      color: '#ef4444',
+      bg: '#fef2f2',
+    });
+  });
+
+  // 3. SOP Baru Ditugaskan
+  const userDept = db.currentUser?.dept || '';
+  videos.forEach(v => {
+    if (v.archived) return;
+    if (v.dept !== userDept && v.dept !== 'Semua') return;
+
+    const sub = quizSubmissions.find(s => s.videoTitle === v.title);
+    const hasPassed = sub && sub.postScore >= (db.passingScore || 80);
+    const progress = userProgress[v.id] ?? 0;
+
+    if (progress < 100 && !hasPassed) {
+      // New SOP check (created in last 7 days)
+      const createdTime = v.created_at ? new Date(v.created_at) : now;
+      const isNew = (now - createdTime) / 86400000 <= 7;
+      if (isNew) {
+        notifications.push({
+          id: `new-sop-${v.id}`,
+          type: 'new-sop',
+          title: `SOP Baru Ditugaskan 📚`,
+          message: `SOP baru "${v.title}" wajib Anda pelajari.`,
+          date: v.created_at || new Date().toISOString(),
+          sub: v.deadline ? `Batas waktu: ${new Date(v.deadline).toLocaleDateString('id-ID')}` : 'Tidak ada tenggat waktu',
+          page: 'sop',
+          color: '#3b82f6',
+          bg: '#eff6ff',
+        });
+      }
+
+      // Deadline approaching check (within 3 days)
+      if (v.deadline) {
+        const diffDays = (new Date(v.deadline) - now) / 86400000;
+        if (diffDays >= 0 && diffDays <= 3) {
+          notifications.push({
+            id: `deadline-sop-${v.id}`,
+            type: 'deadline',
+            title: `Tenggat Waktu Mendekat ⏰`,
+            message: `Batas waktu pengerjaan SOP "${v.title}" hampir habis.`,
+            date: v.deadline,
+            sub: diffDays <= 1 ? 'Segera selesaikan kuis hari ini!' : `${Math.ceil(diffDays)} hari tersisa`,
+            page: 'sop',
+            color: '#f59e0b',
+            bg: '#fffbeb',
+          });
+        }
+      }
+    }
+  });
+
+  // Trigger push/toast when a new unread notification arrives
+  useEffect(() => {
+    if (notifications.length === 0) return;
+    const currentUnread = notifications.filter(n => !readIds.has(n.id));
+    const prevUnreadIds = new Set(prevNotificationsRef.current.filter(n => !readIds.has(n.id)).map(n => n.id));
+
+    currentUnread.forEach(n => {
+      // If it's a new notification that wasn't in the previous render cycle as unread
+      if (!prevUnreadIds.has(n.id)) {
+        // Trigger Toast & Browser Push Notification
+        setToast(n);
+        setTimeout(() => setToast(null), 5000);
+
+        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification(n.title, {
+            body: n.message,
+            icon: '/logo-larisi.svg'
+          });
+        }
+      }
+    });
+
+    prevNotificationsRef.current = notifications;
+  }, [notifications, readIds]);
+
+  const markNotificationsAsRead = async (idsToMark) => {
+    const next = new Set([...readIds, ...idsToMark]);
+    setReadIds(next);
+    const keys = [...next];
+    localStorage.setItem('axara_learner_notif_read', JSON.stringify(keys));
+    
+    if (db.currentUser?.email) {
+      await supabase.from('notification_reads').upsert({
+        user_id: db.currentUser.email,
+        read_keys: keys,
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    // Also update acknowledged column for approved/remedial quiz submissions
+    const subIdsToAck = [];
+    idsToMark.forEach(id => {
+      if (id.startsWith('cert-approved-') || id.startsWith('cert-remedial-')) {
+        const parts = id.split('-');
+        const subId = parts[parts.length - 1];
+        subIdsToAck.push(subId);
+      }
+    });
+
+    if (subIdsToAck.length > 0) {
+      await supabase.from('quiz_submissions').update({
+        acknowledged: true
+      }).in('id', subIdsToAck);
+    }
+  };
+
   const videosWithProgress = videos.map(v => ({ ...v, progress: userProgress[v.id] ?? 0 }));
 
   return (
@@ -388,7 +558,12 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
       setDb,
       tenant,
       retakeQuiz,
-      MAX_RETAKES
+      MAX_RETAKES,
+      notifications,
+      readIds,
+      markNotificationsAsRead,
+      toast,
+      setToast
     }}>
       {children}
     </TenantContext.Provider>

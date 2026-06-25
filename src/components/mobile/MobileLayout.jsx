@@ -6,8 +6,18 @@ import MobileSertifikat from './MobileSertifikat';
 import MobileProfil from './MobileProfil';
 
 const MobileLayout = ({ onSelectVideo }) => {
-  const { currentUser, tenant, videos, quizSubmissions, passingScore } = useTenant();
+  const { 
+    currentUser, 
+    tenant, 
+    videos, 
+    quizSubmissions, 
+    passingScore,
+    notifications,
+    readIds,
+    markNotificationsAsRead
+  } = useTenant();
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'sop' | 'certificates' | 'profile'
+  const [showNotifSheet, setShowNotifSheet] = useState(false);
 
   // Calculate outstanding SOP count
   const outstandingCount = videos.filter(v => {
@@ -68,9 +78,48 @@ const MobileLayout = ({ onSelectVideo }) => {
             <span style={{ fontWeight: '800', fontSize: '14px', color: 'var(--text1)' }}>{tenant.name}</span>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div className="streak-pill" style={{ padding: '4px 10px', fontSize: '11px', margin: 0 }}>
             🔥 {currentUser.streak} Hari Streak
+          </div>
+
+          {/* MOBILE NOTIFICATION BELL */}
+          <div
+            onClick={() => {
+              setShowNotifSheet(true);
+              const unread = notifications.filter(n => !readIds.has(n.id)).map(n => n.id);
+              if (unread.length > 0) markNotificationsAsRead(unread);
+            }}
+            style={{
+              position: 'relative',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'var(--surface2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--text2)',
+              cursor: 'pointer'
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ width: '18px', height: '18px' }}>
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            {notifications.filter(n => !readIds.has(n.id)).length > 0 && (
+              <span style={{
+                position: 'absolute', top: '-2px', right: '-2px',
+                background: 'var(--red)', color: '#fff',
+                fontSize: '8px', fontWeight: '800',
+                minWidth: '13px', height: '13px',
+                borderRadius: '50%', display: 'flex',
+                alignItems: 'center', justifyContent: 'center',
+                lineHeight: 1, border: '1.5px solid var(--surface)'
+              }}>
+                {notifications.filter(n => !readIds.has(n.id)).length}
+              </span>
+            )}
           </div>
         </div>
       </header>
@@ -211,6 +260,106 @@ const MobileLayout = ({ onSelectVideo }) => {
           <span style={{ fontSize: '10px', marginTop: '4px', fontWeight: activeTab === 'profile' ? '600' : '400' }}>Profil</span>
         </button>
       </nav>
+
+      {/* MOBILE BOTTOM SHEET FOR NOTIFICATIONS */}
+      {showNotifSheet && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(0,0,0,0.5)',
+          zIndex: 2000,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-end',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          {/* Close trigger on tapping overlay area */}
+          <div style={{ flex: 1 }} onClick={() => setShowNotifSheet(false)} />
+          
+          {/* Content container */}
+          <div style={{
+            background: 'var(--surface)',
+            borderTopLeftRadius: '16px',
+            borderTopRightRadius: '16px',
+            maxHeight: '75vh',
+            display: 'flex',
+            flexDirection: 'column',
+            animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            boxSizing: 'border-box',
+            fontFamily: "'Plus Jakarta Sans', sans-serif"
+          }}>
+            {/* Sheet Handle bar */}
+            <div style={{ width: '40px', height: '4px', background: 'var(--border)', borderRadius: '2px', margin: '12px auto', flexShrink: 0 }} />
+
+            {/* Header */}
+            <div style={{ padding: '0 20px 16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <span style={{ fontWeight: '700', fontSize: '15px', color: 'var(--text1)' }}>Notifikasi</span>
+              <button 
+                onClick={() => setShowNotifSheet(false)}
+                style={{
+                  background: 'none', border: 'none', color: 'var(--text3)', fontSize: '20px', cursor: 'pointer', fontWeight: 'bold'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Notification List */}
+            <div style={{ overflowY: 'auto', padding: '8px 0', flex: 1 }}>
+              {notifications.length === 0 ? (
+                <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text3)', fontSize: '13px' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>🎉</div>
+                  Semua beres! Tidak ada notifikasi.
+                </div>
+              ) : notifications.map(n => (
+                <div
+                  key={n.id}
+                  onClick={() => {
+                    // Navigate on mobile
+                    if (n.page === 'sertifikasi') {
+                      setActiveTab('certificates');
+                    } else {
+                      setActiveTab('sop');
+                    }
+                    setShowNotifSheet(false);
+                    markNotificationsAsRead([n.id]);
+                  }}
+                  style={{
+                    display: 'flex', gap: '12px', alignItems: 'flex-start',
+                    padding: '14px 20px',
+                    borderBottom: '1px solid var(--border)',
+                    background: readIds.has(n.id) ? 'transparent' : 'rgba(59, 130, 246, 0.05)',
+                  }}
+                >
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '8px',
+                    background: n.bg, color: n.color, display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', flexShrink: 0, fontSize: '15px'
+                  }}>
+                    {n.type === 'approved' ? '🎓' : n.type === 'remedial' ? '⚠️' : n.type === 'new-sop' ? '📚' : '⏰'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text1)', marginBottom: '2px', lineHeight: '1.4' }}>{n.title}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: '1.4' }}>{n.message}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text3)', marginTop: '4px' }}>{n.sub}</div>
+                  </div>
+                  {!readIds.has(n.id) && (
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent)', flexShrink: 0, marginTop: '5px' }} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <style>{`
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 };

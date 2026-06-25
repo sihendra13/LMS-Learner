@@ -10,8 +10,24 @@ import MobileLayout from './components/mobile/MobileLayout';
 import { supabase } from './utils/supabase';
 
 const AppContent = ({ onLogout }) => {
-  const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore, tenant } = useTenant();
+  const { 
+    activePage, 
+    setActivePage, 
+    currentUser, 
+    videos, 
+    quizSubmissions, 
+    passingScore, 
+    tenant,
+    notifications,
+    readIds,
+    markNotificationsAsRead,
+    toast,
+    setToast
+  } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [showNotif, setShowNotif] = useState(false);
+  const panelRef = React.useRef(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
 
   const handleSelectVideo = (video) => {
     if (video?.id) {
@@ -19,7 +35,6 @@ const AppContent = ({ onLogout }) => {
     }
     setSelectedVideo(video);
   };
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768 || (window.innerWidth < 1024 && window.innerHeight < 500));
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -30,6 +45,16 @@ const AppContent = ({ onLogout }) => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Handle click outside notification panel
+  React.useEffect(() => {
+    if (!showNotif) return;
+    const handler = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) setShowNotif(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showNotif]);
 
   // Calculate outstanding SOP count (assigned to user's dept, progress < 100 or quiz not passed)
   const outstandingCount = videos.filter(v => {
@@ -193,11 +218,130 @@ const AppContent = ({ onLogout }) => {
             <div className="greeting">Selamat bekerja, {currentUser.name.split(' ')[0]} 👋</div>
             <div className="greeting-sub">Divisi {currentUser.dept} · Ada {outstandingCount} SOP yang perlu Anda tinjau & pelajari</div>
           </div>
-          <div className="topbar-right">
+          <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div className="streak-pill">
               🔥 {currentUser.streak} Hari Streak
             </div>
-            
+
+            {/* NOTIFICATION BELL */}
+            <div ref={panelRef} style={{ position: 'relative' }}>
+              <div
+                className="topbar-btn"
+                onClick={() => {
+                  setShowNotif(v => !v);
+                  if (!showNotif) {
+                    const unread = notifications.filter(n => !readIds.has(n.id)).map(n => n.id);
+                    if (unread.length > 0) markNotificationsAsRead(unread);
+                  }
+                }}
+                style={{
+                  cursor: 'pointer',
+                  position: 'relative',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'rgba(255,255,255,0.85)',
+                  transition: 'all 0.2s',
+                }}
+                title="Notifikasi"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ width: '18px', height: '18px' }}>
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                {notifications.filter(n => !readIds.has(n.id)).length > 0 && (
+                  <span style={{
+                    position: 'absolute', top: '1px', right: '1px',
+                    background: '#ef4444', color: '#fff',
+                    fontSize: '9px', fontWeight: '800',
+                    minWidth: '15px', height: '15px',
+                    borderRadius: '8px', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    padding: '0 3px', lineHeight: 1,
+                    border: '1.5px solid #0f172a',
+                  }}>
+                    {notifications.filter(n => !readIds.has(n.id)).length}
+                  </span>
+                )}
+              </div>
+
+              {/* DROPDOWN PANEL */}
+              {showNotif && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+                  width: '320px', background: '#1e293b',
+                  border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px',
+                  boxShadow: '0 12px 30px rgba(0,0,0,0.4)',
+                  zIndex: 999, overflow: 'hidden',
+                  fontFamily: "'Plus Jakarta Sans', sans-serif"
+                }}>
+                  {/* Header */}
+                  <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: '700', fontSize: '13px', color: '#f8fafc' }}>Notifikasi</span>
+                    {notifications.filter(n => !readIds.has(n.id)).length > 0 && (
+                      <button 
+                        onClick={() => markNotificationsAsRead(notifications.map(n => n.id))} 
+                        style={{ background: 'none', border: 'none', fontSize: '10px', color: '#3b82f6', cursor: 'pointer', fontWeight: '600', padding: 0 }}
+                      >
+                        Tandai semua dibaca
+                      </button>
+                    )}
+                  </div>
+
+                  {/* List */}
+                  <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
+                    {notifications.length === 0 ? (
+                      <div style={{ padding: '24px 16px', textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
+                        <div style={{ fontSize: '24px', marginBottom: '6px' }}>🎉</div>
+                        Semua beres! Tidak ada notifikasi baru.
+                      </div>
+                    ) : notifications.map(n => (
+                      <div
+                        key={n.id}
+                        onClick={() => {
+                          setActivePage(n.page);
+                          setShowNotif(false);
+                          markNotificationsAsRead([n.id]);
+                        }}
+                        style={{
+                          display: 'flex', gap: '10px', alignItems: 'flex-start',
+                          padding: '10px 14px', cursor: 'pointer',
+                          borderBottom: '1px solid rgba(255,255,255,0.05)',
+                          background: readIds.has(n.id) ? 'transparent' : 'rgba(59, 130, 246, 0.08)',
+                          transition: 'background 0.15s',
+                        }}
+                        onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                        onMouseOut={e => e.currentTarget.style.background = readIds.has(n.id) ? 'transparent' : 'rgba(59, 130, 246, 0.08)'}
+                      >
+                        <div style={{
+                          width: '30px', height: '30px', borderRadius: '6px',
+                          background: n.bg, color: n.color, display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', flexShrink: 0, fontSize: '14px'
+                        }}>
+                          {n.type === 'approved' ? '🎓' : n.type === 'remedial' ? '⚠️' : n.type === 'new-sop' ? '📚' : '⏰'}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '12px', fontWeight: '600', color: '#f1f5f9', lineHeight: '1.4', marginBottom: '2px' }}>{n.title}</div>
+                          <div style={{ fontSize: '11px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                            {n.message}
+                          </div>
+                          <div style={{ fontSize: '9px', color: '#64748b', marginTop: '4px' }}>{n.sub}</div>
+                        </div>
+                        {!readIds.has(n.id) && (
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3b82f6', flexShrink: 0, marginTop: '4px' }} />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
         </header>
 
@@ -212,6 +356,71 @@ const AppContent = ({ onLogout }) => {
           onClose={() => setSelectedVideo(null)} 
         />
       )}
+
+      {/* REAL-TIME TOAST BANNER */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: '#1e293b',
+          borderLeft: `4px solid ${toast.color || '#3b82f6'}`,
+          boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+          borderRadius: '8px',
+          padding: '14px 16px',
+          zIndex: 9999,
+          display: 'flex',
+          gap: '12px',
+          alignItems: 'center',
+          animation: 'slideIn 0.3s ease-out',
+          maxWidth: '360px',
+          border: '1px solid rgba(255,255,255,0.05)',
+          fontFamily: "'Plus Jakarta Sans', sans-serif"
+        }}>
+          <div style={{
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            background: toast.bg || '#eff6ff',
+            color: toast.color || '#3b82f6',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '14px',
+            flexShrink: 0
+          }}>
+            🔔
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: '700', fontSize: '12px', color: '#f8fafc', marginBottom: '2px' }}>{toast.title}</div>
+            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{toast.message}</div>
+          </div>
+          <button 
+            onClick={() => setToast(null)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#64748b',
+              fontSize: '18px',
+              cursor: 'pointer',
+              marginLeft: '8px',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideIn {
+          from { transform: translateX(120%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      `}</style>
 
     </>
   );
