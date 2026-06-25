@@ -18,7 +18,7 @@ export const QuizModal = ({ video, onClose }) => {
     }
     return a;
   };
-  const [regularPreQuizzes] = useState(() => shuffleArray((video.preQuizzes || []).filter(q => !isMidTrigger(q))));
+  const [regularPreQuizzes] = useState(() => shuffleArray((video.preQuizzes || []).filter(q => !isMidTrigger(q) && q.type !== 'essay' && !q.isEssay)));
   const [regularPostQuizzes] = useState(() => shuffleArray((video.postQuizzes || []).filter(q => !isMidTrigger(q) && q.type !== 'essay' && !q.isEssay)));
   const hasPreTest = regularPreQuizzes.length > 0;
   const hasPostTest = regularPostQuizzes.length > 0;
