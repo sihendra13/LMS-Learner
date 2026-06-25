@@ -79,9 +79,6 @@ const MobileLayout = ({ onSelectVideo }) => {
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div className="streak-pill" style={{ padding: '4px 10px', fontSize: '11px', margin: 0 }}>
-            🔥 {currentUser.streak} Hari Streak
-          </div>
 
           {/* MOBILE NOTIFICATION BELL */}
           <div

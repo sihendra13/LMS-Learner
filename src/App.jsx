@@ -219,9 +219,6 @@ const AppContent = ({ onLogout }) => {
             <div className="greeting-sub">Divisi {currentUser.dept} · Ada {outstandingCount} SOP yang perlu Anda tinjau & pelajari</div>
           </div>
           <div className="topbar-right" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div className="streak-pill">
-              🔥 {currentUser.streak} Hari Streak
-            </div>
 
             {/* NOTIFICATION BELL */}
             <div ref={panelRef} style={{ position: 'relative' }}>
