@@ -54,6 +54,10 @@ const mapRow = (row) => ({
   approvedDate: row.approved_date,
   approvalNote: row.approval_note || '',
   rejectionNote: row.rejection_note || '',
+  essayScore: row.essay_score ?? null,
+  essayGradedBy: row.essay_graded_by || '',
+  essayGradedDate: row.essay_graded_date || '',
+  acknowledged: row.acknowledged ?? false,
 });
 
 export const TenantProvider = ({ children, selectedEmployee }) => {
@@ -218,6 +222,7 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
     const existing = quizSubmissions.find(
       sub => sub.employeeName === submission.employeeName && sub.videoTitle === submission.videoTitle
     );
+    const isPassed = submission.status === 'Lulus';
 
     if (existing) {
       await supabase.from('quiz_submissions').update({
@@ -225,7 +230,7 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
         post_score: submission.postScore,
         submission_date: submission.date,
         status: submission.status,
-        cert_status: 'pending',
+        cert_status: isPassed ? 'pending' : 'remedial',
         acknowledged: submission.acknowledged ?? true,
       }).eq('id', existing.id);
     } else {
@@ -237,14 +242,13 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
         post_score: submission.postScore,
         submission_date: submission.date,
         status: submission.status,
-        cert_status: 'pending',
+        cert_status: isPassed ? 'pending' : 'remedial',
         retake_count: 0,
         acknowledged: submission.acknowledged ?? true,
       });
     }
 
     // Add activity to local db
-    const isPassed = submission.status === 'Lulus';
     const newAct = {
       id: Date.now(),
       text: `<strong>${submission.employeeName}</strong> menyelesaikan ${submission.videoTitle} dengan skor <strong>${submission.postScore}%</strong> (${submission.status})`,
@@ -297,7 +301,6 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
     const newRetakeCount = (sub.retakeCount || 0) + 1;
 
     await supabase.from('quiz_submissions').update({
-      cert_status: 'pending',
       retake_count: newRetakeCount,
     }).eq('id', submissionId);
 
@@ -315,7 +318,7 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
 
     // Optimistic update (realtime will also sync)
     setQuizSubmissions(prev => prev.map(s =>
-      s.id === submissionId ? { ...s, certStatus: 'pending', retakeCount: newRetakeCount } : s
+      s.id === submissionId ? { ...s, retakeCount: newRetakeCount } : s
     ));
   };
 
