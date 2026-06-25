@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TenantProvider, useTenant } from './context/TenantContext';
 import { Dashboard } from './pages/Dashboard';
 import { SOPManager } from './pages/SOPManager';
 import { Certifications } from './pages/Certifications';
+import { LoginPage } from './pages/LoginPage';
+import { EmployeePicker } from './pages/EmployeePicker';
 import { QuizModal } from './components/QuizModal';
 import MobileLayout from './components/mobile/MobileLayout';
 import { supabase } from './utils/supabase';
 
-const AppContent = () => {
+const AppContent = ({ onLogout }) => {
   const { activePage, setActivePage, currentUser, videos, quizSubmissions, passingScore, tenant } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
 
@@ -164,7 +166,7 @@ const AppContent = () => {
         {/* LOGOUT + BRANDING BOTTOM */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '12px 16px' }}>
           <button
-            onClick={() => alert('Logout simulasi berhasil! Anda dapat memuat ulang halaman untuk masuk kembali.')}
+            onClick={onLogout}
             style={{
               width: '100%', background: 'rgba(255,255,255,0.06)', border: 'none',
               borderRadius: '8px', padding: '9px 14px', color: 'rgba(255,255,255,0.7)',
@@ -215,10 +217,59 @@ const AppContent = () => {
   );
 };
 
+const EMPLOYEE_KEY = 'axara_learner_employee';
+
 function App() {
+  const [authUser, setAuthUser] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(EMPLOYEE_KEY)); } catch { return null; }
+  });
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthUser(session?.user || null);
+      setCheckingAuth(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthUser(session?.user || null);
+      if (!session) {
+        localStorage.removeItem(EMPLOYEE_KEY);
+        setSelectedEmployee(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = (user) => setAuthUser(user);
+
+  const handlePickEmployee = (emp) => {
+    localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(emp));
+    setSelectedEmployee(emp);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem(EMPLOYEE_KEY);
+    setSelectedEmployee(null);
+    setAuthUser(null);
+  };
+
+  if (checkingAuth) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  if (!authUser) return <LoginPage onLogin={handleLogin} />;
+  if (!selectedEmployee) return <EmployeePicker onPick={handlePickEmployee} onLogout={handleLogout} />;
+
   return (
-    <TenantProvider>
-      <AppContent />
+    <TenantProvider selectedEmployee={selectedEmployee}>
+      <AppContent onLogout={handleLogout} />
     </TenantProvider>
   );
 }

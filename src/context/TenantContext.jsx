@@ -56,8 +56,25 @@ const mapRow = (row) => ({
   rejectionNote: row.rejection_note || '',
 });
 
-export const TenantProvider = ({ children }) => {
-  const [db, setDb] = useState(() => getDB());
+export const TenantProvider = ({ children, selectedEmployee }) => {
+  const [db, setDb] = useState(() => {
+    const stored = getDB();
+    // Override currentUser dari selectedEmployee jika tersedia
+    if (selectedEmployee) {
+      const avatar = selectedEmployee.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      stored.currentUser = {
+        id: selectedEmployee.email,
+        name: selectedEmployee.name,
+        email: selectedEmployee.email,
+        dept: selectedEmployee.dept,
+        city: selectedEmployee.city || '',
+        role: 'employee',
+        avatar,
+        streak: 7,
+      };
+    }
+    return stored;
+  });
   const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'sop' | 'sertifikasi' | 'peringkat'
   const [quizSubmissions, setQuizSubmissions] = useState([]);
   const [videos, setVideos] = useState([]);
