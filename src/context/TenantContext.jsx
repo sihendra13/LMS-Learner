@@ -61,6 +61,7 @@ export const TenantProvider = ({ children }) => {
   const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'sop' | 'sertifikasi' | 'peringkat'
   const [quizSubmissions, setQuizSubmissions] = useState([]);
   const [videos, setVideos] = useState([]);
+  const [userProgress, setUserProgress] = useState({});
 
   useEffect(() => {
     saveDB(db);
@@ -121,13 +122,37 @@ export const TenantProvider = ({ children }) => {
     return () => supabase.removeChannel(channel);
   }, []);
 
+  // Supabase: fetch per-user video progress (Bug 1 fix — progress tidak lagi global)
+  useEffect(() => {
+    const userName = db.currentUser?.name;
+    if (!userName) return;
+    supabase
+      .from('user_video_progress')
+      .select('video_id, progress')
+      .eq('employee_name', userName)
+      .then(({ data }) => {
+        if (!data) return;
+        const map = {};
+        data.forEach(row => { map[row.video_id] = row.progress; });
+        setUserProgress(map);
+      });
+  }, [db.currentUser?.name]);
+
   const updateProgress = (videoId, newProgress) => {
-    setVideos(prev => prev.map(v => {
-      if (v.id !== videoId) return v;
-      const updated = Math.max(v.progress, newProgress);
-      supabase.from('sop_videos').update({ progress: updated }).eq('id', videoId);
-      return { ...v, progress: updated };
-    }));
+    const userName = db.currentUser?.name;
+    setUserProgress(prev => {
+      const current = prev[videoId] ?? 0;
+      const updated = Math.max(current, newProgress);
+      if (userName) {
+        supabase.from('user_video_progress').upsert({
+          employee_name: userName,
+          video_id: videoId,
+          progress: updated,
+          updated_at: new Date().toISOString(),
+        });
+      }
+      return { ...prev, [videoId]: updated };
+    });
   };
 
   const addSubmission = async (submission) => {
@@ -136,8 +161,6 @@ export const TenantProvider = ({ children }) => {
     );
 
     if (existing) {
-      const wasRemedial = existing.certStatus === 'remedial';
-      const newRetakeCount = wasRemedial ? (existing.retakeCount || 0) + 1 : existing.retakeCount;
       await supabase.from('quiz_submissions').update({
         pre_score: submission.preScore,
         post_score: submission.postScore,
@@ -145,7 +168,6 @@ export const TenantProvider = ({ children }) => {
         status: submission.status,
         cert_status: 'pending',
         acknowledged: submission.acknowledged ?? true,
-        ...(wasRemedial && { retake_count: newRetakeCount }),
       }).eq('id', existing.id);
     } else {
       await supabase.from('quiz_submissions').insert({
@@ -220,9 +242,17 @@ export const TenantProvider = ({ children }) => {
       retake_count: newRetakeCount,
     }).eq('id', submissionId);
 
-    // Reset video progress in Supabase + local state
-    setVideos(prev => prev.map(v => v.id === videoId ? { ...v, progress: 0 } : v));
-    supabase.from('sop_videos').update({ progress: 0 }).eq('id', videoId);
+    // Reset video progress per-user (Bug 1 fix)
+    const userName = db.currentUser?.name;
+    setUserProgress(prev => ({ ...prev, [videoId]: 0 }));
+    if (userName) {
+      supabase.from('user_video_progress').upsert({
+        employee_name: userName,
+        video_id: videoId,
+        progress: 0,
+        updated_at: new Date().toISOString(),
+      });
+    }
 
     // Optimistic update (realtime will also sync)
     setQuizSubmissions(prev => prev.map(s =>
@@ -274,11 +304,13 @@ export const TenantProvider = ({ children }) => {
     }
   }, [db]);
 
+  const videosWithProgress = videos.map(v => ({ ...v, progress: userProgress[v.id] ?? 0 }));
+
   return (
     <TenantContext.Provider value={{
       currentUser: db.currentUser,
       employees: db.employees,
-      videos,
+      videos: videosWithProgress,
       quizSubmissions,
       pendingEssays: db.pendingEssays,
       activities: db.activities,

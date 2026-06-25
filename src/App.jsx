@@ -31,7 +31,8 @@ const AppContent = () => {
 
   // Calculate outstanding SOP count (assigned to user's dept, progress < 100 or quiz not passed)
   const outstandingCount = videos.filter(v => {
-    if (v.dept !== currentUser.dept) return false;
+    if (v.archived) return false;
+    if (v.dept !== currentUser.dept && v.dept !== 'Semua') return false;
     const sub = quizSubmissions.find(s => s.videoTitle === v.title && s.employeeName === currentUser.name);
     const passed = sub && sub.postScore >= passingScore;
     return v.progress < 100 || !passed;
