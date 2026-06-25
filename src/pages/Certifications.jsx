@@ -12,8 +12,19 @@ export const Certifications = () => {
   const certificates = mySubmissions
     .filter(sub => sub.certStatus === 'approved')
     .map((sub, idx) => {
-      const issueDate = sub.approvedDate || sub.date || '09 Jun 2026';
-      const expiryDate = validityMonths === 999 ? 'Selamanya' : `09 Jun ${2026 + Math.floor(validityMonths / 12)}`;
+      const rawDate = sub.approvedDate || sub.date;
+      const parsedDate = rawDate ? new Date(rawDate) : null;
+      const isValidDate = parsedDate && !isNaN(parsedDate.getTime());
+      const issueDate = isValidDate
+        ? parsedDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+        : rawDate || '-';
+      const expiryDate = (() => {
+        if (validityMonths === 999) return 'Selamanya';
+        if (!isValidDate) return '-';
+        const exp = new Date(parsedDate);
+        exp.setMonth(exp.getMonth() + validityMonths);
+        return exp.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      })();
       return {
         id: `CERT-2026${100 + idx}`,
         employeeName: sub.employeeName,
@@ -89,7 +100,7 @@ export const Certifications = () => {
             </svg>
           </div>
           <div>
-            <div className="s-val">{mySubmissions.filter(s => !s.certStatus || s.certStatus === 'pending').length}</div>
+            <div className="s-val">{mySubmissions.filter(s => !s.certStatus || s.certStatus === 'pending' || s.certStatus === 'supervisor_ok').length}</div>
             <div className="s-lbl">Menunggu Verifikasi</div>
           </div>
         </div>
@@ -292,12 +303,13 @@ export const Certifications = () => {
                               <line x1="8" y1="2" x2="8" y2="6" />
                               <line x1="3" y1="10" x2="21" y2="10" />
                             </svg>
-                            {sub.date && sub.date.length > 10
+                            {sub.date
                               ? (() => {
                                   const d = new Date(sub.date);
+                                  if (isNaN(d.getTime())) return sub.date;
                                   return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
                                 })()
-                              : sub.date || '—'}
+                              : '—'}
                           </span>
                           {retakeCount > 0 && (
                             <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px' }}>

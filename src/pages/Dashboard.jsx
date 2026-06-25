@@ -21,8 +21,7 @@ export const Dashboard = ({ onSelectVideo }) => {
       return;
     }
     if (cs === 'rejected') {
-      if (submission?.rejectionNote) setDetailVideo({ video, submission });
-      else onSelectVideo(video);
+      setDetailVideo({ video, submission });
       return;
     }
     if (cs === 'remedial' && submission?.supervisorNote) {
@@ -56,7 +55,7 @@ export const Dashboard = ({ onSelectVideo }) => {
   const completionPercent = totalMandatory > 0 ? Math.round((completedMandatory / totalMandatory) * 100) : 0;
   
   // Calculate dashboard stats
-  const totalCertificates = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.postScore >= passingScore).length;
+  const totalCertificates = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.certStatus === 'approved').length;
 
   // Average score of passed quizzes
   const passedSubmissions = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.postScore >= passingScore);

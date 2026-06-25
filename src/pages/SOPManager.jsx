@@ -22,8 +22,7 @@ export const SOPManager = ({ onSelectVideo }) => {
       return;
     }
     if (cs === 'rejected') {
-      if (submission?.rejectionNote) setDetailVideo({ video, submission });
-      else onSelectVideo(video);
+      setDetailVideo({ video, submission });
       return;
     }
     if (cs === 'remedial' && submission?.supervisorNote) {
@@ -38,7 +37,7 @@ export const SOPManager = ({ onSelectVideo }) => {
     const matchesDept = (video.dept === 'Semua' || video.dept.toLowerCase() === (currentUser.dept || '').toLowerCase()) && !video.archived;
     
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
-    const isCompleted = video.progress === 100 && submission && submission.postScore >= passingScore;
+    const isCompleted = submission?.certStatus === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
     const isOngoing = video.progress > 0 && video.progress < 100;
     const isNew = video.progress === 0;
 
@@ -410,7 +409,7 @@ export const SOPManager = ({ onSelectVideo }) => {
             noteBg: '#fff5f5',
             noteBorder: '#fecaca',
             noteColor: '#b91c1c',
-            note: 'Anda telah mencapai batas maksimal 3x remedial. Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.',
+            note: `Anda telah mencapai batas maksimal ${MAX_RETAKES}x remedial. Silakan hubungi HRD/Supervisor Anda untuk tindak lanjut.`,
             canRetake: false
           }
         : {

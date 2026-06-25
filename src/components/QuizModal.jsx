@@ -338,7 +338,6 @@ export const QuizModal = ({ video, onClose }) => {
   };
 
   const handleConfirmClose = () => {
-    updateProgress(video.id, 0);
     onClose();
   };
 
