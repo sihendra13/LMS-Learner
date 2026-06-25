@@ -122,6 +122,31 @@ export const TenantProvider = ({ children }) => {
     return () => supabase.removeChannel(channel);
   }, []);
 
+  // Sync employees dari Supabase (supaya Learner selalu lihat data terbaru dari Admin)
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      const { data } = await supabase.from('employees').select('*').order('created_at', { ascending: true });
+      if (!data || data.length === 0) return;
+      const mapped = data.map((row, i) => ({
+        id: i + 1,
+        name: row.name,
+        email: row.email,
+        dept: row.dept,
+        city: row.city || '',
+        score: 0,
+      }));
+      setDb(prev => ({ ...prev, employees: mapped }));
+    };
+
+    const channel = supabase
+      .channel('learner_employees')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, fetchEmployees)
+      .subscribe();
+
+    fetchEmployees();
+    return () => supabase.removeChannel(channel);
+  }, []);
+
   // Sync passingScore & validityMonths dari Supabase app_settings (sama dengan Admin)
   useEffect(() => {
     supabase
