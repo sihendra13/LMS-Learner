@@ -37,6 +37,7 @@ export const LoginPage = ({ onLogin }) => {
   return (
     <div style={{
       minHeight: '100vh',
+      width: '100%',
       background: 'linear-gradient(135deg, #0b1628 0%, #1a2d4a 50%, #0f2340 100%)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '20px', fontFamily: "'Inter', sans-serif",
