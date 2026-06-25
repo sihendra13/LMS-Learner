@@ -122,6 +122,23 @@ export const TenantProvider = ({ children }) => {
     return () => supabase.removeChannel(channel);
   }, []);
 
+  // Sync passingScore & validityMonths dari Supabase app_settings (sama dengan Admin)
+  useEffect(() => {
+    supabase
+      .from('app_settings')
+      .select('key, value')
+      .in('key', ['passing_score', 'validity_months'])
+      .then(({ data }) => {
+        if (!data) return;
+        const updates = {};
+        data.forEach(row => {
+          if (row.key === 'passing_score')   updates.passingScore   = Number(row.value);
+          if (row.key === 'validity_months') updates.validityMonths = Number(row.value);
+        });
+        if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
+      });
+  }, []);
+
   // Supabase: fetch per-user video progress (Bug 1 fix — progress tidak lagi global)
   useEffect(() => {
     const userName = db.currentUser?.name;
