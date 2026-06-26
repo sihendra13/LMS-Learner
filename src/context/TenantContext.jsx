@@ -456,17 +456,22 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
     });
   });
 
-  // 2. Perlu Remedial (certStatus === 'remedial')
+  // 2. Perlu Remedial atau Tidak Lulus (certStatus === 'remedial')
   const remedialSubs = quizSubmissions.filter(s => s.certStatus === 'remedial');
   remedialSubs.forEach(s => {
+    const isTidakLulus = (s.retakeCount || 0) >= MAX_RETAKES;
     notifications.push({
-      id: `cert-remedial-${s.id}`,
-      type: 'remedial',
-      title: `Perlu Remedial Kuis ⚠️`,
-      message: `Kuis untuk SOP "${s.videoTitle}" belum lulus. Silakan pelajari kembali.`,
+      id: isTidakLulus ? `cert-tidak-lulus-${s.id}` : `cert-remedial-${s.id}`,
+      type: isTidakLulus ? 'tidak_lulus' : 'remedial',
+      title: isTidakLulus ? `Tidak Lulus ❌` : `Perlu Remedial Kuis ⚠️`,
+      message: isTidakLulus
+        ? `Anda telah mencapai batas maksimal ${MAX_RETAKES}x remedial untuk SOP "${s.videoTitle}". Silakan hubungi HRD/Supervisor.`
+        : `Kuis untuk SOP "${s.videoTitle}" belum lulus. Silakan pelajari kembali.`,
       date: s.supervisorDate || s.date || new Date().toISOString(),
-      sub: s.supervisorNote ? `Catatan: "${s.supervisorNote}"` : `Silakan putar ulang video dan kerjakan kuis kembali.`,
-      page: 'sop',
+      sub: isTidakLulus
+        ? 'Hubungi HRD/Supervisor Anda untuk tindak lanjut.'
+        : (s.supervisorNote ? `Catatan: "${s.supervisorNote}"` : `Silakan putar ulang video dan kerjakan kuis kembali.`),
+      page: isTidakLulus ? 'sertifikasi' : 'sop',
       color: '#ef4444',
       bg: '#fef2f2',
     });
