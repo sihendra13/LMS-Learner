@@ -237,12 +237,12 @@ const AppContent = ({ onLogout }) => {
                   width: '40px',
                   height: '40px',
                   borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: '#ffffff',
+                  border: '1.5px solid #e2e8f0',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'rgba(255,255,255,0.85)',
+                  color: '#475569',
                   transition: 'all 0.2s',
                 }}
                 title="Notifikasi"
@@ -253,14 +253,14 @@ const AppContent = ({ onLogout }) => {
                 </svg>
                 {notifications.filter(n => !readIds.has(n.id)).length > 0 && (
                   <span style={{
-                    position: 'absolute', top: '1px', right: '1px',
+                    position: 'absolute', top: '2px', right: '2px',
                     background: '#ef4444', color: '#fff',
-                    fontSize: '9px', fontWeight: '800',
-                    minWidth: '15px', height: '15px',
+                    fontSize: '9px', fontWeight: '700',
+                    minWidth: '16px', height: '16px',
                     borderRadius: '8px', display: 'flex',
                     alignItems: 'center', justifyContent: 'center',
                     padding: '0 3px', lineHeight: 1,
-                    border: '1.5px solid #0f172a',
+                    border: '1.5px solid #ffffff',
                   }}>
                     {notifications.filter(n => !readIds.has(n.id)).length}
                   </span>
@@ -271,19 +271,19 @@ const AppContent = ({ onLogout }) => {
               {showNotif && (
                 <div style={{
                   position: 'absolute', top: 'calc(100% + 10px)', right: 0,
-                  width: '320px', background: '#1e293b',
-                  border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px',
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.4)',
+                  width: '340px', background: '#ffffff',
+                  border: '1px solid #e2e8f0', borderRadius: '12px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                   zIndex: 999, overflow: 'hidden',
                   fontFamily: "'Plus Jakarta Sans', sans-serif"
                 }}>
                   {/* Header */}
-                  <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: '700', fontSize: '13px', color: '#f8fafc' }}>Notifikasi</span>
+                  <div style={{ padding: '14px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: '700', fontSize: '14px', color: '#0f172a' }}>Notifikasi</span>
                     {notifications.filter(n => !readIds.has(n.id)).length > 0 && (
                       <button 
                         onClick={() => markNotificationsAsRead(notifications.map(n => n.id))} 
-                        style={{ background: 'none', border: 'none', fontSize: '10px', color: '#3b82f6', cursor: 'pointer', fontWeight: '600', padding: 0 }}
+                        style={{ background: 'none', border: 'none', fontSize: '11px', color: '#3b82f6', cursor: 'pointer', fontWeight: '600', padding: 0 }}
                       >
                         Tandai semua dibaca
                       </button>
@@ -291,10 +291,10 @@ const AppContent = ({ onLogout }) => {
                   </div>
 
                   {/* List */}
-                  <div style={{ maxHeight: '340px', overflowY: 'auto' }}>
+                  <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
                     {notifications.length === 0 ? (
-                      <div style={{ padding: '24px 16px', textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
-                        <div style={{ fontSize: '24px', marginBottom: '6px' }}>🎉</div>
+                      <div style={{ padding: '32px 16px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+                        <div style={{ fontSize: '28px', marginBottom: '8px' }}>🎉</div>
                         Semua beres! Tidak ada notifikasi baru.
                       </div>
                     ) : notifications.map(n => (
@@ -306,31 +306,31 @@ const AppContent = ({ onLogout }) => {
                           markNotificationsAsRead([n.id]);
                         }}
                         style={{
-                          display: 'flex', gap: '10px', alignItems: 'flex-start',
-                          padding: '10px 14px', cursor: 'pointer',
-                          borderBottom: '1px solid rgba(255,255,255,0.05)',
-                          background: readIds.has(n.id) ? 'transparent' : 'rgba(59, 130, 246, 0.08)',
+                          display: 'flex', gap: '12px', alignItems: 'flex-start',
+                          padding: '12px 16px', cursor: 'pointer',
+                          borderBottom: '1px solid #e2e8f0',
+                          background: readIds.has(n.id) ? 'transparent' : '#f8faff',
                           transition: 'background 0.15s',
                         }}
-                        onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                        onMouseOut={e => e.currentTarget.style.background = readIds.has(n.id) ? 'transparent' : 'rgba(59, 130, 246, 0.08)'}
+                        onMouseOver={e => e.currentTarget.style.background = '#f1f5f9'}
+                        onMouseOut={e => e.currentTarget.style.background = readIds.has(n.id) ? 'transparent' : '#f8faff'}
                       >
                         <div style={{
-                          width: '30px', height: '30px', borderRadius: '6px',
+                          width: '36px', height: '36px', borderRadius: '8px',
                           background: n.bg, color: n.color, display: 'flex', alignItems: 'center',
-                          justifyContent: 'center', flexShrink: 0, fontSize: '14px'
+                          justifyContent: 'center', flexShrink: 0, fontSize: '16px'
                         }}>
                           {n.type === 'approved' ? '🎓' : n.type === 'remedial' ? '⚠️' : n.type === 'new-sop' ? '📚' : '⏰'}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '12px', fontWeight: '600', color: '#f1f5f9', lineHeight: '1.4', marginBottom: '2px' }}>{n.title}</div>
-                          <div style={{ fontSize: '11px', color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                          <div style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a', lineHeight: '1.4', marginBottom: '2px' }}>{n.title}</div>
+                          <div style={{ fontSize: '11px', color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                             {n.message}
                           </div>
-                          <div style={{ fontSize: '9px', color: '#64748b', marginTop: '4px' }}>{n.sub}</div>
+                          <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '4px' }}>{n.sub}</div>
                         </div>
                         {!readIds.has(n.id) && (
-                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3b82f6', flexShrink: 0, marginTop: '4px' }} />
+                          <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: n.color, flexShrink: 0, marginTop: '5px' }} />
                         )}
                       </div>
                     ))}
