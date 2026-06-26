@@ -5,7 +5,7 @@ const mockSops = [
   { id: 1, title: 'SOP Proses Onboarding Klien Baru', dept: 'Sales', time: '8 Min', color: '#3b82f6', videoUrl: '/videos/onboarding-client.mp4' },
   { id: 2, title: 'SOP Standar Pelayanan Kasir', dept: 'Operations', time: '12 Min', color: '#10b981', videoUrl: '/videos/cashier-service.mp4' },
   { id: 3, title: 'SOP Penanganan Komplain Pelanggan', dept: 'Customer Care', time: '6 Min', color: '#f59e0b', videoUrl: '/videos/customer-complaint.mp4' },
-  { id: 4, title: 'SOP Protokol Kesehatan & Keselamatan Kerja', dept: 'HRD & GA', time: '10 Min', color: '#ef4444', videoUrl: '/videos/workplace-safety.mp4' },
+  { id: 4, title: 'SOP Protokol Kesehatan & Keselamatan Kerja', dept: 'K3 & Safety', time: '10 Min', color: '#ef4444', videoUrl: '/videos/workplace-safety.mp4' },
   { id: 5, title: 'SOP Manajemen Inventori Gudang', dept: 'Logistics', time: '15 Min', color: '#8b5cf6', videoUrl: '/videos/warehouse-inventory.mp4' },
 ];
 
@@ -475,7 +475,7 @@ export const LoginPage = ({ onLogin }) => {
                         <span style={{ fontSize: '10px', fontWeight: '700', color: sop.color, background: `${sop.color}15`, padding: '2px 8px', borderRadius: '20px' }}>
                           {sop.dept}
                         </span>
-                        <span style={{ fontSize: '10px', color: '#64748b' }}>▷ Video ⏱ {sop.time}</span>
+                        <span style={{ fontSize: '10px', color: '#b0b8c4' }}>▷ Video ⏱ {sop.time}</span>
                       </div>
                       <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a', lineHeight: '1.4' }}>{sop.title}</div>
                     </div>
