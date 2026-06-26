@@ -366,16 +366,16 @@ export const LoginPage = ({ onLogin }) => {
                   disabled={loading}
                   style={{
                     width: '100%', padding: '14px', borderRadius: '8px',
-                    background: loading ? '#94a3b8' : '#002D72',
+                    background: loading ? '#94a3b8' : '#0B1628',
                     color: '#ffffff', border: 'none', fontSize: '14px', fontWeight: '700',
                     cursor: loading ? 'not-allowed' : 'pointer',
-                    boxShadow: loading ? 'none' : '0 4px 12px rgba(0,45,114,0.15)',
+                    boxShadow: loading ? 'none' : '0 4px 12px rgba(0,0,0,0.15)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                     transition: 'transform 0.2s, background-color 0.2s',
                     marginTop: '6px',
                   }}
-                  onMouseOver={e => { if (!loading) { e.currentTarget.style.background = '#001A4E'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
-                  onMouseOut={e => { if (!loading) { e.currentTarget.style.background = '#002D72'; e.currentTarget.style.transform = 'translateY(0)'; } }}
+                  onMouseOver={e => { if (!loading) { e.currentTarget.style.background = '#2F7BFF'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
+                  onMouseOut={e => { if (!loading) { e.currentTarget.style.background = '#0B1628'; e.currentTarget.style.transform = 'translateY(0)'; } }}
                 >
                   {loading ? (
                     <><span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#ffffff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />Memverifikasi...</>
