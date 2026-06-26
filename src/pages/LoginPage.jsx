@@ -18,6 +18,14 @@ export const LoginPage = ({ onLogin }) => {
   const [forgotSuccess, setForgotSuccess] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const [activeSopIdx, setActiveSopIdx] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -169,7 +177,7 @@ export const LoginPage = ({ onLogin }) => {
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: window.innerWidth < 1024 ? '1fr' : '1.1fr 1fr',
+          gridTemplateColumns: isMobile ? '1fr' : '1.1fr 1fr',
           width: '100%',
           maxWidth: '1060px',
           margin: '0 auto',
@@ -186,7 +194,60 @@ export const LoginPage = ({ onLogin }) => {
             zIndex: 10,
           }}>
             <div style={{ width: '100%', maxWidth: '380px' }}>
-              <h1 style={{ fontSize: '26px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px 0', letterSpacing: '-0.75px' }}>
+              {/* Mobile Card Stack */}
+              {isMobile && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  position: 'relative', height: '260px', marginBottom: '24px', overflow: 'visible',
+                }}>
+                  <div style={{
+                    position: 'relative', width: '100%', maxWidth: '310px', height: '260px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    animation: 'bounce-subtle 6s ease-in-out infinite',
+                  }}>
+                    {mockSops.map((sop, idx) => {
+                      let diff = (idx - activeSopIdx + mockSops.length) % mockSops.length;
+                      let mStyle;
+                      if (diff === mockSops.length - 1) {
+                        mStyle = { transform: 'translate(-200px, -20px) rotate(-12deg) scale(0.9)', zIndex: 10, opacity: 0 };
+                      } else if (diff >= 3) {
+                        mStyle = { transform: 'translate(30px, 30px) scale(0.8) rotate(6deg)', zIndex: 0, opacity: 0 };
+                      } else {
+                        const ms = [
+                          { transform: 'rotate(-2deg) scale(1)', zIndex: 5, opacity: 1 },
+                          { transform: 'translate(10px, 14px) scale(0.95) rotate(2deg)', zIndex: 4, opacity: 0.85 },
+                          { transform: 'translate(20px, 28px) scale(0.90) rotate(4deg)', zIndex: 3, opacity: 0.6 },
+                        ];
+                        mStyle = ms[diff];
+                      }
+                      return (
+                        <div key={idx} style={{
+                          position: 'absolute', width: '280px', padding: '12px', borderRadius: '16px',
+                          background: '#fff', boxShadow: diff === 0 ? '0 16px 40px rgba(15,23,42,0.07)' : '0 8px 20px rgba(15,23,42,0.04)',
+                          border: '1px solid #eaecf0', display: 'flex', flexDirection: 'column', gap: '10px',
+                          transform: mStyle.transform, zIndex: mStyle.zIndex, opacity: mStyle.opacity,
+                          transition: 'all 0.8s cubic-bezier(0.4,0,0.2,1)', pointerEvents: 'none', boxSizing: 'border-box',
+                        }}>
+                          <div style={{
+                            width: '100%', height: '140px', borderRadius: '10px', overflow: 'hidden',
+                            background: '#f8f9fc', border: '1px solid #f2f4f7',
+                          }}>
+                            <video src={sop.videoUrl} autoPlay loop muted playsInline
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '10px', fontWeight: '700', color: sop.color, background: `${sop.color}15`, padding: '2px 8px', borderRadius: '20px' }}>{sop.dept}</span>
+                            <span style={{ fontSize: '10px', color: '#98a2b3' }}>▷ Video ⏱ {sop.time}</span>
+                          </div>
+                          <div style={{ fontSize: '13px', fontWeight: '600', color: '#0c111d', lineHeight: '1.4' }}>{sop.title}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <h1 style={{ fontSize: isMobile ? '24px' : '26px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px 0', letterSpacing: '-0.75px' }}>
                 {forgotMode ? 'Reset Password' : 'Mulai Belajar Hari Ini'}
               </h1>
               <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 32px 0', lineHeight: '1.5' }}>
@@ -391,7 +452,7 @@ export const LoginPage = ({ onLogin }) => {
           {/* Right: 3D Interactive SOP Card Stack */}
           <div
             style={{
-              display: window.innerWidth < 1024 ? 'none' : 'flex',
+              display: isMobile ? 'none' : 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: '#ffffff',
