@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axara-lms-cache-v1';
+const CACHE_NAME = 'axara-lms-cache-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -40,12 +40,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Implement a Network-First strategy so that users always get the latest build from production
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((response) => {
+    fetch(event.request)
+      .then((response) => {
         // Cache new static assets dynamically
         if (response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
@@ -54,11 +52,16 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return response;
-      }).catch(() => {
-        // Fallback if network fails
-        return caches.match('/index.html');
-      });
-    })
+      })
+      .catch(() => {
+        // Fallback to cache if network fails (offline support)
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return caches.match('/index.html');
+        });
+      })
   );
 });
 
