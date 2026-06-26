@@ -94,12 +94,52 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
     saveDB(db);
   }, [db]);
 
-  // Request browser Web Notification permission
+  // Subscribe to Web Push notifications after login
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-  }, []);
+    const userEmail = db.currentUser?.email;
+    if (!userEmail) return;
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+    const subscribeToPush = async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+
+        const registration = await navigator.serviceWorker.ready;
+        const existingSub = await registration.pushManager.getSubscription();
+        if (existingSub) return;
+
+        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        if (!vapidKey) return;
+
+        const urlBase64ToUint8Array = (base64String) => {
+          const padding = '='.repeat((4 - base64String.length % 4) % 4);
+          const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+          const rawData = window.atob(base64);
+          const outputArray = new Uint8Array(rawData.length);
+          for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+          return outputArray;
+        };
+
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidKey),
+        });
+
+        const subJson = subscription.toJSON();
+        await supabase.from('push_subscriptions').upsert({
+          user_email: userEmail,
+          endpoint: subJson.endpoint,
+          keys_p256dh: subJson.keys.p256dh,
+          keys_auth: subJson.keys.auth,
+        }, { onConflict: 'endpoint' });
+      } catch (err) {
+        console.warn('Push subscription failed:', err);
+      }
+    };
+
+    subscribeToPush();
+  }, [db.currentUser?.email]);
 
   // Sync read status from Supabase for Learner
   useEffect(() => {
