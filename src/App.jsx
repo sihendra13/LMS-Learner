@@ -114,15 +114,10 @@ const AppContent = ({ onLogout }) => {
             boxSizing: 'border-box',
             borderRight: '1px solid #e2e8f0'
           }} onClick={() => setActivePage('dashboard')}>
-            {tenant.logo ? (
-              <img src={tenant.logo} alt={tenant.name} style={{ maxWidth: '100%', maxHeight: '42px', objectFit: 'contain' }} />
+            {tenant.logo && tenant.plan === 'enterprise' ? (
+              <img src={tenant.logo} alt={tenant.name} style={{ maxWidth: '180px', maxHeight: '40px', objectFit: 'contain' }} />
             ) : (
-              <>
-                <span style={{ fontSize: '15px', flexShrink: 0 }}>🏢</span>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {tenant.name}
-                </div>
-              </>
+              <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: '180px', maxHeight: '40px', objectFit: 'contain' }} />
             )}
           </div>
           <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.45)', padding: '12px 20px', fontWeight: '600' }}>
