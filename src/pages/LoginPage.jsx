@@ -581,19 +581,19 @@ export const LoginPage = ({ onLogin }) => {
       {isIosPromptVisible && (
         <div style={{
           position: 'fixed', bottom: '20px', left: '20px', right: '20px',
-          background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px',
-          padding: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+          background: '#0B1628', border: '1px solid #1e293b', borderRadius: '16px',
+          padding: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
           display: 'flex', flexDirection: 'column', gap: '8px', zIndex: 100,
           animation: 'slideUp 0.5s ease-out'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#0f172a' }}>Install Axara LMS</h4>
-            <button onClick={() => setIsIosPromptVisible(false)} style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: '#64748b' }}>
+            <h4 style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#ffffff' }}>Install myAxara LMS - Learning Dashboard</h4>
+            <button onClick={() => setIsIosPromptVisible(false)} style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: '#cbd5e1' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <p style={{ margin: 0, fontSize: '12px', color: '#475569', lineHeight: '1.5' }}>
-            Install aplikasi ini di iPhone Anda: Tap <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" style={{ verticalAlign: 'middle', margin: '0 2px' }}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> (Share) di bawah, lalu pilih <strong>"Add to Home Screen"</strong>.
+          <p style={{ margin: 0, fontSize: '12px', color: '#e2e8f0', lineHeight: '1.5' }}>
+            Install aplikasi ini di iPhone Anda: Tap <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" style={{ verticalAlign: 'middle', margin: '0 2px' }}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> (Share) di bawah, lalu pilih <strong style={{ color: '#ffffff' }}>"Add to Home Screen"</strong>.
           </p>
         </div>
       )}
