@@ -422,9 +422,10 @@ const EMPLOYEE_KEY = 'axara_learner_employee';
 
 const SplashScreen = ({ onFinish }) => {
   useEffect(() => {
+    // Diperpanjang menjadi 3 detik
     const t = setTimeout(() => {
       onFinish();
-    }, 2000);
+    }, 3200);
     return () => clearTimeout(t);
   }, [onFinish]);
 
@@ -432,19 +433,38 @@ const SplashScreen = ({ onFinish }) => {
     <div style={{
       position: 'fixed', inset: 0, background: '#ffffff', zIndex: 999999,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      animation: 'fadeOut 0.5s ease-out 1.5s forwards'
+      // Fade out dan zoom in pelan di akhir
+      animation: 'splashFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) 2.5s forwards'
     }}>
-      <img src="/myaxara-logo.svg" alt="myAxara LMS" style={{
-        maxWidth: '220px', height: 'auto',
-        animation: 'zoomPulse 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards'
-      }} />
+      <div style={{
+        position: 'relative', overflow: 'hidden', padding: '10px 20px',
+        // Animasi masuk yang elegan
+        animation: 'logoEntrance 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+      }}>
+        <img src="/myaxara-logo.svg" alt="myAxara LMS" style={{
+          maxWidth: '240px', height: 'auto',
+          filter: 'drop-shadow(0 12px 24px rgba(0, 45, 114, 0.15))'
+        }} />
+        {/* Efek kilauan/shimmer yang berjalan di atas logo */}
+        <div style={{
+          position: 'absolute', top: 0, left: '-150%', width: '100%', height: '100%',
+          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)',
+          transform: 'skewX(-25deg)',
+          animation: 'shimmer 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite'
+        }} />
+      </div>
       <style>{`
-        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
-        @keyframes zoomPulse {
-          0% { transform: scale(0.95); opacity: 0; }
-          20% { transform: scale(1.05); opacity: 1; }
-          80% { transform: scale(1); opacity: 1; }
-          100% { transform: scale(0.95); opacity: 0; }
+        @keyframes splashFadeOut { 
+          to { opacity: 0; transform: scale(1.05); visibility: hidden; } 
+        }
+        @keyframes logoEntrance {
+          0% { transform: scale(0.9) translateY(15px); opacity: 0; }
+          100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes shimmer {
+          0% { left: '-150%'; }
+          50% { left: '150%'; }
+          100% { left: '150%'; }
         }
       `}</style>
     </div>
