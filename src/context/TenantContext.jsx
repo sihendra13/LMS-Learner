@@ -429,19 +429,22 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
 
   const [companyLogo, setCompanyLogo] = useState(null);
 
-  // Fetch tenant name + company_logo from tenants table
+  // Fetch tenant name + company_logo via employee email → tenants table
   useEffect(() => {
-    const tenantId = selectedEmployee?.tenant_id || db.tenant?.id || tenant?.id;
-    console.log('[DEBUG] selectedEmployee:', selectedEmployee?.tenant_id, 'tenantId:', tenantId);
-    if (!tenantId) return;
-    supabase.from('tenants').select('name, company_logo').eq('id', tenantId).single()
-      .then(({ data }) => {
-        if (!data) return;
-        if (data.company_logo) setCompanyLogo(data.company_logo);
-        if (data.name) setTenant(prev => ({ ...prev, name: data.name, id: tenantId }));
+    const email = selectedEmployee?.email || db.currentUser?.email;
+    if (!email) return;
+    supabase.from('employees').select('tenant_id').eq('email', email).single()
+      .then(({ data: emp }) => {
+        if (!emp?.tenant_id) return;
+        return supabase.from('tenants').select('name, company_logo').eq('id', emp.tenant_id).single();
+      })
+      .then((res) => {
+        if (!res?.data) return;
+        if (res.data.company_logo) setCompanyLogo(res.data.company_logo);
+        if (res.data.name) setTenant(prev => ({ ...prev, name: res.data.name }));
       })
       .catch(() => {});
-  }, [selectedEmployee?.tenant_id, db.tenant?.id]);
+  }, [selectedEmployee?.email, db.currentUser?.email]);
 
   // Keep tenant state synced when db changes
   useEffect(() => {
