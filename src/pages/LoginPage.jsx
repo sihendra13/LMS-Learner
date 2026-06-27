@@ -299,7 +299,7 @@ export const LoginPage = ({ onLogin }) => {
                       style={{
                         width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: '10px',
                         border: error ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1',
-                        fontSize: '14px', color: '#0f172a', outline: 'none', background: '#ffffff',
+                        fontSize: '16px', color: '#0f172a', outline: 'none', background: '#ffffff',
                         transition: 'border-color 0.2s, box-shadow 0.2s',
                       }}
                       onFocus={e => { e.target.style.borderColor = '#002D72'; e.target.style.boxShadow = '0 0 0 3px rgba(0,45,114,0.1)'; }}
@@ -357,7 +357,7 @@ export const LoginPage = ({ onLogin }) => {
                     style={{
                       width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: '10px',
                       border: error ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1',
-                      fontSize: '14px', color: '#0f172a', outline: 'none', background: '#ffffff',
+                      fontSize: '16px', color: '#0f172a', outline: 'none', background: '#ffffff',
                       transition: 'border-color 0.2s, box-shadow 0.2s',
                     }}
                     onFocus={e => {
@@ -390,7 +390,7 @@ export const LoginPage = ({ onLogin }) => {
                       style={{
                         width: '100%', boxSizing: 'border-box', padding: '12px 44px 12px 16px', borderRadius: '10px',
                         border: error ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1',
-                        fontSize: '14px', color: '#0f172a', outline: 'none', background: '#ffffff',
+                        fontSize: '16px', color: '#0f172a', outline: 'none', background: '#ffffff',
                         transition: 'border-color 0.2s, box-shadow 0.2s',
                       }}
                       onFocus={e => {
