@@ -247,6 +247,7 @@ export const LoginPage = ({ onLogin }) => {
                 </div>
               )}
 
+              <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: isMobile ? '130px' : '160px', height: 'auto', marginBottom: '24px' }} />
               <h1 style={{ fontSize: isMobile ? '24px' : '26px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px 0', letterSpacing: '-0.75px' }}>
                 {forgotMode ? 'Reset Password' : 'Mulai Belajar Hari Ini'}
               </h1>
