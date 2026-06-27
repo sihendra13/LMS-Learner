@@ -454,8 +454,10 @@ export const LoginPage = ({ onLogin }) => {
                 </button>
               </form>
               )}
-              <div style={{ marginTop: '32px', borderTop: '1px solid #e2e8f0', paddingTop: '16px', textAlign: 'center', fontSize: '11px', color: '#94a3b8', fontWeight: '600', letterSpacing: '0.03em' }}>
-                Powered by myAxara
+              <div style={{ marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: '600', letterSpacing: '0.03em', whiteSpace: 'nowrap' }}>Powered by myAxara</span>
+                <span style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
               </div>
             </div>
           </div>
