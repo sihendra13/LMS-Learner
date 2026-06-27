@@ -1,8 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getDB, saveDB } from '../utils/db';
 import { supabase } from '../utils/supabase';
-const COMPANY_LOGO_KEY = 'axara_company_logo';
-
 const fromDbRow = (row) => ({
   id: row.id,
   title: row.title,
@@ -429,7 +427,17 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
     return { ...base, logo: localStorage.getItem('axara_lms_logo') || base.logo || null };
   });
 
-  const [companyLogo] = useState(() => localStorage.getItem(COMPANY_LOGO_KEY) || null);
+  const [companyLogo, setCompanyLogo] = useState(null);
+
+  // Fetch company_logo from tenants table
+  useEffect(() => {
+    if (!db.tenant?.id && !tenant?.id) return;
+    const tenantId = db.tenant?.id || tenant?.id;
+    if (!tenantId) return;
+    supabase.from('tenants').select('company_logo').eq('id', tenantId).single()
+      .then(({ data }) => { if (data?.company_logo) setCompanyLogo(data.company_logo); })
+      .catch(() => {});
+  }, [db.tenant?.id]);
 
   // Keep tenant state synced when db changes
   useEffect(() => {
