@@ -431,13 +431,12 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
 
   // Fetch company_logo from tenants table
   useEffect(() => {
-    if (!db.tenant?.id && !tenant?.id) return;
-    const tenantId = db.tenant?.id || tenant?.id;
+    const tenantId = selectedEmployee?.tenant_id || db.tenant?.id || tenant?.id;
     if (!tenantId) return;
     supabase.from('tenants').select('company_logo').eq('id', tenantId).single()
       .then(({ data }) => { if (data?.company_logo) setCompanyLogo(data.company_logo); })
       .catch(() => {});
-  }, [db.tenant?.id]);
+  }, [selectedEmployee?.tenant_id, db.tenant?.id]);
 
   // Keep tenant state synced when db changes
   useEffect(() => {
