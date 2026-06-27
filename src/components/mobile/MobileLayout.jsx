@@ -72,10 +72,10 @@ const MobileLayout = ({ onSelectVideo }) => {
         flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {tenant.logo ? (
+          {tenant.logo && tenant.plan === 'enterprise' ? (
             <img src={tenant.logo} alt={tenant.name} style={{ height: '28px', maxWidth: '120px', objectFit: 'contain' }} />
           ) : (
-            <span style={{ fontWeight: '800', fontSize: '14px', color: 'var(--text1)' }}>{tenant.name}</span>
+            <img src="/myaxara-logo.svg" alt="myAxara" style={{ height: '28px', maxWidth: '120px', objectFit: 'contain' }} />
           )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
