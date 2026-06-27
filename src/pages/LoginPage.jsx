@@ -194,14 +194,19 @@ export const LoginPage = ({ onLogin }) => {
             zIndex: 10,
           }}>
             <div style={{ width: '100%', maxWidth: '380px' }}>
+              {/* Mobile: Logo above card stack */}
+              {isMobile && (
+                <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: '120px', height: 'auto', marginBottom: '16px' }} />
+              )}
+
               {/* Mobile Card Stack */}
               {isMobile && (
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  position: 'relative', height: '260px', marginBottom: '24px', overflow: 'visible',
+                  position: 'relative', height: '240px', marginBottom: '16px', overflow: 'visible',
                 }}>
                   <div style={{
-                    position: 'relative', width: '100%', maxWidth: '310px', height: '260px',
+                    position: 'relative', width: '100%', maxWidth: '310px', height: '240px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     animation: 'bounce-subtle 6s ease-in-out infinite',
                   }}>
@@ -247,8 +252,10 @@ export const LoginPage = ({ onLogin }) => {
                 </div>
               )}
 
-              <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: isMobile ? '130px' : '160px', height: 'auto', marginBottom: '24px' }} />
-              <h1 style={{ fontSize: isMobile ? '24px' : '26px', fontWeight: '800', color: '#0f172a', margin: '0 0 8px 0', letterSpacing: '-0.75px' }}>
+              {!isMobile && (
+                <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: '160px', height: 'auto', marginBottom: '24px' }} />
+              )}
+              <h1 style={{ fontSize: isMobile ? '22px' : '26px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '-0.75px' }}>
                 {forgotMode ? 'Reset Password' : 'Mulai Belajar Hari Ini'}
               </h1>
               <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 32px 0', lineHeight: '1.5' }}>
