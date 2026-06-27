@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 const MobileSertifikat = () => {
-  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant } = useTenant();
+  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo } = useTenant();
   const [activeTab, setActiveTab] = useState('sertifikat');
   const [previewCert, setPreviewCert] = useState(null);
 
@@ -308,13 +308,13 @@ const MobileSertifikat = () => {
               position: 'relative', overflow: 'hidden'
             }}>
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
-              {tenant?.logo ? (
+              {(companyLogo || tenant?.logo) ? (
                 <div style={{ marginBottom: '12px' }}>
-                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
+                  <img src={companyLogo || tenant.logo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
                 </div>
               ) : (
                 <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text3)', marginBottom: '12px' }}>
-                  🏢 {tenant?.name || 'PT Maju Bersama'} · Corporate LMS
+                  🏢 {tenant?.name} · Corporate LMS
                 </div>
               )}
               <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '0.5px' }}>
@@ -346,7 +346,7 @@ const MobileSertifikat = () => {
                   </div>
                   <div style={{ width: '100px', height: '1px', background: 'var(--border)', margin: '4px auto' }} />
                   <div style={{ fontSize: '9px', color: 'var(--text3)', fontWeight: '600', textTransform: 'uppercase' }}>
-                    HR Manager, {tenant?.name || 'PT Maju Bersama'}
+                    HR Manager, {tenant?.name}
                   </div>
                 </div>
               </div>

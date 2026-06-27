@@ -9,6 +9,8 @@ import { QuizModal } from './components/QuizModal';
 import MobileLayout from './components/mobile/MobileLayout';
 import { supabase } from './utils/supabase';
 
+const PLAN_ENTERPRISE = 'enterprise';
+
 const AppContent = ({ onLogout }) => {
   const { 
     activePage, 
@@ -114,7 +116,7 @@ const AppContent = ({ onLogout }) => {
             boxSizing: 'border-box',
             borderRight: '1px solid #e2e8f0'
           }} onClick={() => setActivePage('dashboard')}>
-            {tenant.logo && tenant.plan === 'enterprise' ? (
+            {tenant.logo && tenant.plan === PLAN_ENTERPRISE ? (
               <img src={tenant.logo} alt={tenant.name} style={{ maxWidth: '180px', maxHeight: '40px', objectFit: 'contain' }} />
             ) : (
               <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: '180px', maxHeight: '40px', objectFit: 'contain' }} />

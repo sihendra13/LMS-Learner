@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
+
+const PLAN_ENTERPRISE = 'enterprise';
 import MobileBeranda from './MobileBeranda';
 import MobileSOPSaya from './MobileSOPSaya';
 import MobileSertifikat from './MobileSertifikat';
@@ -72,7 +74,7 @@ const MobileLayout = ({ onSelectVideo, onLogout }) => {
         flexShrink: 0
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {tenant.logo && tenant.plan === 'enterprise' ? (
+          {tenant.logo && tenant.plan === PLAN_ENTERPRISE ? (
             <img src={tenant.logo} alt={tenant.name} style={{ height: '28px', maxWidth: '120px', objectFit: 'contain' }} />
           ) : (
             <img src="/myaxara-logo.svg" alt="myAxara" style={{ height: '28px', maxWidth: '120px', objectFit: 'contain' }} />

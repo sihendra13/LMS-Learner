@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { getDB, saveDB } from '../utils/db';
 import { supabase } from '../utils/supabase';
-import larisiLogo from '../assets/logo-larisi.svg';
+const COMPANY_LOGO_KEY = 'axara_company_logo';
 
 const fromDbRow = (row) => ({
   id: row.id,
@@ -425,14 +425,16 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
   };
 
   const [tenant, setTenant] = useState(() => {
-    const base = db.tenant || { name: 'PT Maju Bersama', plan: 'business', status: 'Aktif', avatar: 'MB' };
-    return { ...base, logo: localStorage.getItem('axara_lms_logo') || base.logo || larisiLogo };
+    const base = db.tenant || { name: 'Perusahaan Anda', plan: 'business', status: 'Aktif', avatar: 'PA' };
+    return { ...base, logo: localStorage.getItem('axara_lms_logo') || base.logo || null };
   });
+
+  const [companyLogo] = useState(() => localStorage.getItem(COMPANY_LOGO_KEY) || null);
 
   // Keep tenant state synced when db changes
   useEffect(() => {
     if (db.tenant) {
-      setTenant({ ...db.tenant, logo: localStorage.getItem('axara_lms_logo') || db.tenant?.logo || larisiLogo });
+      setTenant({ ...db.tenant, logo: localStorage.getItem('axara_lms_logo') || db.tenant?.logo || null });
     }
   }, [db]);
 
@@ -541,7 +543,7 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           new Notification(n.title, {
             body: n.message,
-            icon: '/logo-larisi.svg'
+            icon: '/myaxara-logo.svg'
           });
         }
       }
@@ -602,6 +604,7 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
       importDBString,
       setDb,
       tenant,
+      companyLogo,
       retakeQuiz,
       MAX_RETAKES,
       notifications,
