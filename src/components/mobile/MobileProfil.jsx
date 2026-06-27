@@ -110,8 +110,8 @@ const MobileProfil = () => {
       </button>
 
       {/* FOOTER */}
-      <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '600', color: 'var(--text3)', marginTop: '10px' }}>
-        Axara LMS Platform · Versi Mobile
+      <div style={{ textAlign: 'left', fontSize: '11px', fontWeight: '600', color: 'var(--text3)', marginTop: '10px' }}>
+        myAxara LMS Platform · Versi Mobile
       </div>
 
     </div>
