@@ -81,7 +81,7 @@ const AppContent = ({ onLogout }) => {
   if (isMobile) {
     return (
       <>
-        <MobileLayout onSelectVideo={handleSelectVideo} />
+        <MobileLayout onSelectVideo={handleSelectVideo} onLogout={onLogout} />
 
         {/* SOP INTERACTIVE MODAL WIZARD */}
         {selectedVideo && (

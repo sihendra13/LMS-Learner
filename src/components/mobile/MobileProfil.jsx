@@ -1,16 +1,15 @@
 import React from 'react';
 import { useTenant } from '../../context/TenantContext';
 
-const MobileProfil = () => {
+const MobileProfil = ({ onLogout }) => {
   const { currentUser, quizSubmissions, passingScore } = useTenant();
 
-  // Calculations
   const completedCount = quizSubmissions.filter(
     s => s.employeeName === currentUser.name && s.postScore >= passingScore
   ).length;
 
   const handleLogout = () => {
-    alert('Logout simulasi berhasil! Anda dapat memuat ulang halaman untuk masuk kembali.');
+    if (onLogout) onLogout();
   };
 
   return (

@@ -5,7 +5,7 @@ import MobileSOPSaya from './MobileSOPSaya';
 import MobileSertifikat from './MobileSertifikat';
 import MobileProfil from './MobileProfil';
 
-const MobileLayout = ({ onSelectVideo }) => {
+const MobileLayout = ({ onSelectVideo, onLogout }) => {
   const { 
     currentUser, 
     tenant, 
@@ -36,7 +36,7 @@ const MobileLayout = ({ onSelectVideo }) => {
       case 'certificates':
         return <MobileSertifikat />;
       case 'profile':
-        return <MobileProfil />;
+        return <MobileProfil onLogout={onLogout} />;
       default:
         return <MobileBeranda onSelectVideo={onSelectVideo} onNavigateToSOP={() => setActiveTab('sop')} />;
     }
