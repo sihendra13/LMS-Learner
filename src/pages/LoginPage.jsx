@@ -196,7 +196,7 @@ export const LoginPage = ({ onLogin }) => {
             <div style={{ width: '100%', maxWidth: '380px' }}>
               {/* Mobile: Logo above card stack */}
               {isMobile && (
-                <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: '120px', height: 'auto', marginBottom: '16px' }} />
+                <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: '120px', height: 'auto', marginBottom: '32px' }} />
               )}
 
               {/* Mobile Card Stack */}
