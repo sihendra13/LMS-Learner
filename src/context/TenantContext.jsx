@@ -429,12 +429,17 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
 
   const [companyLogo, setCompanyLogo] = useState(null);
 
-  // Fetch company_logo from tenants table
+  // Fetch tenant name + company_logo from tenants table
   useEffect(() => {
     const tenantId = selectedEmployee?.tenant_id || db.tenant?.id || tenant?.id;
+    console.log('[DEBUG] selectedEmployee:', selectedEmployee?.tenant_id, 'tenantId:', tenantId);
     if (!tenantId) return;
-    supabase.from('tenants').select('company_logo').eq('id', tenantId).single()
-      .then(({ data }) => { if (data?.company_logo) setCompanyLogo(data.company_logo); })
+    supabase.from('tenants').select('name, company_logo').eq('id', tenantId).single()
+      .then(({ data }) => {
+        if (!data) return;
+        if (data.company_logo) setCompanyLogo(data.company_logo);
+        if (data.name) setTenant(prev => ({ ...prev, name: data.name, id: tenantId }));
+      })
       .catch(() => {});
   }, [selectedEmployee?.tenant_id, db.tenant?.id]);
 
