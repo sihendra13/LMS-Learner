@@ -58,7 +58,7 @@ const mapRow = (row) => ({
   acknowledged: row.acknowledged ?? false,
 });
 
-export const TenantProvider = ({ children, selectedEmployee }) => {
+export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   const [db, setDb] = useState(() => {
     const stored = getDB();
     // Override currentUser dari selectedEmployee jika tersedia
@@ -429,14 +429,13 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
 
   const [companyLogo, setCompanyLogo] = useState(null);
 
-  // Fetch tenant name + company_logo via employee email → tenants table
+  // Fetch tenant name + company_logo via authUser → users table → tenants table
   useEffect(() => {
-    const email = selectedEmployee?.email || db.currentUser?.email;
-    if (!email) return;
-    supabase.from('employees').select('tenant_id').eq('email', email).single()
-      .then(({ data: emp }) => {
-        if (!emp?.tenant_id) return;
-        return supabase.from('tenants').select('name, company_logo').eq('id', emp.tenant_id).single();
+    if (!authUser?.id) return;
+    supabase.from('users').select('tenant_id').eq('id', authUser.id).single()
+      .then(({ data: user }) => {
+        if (!user?.tenant_id) return;
+        return supabase.from('tenants').select('name, company_logo').eq('id', user.tenant_id).single();
       })
       .then((res) => {
         if (!res?.data) return;
@@ -444,7 +443,7 @@ export const TenantProvider = ({ children, selectedEmployee }) => {
         if (res.data.name) setTenant(prev => ({ ...prev, name: res.data.name }));
       })
       .catch(() => {});
-  }, [selectedEmployee?.email, db.currentUser?.email]);
+  }, [authUser?.id]);
 
   // Keep tenant state synced when db changes
   useEffect(() => {

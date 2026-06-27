@@ -522,7 +522,7 @@ function App() {
       ) : !selectedEmployee ? (
         <EmployeePicker onPick={handlePickEmployee} onLogout={handleLogout} />
       ) : (
-        <TenantProvider selectedEmployee={selectedEmployee}>
+        <TenantProvider selectedEmployee={selectedEmployee} authUser={authUser}>
           <AppContent onLogout={handleLogout} />
         </TenantProvider>
       )}
