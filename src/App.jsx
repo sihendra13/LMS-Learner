@@ -420,12 +420,44 @@ const AppContent = ({ onLogout }) => {
 
 const EMPLOYEE_KEY = 'axara_learner_employee';
 
+const SplashScreen = ({ onFinish }) => {
+  useEffect(() => {
+    const t = setTimeout(() => {
+      onFinish();
+    }, 2000);
+    return () => clearTimeout(t);
+  }, [onFinish]);
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: '#ffffff', zIndex: 999999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      animation: 'fadeOut 0.5s ease-out 1.5s forwards'
+    }}>
+      <img src="/myaxara-logo.svg" alt="myAxara LMS" style={{
+        maxWidth: '220px', height: 'auto',
+        animation: 'zoomPulse 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+      }} />
+      <style>{`
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+        @keyframes zoomPulse {
+          0% { transform: scale(0.95); opacity: 0; }
+          20% { transform: scale(1.05); opacity: 1; }
+          80% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(0.95); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 function App() {
   const [authUser, setAuthUser] = useState(null);
   const [selectedEmployee, setSelectedEmployee] = useState(() => {
     try { return JSON.parse(localStorage.getItem(EMPLOYEE_KEY)); } catch { return null; }
   });
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -456,22 +488,25 @@ function App() {
     setAuthUser(null);
   };
 
-  if (checkingAuth) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  if (!authUser) return <LoginPage onLogin={handleLogin} />;
-  if (!selectedEmployee) return <EmployeePicker onPick={handlePickEmployee} onLogout={handleLogout} />;
-
   return (
-    <TenantProvider selectedEmployee={selectedEmployee}>
-      <AppContent onLogout={handleLogout} />
-    </TenantProvider>
+    <>
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      
+      {checkingAuth ? (
+        <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      ) : !authUser ? (
+        <LoginPage onLogin={handleLogin} />
+      ) : !selectedEmployee ? (
+        <EmployeePicker onPick={handlePickEmployee} onLogout={handleLogout} />
+      ) : (
+        <TenantProvider selectedEmployee={selectedEmployee}>
+          <AppContent onLogout={handleLogout} />
+        </TenantProvider>
+      )}
+    </>
   );
 }
 
