@@ -478,6 +478,10 @@ function App() {
   });
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
+  const [isInviteFlow] = useState(() => {
+    const hash = window.location.hash;
+    return hash.includes('type=invite') && hash.includes('access_token');
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -517,7 +521,7 @@ function App() {
           <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
-      ) : window.location.hash.includes('type=invite') ? (
+      ) : isInviteFlow ? (
         <LoginPage onLogin={handleLogin} />
       ) : !authUser ? (
         <LoginPage onLogin={handleLogin} />
