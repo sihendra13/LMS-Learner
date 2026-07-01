@@ -478,7 +478,7 @@ function App() {
   });
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
-  const [isInviteFlow] = useState(() => {
+  const [isInviteFlow, setIsInviteFlow] = useState(() => {
     return !!sessionStorage.getItem('axara_invite_hash');
   });
 
@@ -515,6 +515,7 @@ function App() {
 
   const handleLogin = (user) => {
     sessionStorage.removeItem('axara_invite_hash');
+    setIsInviteFlow(false);
     setAuthUser(user);
     autoSelectEmployee(user);
   };
