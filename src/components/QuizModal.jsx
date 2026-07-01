@@ -460,20 +460,23 @@ export const QuizModal = ({ video, onClose }) => {
                 ref={videoContainerRef} 
                 className="video-player-container"
                 style={{ 
-                  width: '100%',
-                  height: isFullscreen ? '100%' : 'auto',
+                  width: isFullscreen ? '100vw' : '100%',
+                  height: isFullscreen ? '100vh' : 'auto',
                   maxWidth: isFullscreen ? 'none' : '100%',
                   aspectRatio: isFullscreen ? 'auto' : videoAspectRatio,
                   maxHeight: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? 'calc(100vh - 110px)' : '50vh') : 'none'),
                   background: '#090f1d', 
                   borderRadius: isFullscreen ? '0px' : '12px', 
-                  position: 'relative', 
+                  position: isFullscreen ? 'fixed' : 'relative',
+                  top: isFullscreen ? 0 : 'auto',
+                  left: isFullscreen ? 0 : 'auto',
+                  zIndex: isFullscreen ? 999999 : 'auto',
                   display: 'flex', 
                   flexDirection: 'column', 
                   justifyContent: 'center', 
                   alignItems: 'center', 
                   overflow: 'hidden',
-                  flex: isFullscreen ? 1 : (isMobile ? (window.innerHeight < 500 ? 1 : 'none') : 1),
+                  flex: isFullscreen ? 'none' : (isMobile ? (window.innerHeight < 500 ? 1 : 'none') : 1),
                   margin: '0 auto'
                 }}
               >
@@ -483,6 +486,7 @@ export const QuizModal = ({ video, onClose }) => {
                   <video
                     ref={videoRef}
                     src={video.videoUrl}
+                    playsInline
                     onTimeUpdate={handleTimeUpdate}
                     onSeeking={handleSeeking}
                     onEnded={handleVideoEnded}
@@ -496,7 +500,7 @@ export const QuizModal = ({ video, onClose }) => {
                     }}
                     controls={!activeTrigger}
                     controlsList="nodownload nofullscreen"
-                    style={{ width: '100%', height: '100%', borderRadius: '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto', display: activeTrigger ? 'none' : 'block' }}
+                    style={{ width: '100%', height: '100%', borderRadius: isFullscreen ? '0' : '12px', objectFit: 'contain', pointerEvents: activeTrigger ? 'none' : 'auto', display: activeTrigger ? 'none' : 'block' }}
                   />
                 ) : video.videoUrl && videoError ? (
                   /* Video URL exists but file not found */
