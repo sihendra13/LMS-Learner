@@ -3,7 +3,7 @@ import { TenantProvider, useTenant } from './context/TenantContext';
 import { Dashboard } from './pages/Dashboard';
 import { SOPManager } from './pages/SOPManager';
 import { Certifications } from './pages/Certifications';
-import { LoginPage, InviteSetPasswordPage } from './pages/LoginPage';
+import { LoginPage } from './pages/LoginPage';
 import { EmployeePicker } from './pages/EmployeePicker';
 import { QuizModal } from './components/QuizModal';
 import MobileLayout from './components/mobile/MobileLayout';
@@ -517,8 +517,6 @@ function App() {
           <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
-      ) : window.location.hash.includes('type=invite') ? (
-        <InviteSetPasswordPage onLogin={handleLogin} />
       ) : !authUser ? (
         <LoginPage onLogin={handleLogin} />
       ) : !selectedEmployee ? (

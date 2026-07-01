@@ -17,6 +17,27 @@ export const LoginPage = ({ onLogin }) => {
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotSuccess, setForgotSuccess] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [inviteMode, setInviteMode] = useState(false);
+  const [inviteConfirm, setInviteConfirm] = useState('');
+  const [inviteName, setInviteName] = useState('');
+
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    if (params.get('type') === 'invite' && params.get('access_token')) {
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token') || '';
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ data }) => {
+          if (data?.user) {
+            setForm(f => ({ ...f, email: data.user.email || '' }));
+            setInviteName(data.user.user_metadata?.name || '');
+            setInviteMode(true);
+            window.history.replaceState(null, '', window.location.pathname);
+          }
+        });
+    }
+  }, []);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isIosPromptVisible, setIsIosPromptVisible] = useState(false);
@@ -130,6 +151,21 @@ export const LoginPage = ({ onLogin }) => {
     e.preventDefault();
     if (!form.email || !form.password) {
       setError('Email dan password harus diisi.');
+      return;
+    }
+    if (inviteMode) {
+      if (form.password.length < 6) { setError('Password minimal 6 karakter.'); return; }
+      if (form.password !== inviteConfirm) { setError('Konfirmasi password tidak sama.'); return; }
+      setLoading(true); setError('');
+      try {
+        const { data, error: err } = await supabase.auth.updateUser({ password: form.password });
+        if (err) throw err;
+        onLogin(data.user);
+      } catch (err) {
+        setError(err.message || 'Gagal menyimpan password.');
+      } finally {
+        setLoading(false);
+      }
       return;
     }
     setLoading(true);
@@ -272,10 +308,12 @@ export const LoginPage = ({ onLogin }) => {
                 <img src="/myaxara-logo.svg" alt="myAxara" style={{ maxWidth: '160px', height: 'auto', marginBottom: '24px' }} />
               )}
               <h1 style={{ fontSize: isMobile ? '22px' : '26px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '-0.75px' }}>
-                {forgotMode ? 'Reset Password' : 'Mulai Belajar Hari Ini'}
+                {inviteMode ? `Selamat Datang, ${inviteName || 'Karyawan Baru'}! 👋` : forgotMode ? 'Reset Password' : 'Mulai Belajar Hari Ini'}
               </h1>
               <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 32px 0', lineHeight: '1.5' }}>
-                {forgotMode
+                {inviteMode
+                  ? 'Buat password untuk mulai mengakses modul pelatihan Anda.'
+                  : forgotMode
                   ? 'Masukkan email perusahaan Anda untuk menerima link reset password.'
                   : 'Silakan masuk menggunakan akun karyawan yang terdaftar untuk mengakses modul pembelajaran Anda.'}
               </p>
@@ -358,6 +396,39 @@ export const LoginPage = ({ onLogin }) => {
                     Kembali ke Login
                   </button>
                 </form>
+              ) : inviteMode ? (
+              <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nama</label>
+                  <input value={inviteName} readOnly style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '16px', color: '#64748b', background: '#f8fafc', outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</label>
+                  <input value={form.email} readOnly style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: '10px', border: '1.5px solid #e2e8f0', fontSize: '16px', color: '#64748b', background: '#f8fafc', outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Buat Password</label>
+                  <div style={{ position: 'relative' }}>
+                    <input type={showPassword ? 'text' : 'password'} placeholder="Minimal 6 karakter" value={form.password} onChange={e => { setForm(f => ({ ...f, password: e.target.value })); setError(''); }} style={{ width: '100%', boxSizing: 'border-box', padding: '12px 44px 12px 16px', borderRadius: '10px', border: error ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1', fontSize: '16px', color: '#0f172a', outline: 'none', background: '#ffffff' }} onFocus={e => { e.target.style.borderColor = '#002D72'; e.target.style.boxShadow = '0 0 0 3px rgba(0,45,114,0.1)'; }} onBlur={e => { e.target.style.borderColor = error ? '#ef4444' : '#cbd5e1'; e.target.style.boxShadow = 'none'; }} />
+                    <button type="button" onClick={() => setShowPassword(v => !v)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '4px' }}>
+                      {showPassword ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Konfirmasi Password</label>
+                  <input type={showPassword ? 'text' : 'password'} placeholder="Ulangi password" value={inviteConfirm} onChange={e => { setInviteConfirm(e.target.value); setError(''); }} style={{ width: '100%', boxSizing: 'border-box', padding: '12px 16px', borderRadius: '10px', border: error ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1', fontSize: '16px', color: '#0f172a', outline: 'none', background: '#ffffff' }} onFocus={e => { e.target.style.borderColor = '#002D72'; e.target.style.boxShadow = '0 0 0 3px rgba(0,45,114,0.1)'; }} onBlur={e => { e.target.style.borderColor = error ? '#ef4444' : '#cbd5e1'; e.target.style.boxShadow = 'none'; }} />
+                </div>
+                {error && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#dc2626', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '1px' }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>{error}</span>
+                  </div>
+                )}
+                <button type="submit" disabled={loading} style={{ width: '100%', padding: '14px', borderRadius: '8px', background: loading ? '#94a3b8' : '#0B1628', color: '#ffffff', border: 'none', fontSize: '14px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 4px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '6px' }} onMouseOver={e => { if (!loading) { e.currentTarget.style.background = '#2F7BFF'; e.currentTarget.style.transform = 'translateY(-1px)'; } }} onMouseOut={e => { if (!loading) { e.currentTarget.style.background = '#0B1628'; e.currentTarget.style.transform = 'translateY(0)'; } }}>
+                  {loading ? <><span style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#ffffff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />Menyimpan...</> : 'Simpan & Mulai Belajar →'}
+                </button>
+              </form>
               ) : (
               <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
