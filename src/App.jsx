@@ -482,9 +482,25 @@ function App() {
     return !!sessionStorage.getItem('axara_invite_hash');
   });
 
+  const autoSelectEmployee = async (user) => {
+    if (!user?.email) return;
+    const { data } = await supabase
+      .from('employees')
+      .select('*')
+      .eq('email', user.email)
+      .maybeSingle();
+    if (data) {
+      localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(data));
+      setSelectedEmployee(data);
+    }
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setAuthUser(session?.user || null);
+      if (session?.user && !localStorage.getItem(EMPLOYEE_KEY)) {
+        autoSelectEmployee(session.user);
+      }
       setCheckingAuth(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -500,6 +516,7 @@ function App() {
   const handleLogin = (user) => {
     sessionStorage.removeItem('axara_invite_hash');
     setAuthUser(user);
+    autoSelectEmployee(user);
   };
 
   const handlePickEmployee = (emp) => {
