@@ -479,8 +479,7 @@ function App() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const [isInviteFlow] = useState(() => {
-    const hash = window.location.hash;
-    return hash.includes('type=invite') && hash.includes('access_token');
+    return !!sessionStorage.getItem('axara_invite_hash');
   });
 
   useEffect(() => {
@@ -498,7 +497,10 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogin = (user) => setAuthUser(user);
+  const handleLogin = (user) => {
+    sessionStorage.removeItem('axara_invite_hash');
+    setAuthUser(user);
+  };
 
   const handlePickEmployee = (emp) => {
     localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(emp));

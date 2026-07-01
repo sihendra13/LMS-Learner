@@ -22,7 +22,8 @@ export const LoginPage = ({ onLogin }) => {
   const [inviteName, setInviteName] = useState('');
 
   useEffect(() => {
-    const hash = window.location.hash.substring(1);
+    const rawHash = sessionStorage.getItem('axara_invite_hash') || window.location.hash;
+    const hash = rawHash.startsWith('#') ? rawHash.substring(1) : rawHash;
     const params = new URLSearchParams(hash);
     if (params.get('type') === 'invite' && params.get('access_token')) {
       const accessToken = params.get('access_token');
@@ -36,6 +37,15 @@ export const LoginPage = ({ onLogin }) => {
             window.history.replaceState(null, '', window.location.pathname);
           }
         });
+    } else if (sessionStorage.getItem('axara_invite_hash')) {
+      // hash ada di sessionStorage tapi sudah diproses Supabase, ambil user dari session aktif
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          setForm(f => ({ ...f, email: session.user.email || '' }));
+          setInviteName(session.user.user_metadata?.name || '');
+          setInviteMode(true);
+        }
+      });
     }
   }, []);
 
