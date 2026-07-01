@@ -622,3 +622,97 @@ export const LoginPage = ({ onLogin }) => {
     </div>
   );
 };
+
+export const InviteSetPasswordPage = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [showPass, setShowPass] = useState(false);
+
+  useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+
+    if (!accessToken) { setError('Link tidak valid.'); setLoading(false); return; }
+
+    supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken || '' })
+      .then(({ data, error: err }) => {
+        if (err || !data?.user) { setError('Link sudah expired atau tidak valid. Minta undangan baru.'); }
+        else {
+          setEmail(data.user.email || '');
+          setName(data.user.user_metadata?.name || '');
+        }
+        setLoading(false);
+      });
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (password.length < 6) { setError('Password minimal 6 karakter.'); return; }
+    if (password !== confirm) { setError('Password tidak sama.'); return; }
+    setSaving(true); setError('');
+    try {
+      const { data, error: err } = await supabase.auth.updateUser({ password });
+      if (err) throw err;
+      window.history.replaceState(null, '', window.location.pathname);
+      onLogin(data.user);
+    } catch (err) {
+      setError(err.message || 'Gagal menyimpan password.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+      <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif", padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: '420px', background: '#fff', borderRadius: '16px', padding: '40px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+        <div style={{ marginBottom: '28px' }}>
+          <div style={{ fontSize: '22px', fontWeight: '800', color: '#0b1628', marginBottom: '6px' }}>Buat Password Anda</div>
+          <div style={{ fontSize: '13px', color: '#64748b' }}>Selamat datang di myAxara! Buat password untuk mulai belajar.</div>
+        </div>
+
+        {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px', fontSize: '13px', color: '#dc2626', marginBottom: '16px' }}>{error}</div>}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>NAMA</label>
+            <input value={name} readOnly style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', background: '#f8fafc', color: '#64748b', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>EMAIL</label>
+            <input value={email} readOnly style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', background: '#f8fafc', color: '#64748b', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>PASSWORD BARU</label>
+            <div style={{ position: 'relative' }}>
+              <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Minimal 6 karakter" style={{ width: '100%', padding: '12px 40px 12px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+              <button type="button" onClick={() => setShowPass(p => !p)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}>
+                {showPass ? '🙈' : '👁'}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '6px' }}>KONFIRMASI PASSWORD</label>
+            <input type={showPass ? 'text' : 'password'} value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="Ulangi password" style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+          </div>
+          <button type="submit" disabled={saving} style={{ width: '100%', padding: '14px', borderRadius: '8px', background: saving ? '#94a3b8' : '#0b1628', color: '#fff', border: 'none', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', marginTop: '4px' }}>
+            {saving ? 'Menyimpan...' : 'Simpan & Mulai Belajar →'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
