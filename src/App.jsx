@@ -481,9 +481,11 @@ function App() {
   const [isInviteFlow, setIsInviteFlow] = useState(() => {
     return !!sessionStorage.getItem('axara_invite_hash');
   });
+  const [isAutoSelecting, setIsAutoSelecting] = useState(false);
 
   const autoSelectEmployee = async (user) => {
     if (!user?.email) return;
+    setIsAutoSelecting(true);
     const { data } = await supabase
       .from('employees')
       .select('*')
@@ -493,6 +495,7 @@ function App() {
       localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(data));
       setSelectedEmployee(data);
     }
+    setIsAutoSelecting(false);
   };
 
   useEffect(() => {
@@ -545,6 +548,11 @@ function App() {
         <LoginPage onLogin={handleLogin} />
       ) : !authUser ? (
         <LoginPage onLogin={handleLogin} />
+      ) : isAutoSelecting ? (
+        <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
       ) : !selectedEmployee ? (
         <EmployeePicker onPick={handlePickEmployee} onLogout={handleLogout} />
       ) : (
