@@ -434,8 +434,6 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
             }
             
             // Build query for tenant_settings
-            // TEMPORARILY DISABLED due to Supabase RLS INSERT restriction on tenant_settings
-            /*
             let tsQuery = supabase.from('tenant_settings').select('passing_score, validity_months');
             if (tenantId) {
               tsQuery = tsQuery.eq('tenant_id', tenantId).single();
@@ -455,8 +453,6 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
                 // if tenant_settings fetch fails, just set app_settings
                 if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
               });
-            */
-            if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
           });
 
         let tQuery = supabase.from('tenants').select('name, company_logo');
