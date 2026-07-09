@@ -437,9 +437,10 @@ const SplashScreen = ({ onFinish }) => {
       animation: 'splashFadeOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) 2.5s forwards'
     }}>
       <div style={{
-        position: 'relative',
+        position: 'relative', overflow: 'hidden',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        animation: 'logoEntrance 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+        animation: 'logoEntrance 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        padding: '24px' // add padding so drop shadow is not cut off
       }}>
         <img src="/myaxara-logo.svg" alt="myAxara LMS" style={{
           width: '240px', height: 'auto', display: 'block',
@@ -548,8 +549,8 @@ function App() {
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
       
       {checkingAuth ? (
-        <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+          <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       ) : isInviteFlow ? (
@@ -557,8 +558,8 @@ function App() {
       ) : !authUser ? (
         <LoginPage onLogin={handleLogin} />
       ) : isAutoSelecting ? (
-        <div style={{ minHeight: '100vh', background: '#0b1628', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '32px', height: '32px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+          <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       ) : !selectedEmployee ? (
