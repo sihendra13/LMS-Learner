@@ -434,25 +434,21 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
             }
             
             // Build query for tenant_settings
-            let tsQuery = supabase.from('tenant_settings').select('passing_score, validity_months');
             if (tenantId) {
-              tsQuery = tsQuery.eq('tenant_id', tenantId).single();
+              supabase.from('tenant_settings').select('passing_score, validity_months').eq('tenant_id', tenantId).single()
+                .then(({ data: tSettings }) => {
+                  if (tSettings) {
+                    if (tSettings.passing_score != null) updates.passingScore = tSettings.passing_score;
+                    if (tSettings.validity_months != null) updates.validityMonths = tSettings.validity_months;
+                  }
+                  if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
+                })
+                .catch(() => {
+                  if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
+                });
             } else {
-              tsQuery = tsQuery.order('updated_at', { ascending: false }).limit(1).maybeSingle();
+              if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
             }
-
-            tsQuery
-              .then(({ data: tSettings }) => {
-                if (tSettings) {
-                  if (tSettings.passing_score != null) updates.passingScore = tSettings.passing_score;
-                  if (tSettings.validity_months != null) updates.validityMonths = tSettings.validity_months;
-                }
-                if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
-              })
-              .catch(() => {
-                // if tenant_settings fetch fails, just set app_settings
-                if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
-              });
           });
 
         let tQuery = supabase.from('tenants').select('name, company_logo');
