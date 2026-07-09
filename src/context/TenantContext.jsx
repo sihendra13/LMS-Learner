@@ -438,7 +438,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
             if (tenantId) {
               tsQuery = tsQuery.eq('tenant_id', tenantId).single();
             } else {
-              tsQuery = tsQuery.limit(1).maybeSingle();
+              tsQuery = tsQuery.order('updated_at', { ascending: false }).limit(1).maybeSingle();
             }
 
             tsQuery
@@ -459,7 +459,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         if (tenantId) {
           tQuery = tQuery.eq('id', tenantId).single();
         } else {
-          tQuery = tQuery.limit(1).maybeSingle();
+          tQuery = tQuery.order('updated_at', { ascending: false }).limit(1).maybeSingle();
         }
         
         return tQuery;
