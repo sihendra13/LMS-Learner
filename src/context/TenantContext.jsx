@@ -197,6 +197,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       const { data } = await supabase
         .from('sop_videos')
         .select('*')
+        .eq('is_draft', false)
         .order('created_at', { ascending: false });
       if (data) setVideos(data.map(fromDbRow));
     };
