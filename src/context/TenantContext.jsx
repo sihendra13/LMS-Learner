@@ -420,7 +420,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     if (!authUser?.id) return;
     supabase.from('users').select('tenant_id').eq('id', authUser.id).single()
       .then(({ data: user }) => {
-        if (!user?.tenant_id) return;
+        const tenantId = user?.tenant_id;
+        
         // Load global settings first, then override with per-tenant settings
         supabase.from('app_settings').select('key, value').in('key', ['passing_score', 'validity_months'])
           .then(({ data: appData }) => {
@@ -432,7 +433,15 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
               });
             }
             
-            supabase.from('tenant_settings').select('passing_score, validity_months').eq('tenant_id', user.tenant_id).single()
+            // Build query for tenant_settings
+            let tsQuery = supabase.from('tenant_settings').select('passing_score, validity_months');
+            if (tenantId) {
+              tsQuery = tsQuery.eq('tenant_id', tenantId).single();
+            } else {
+              tsQuery = tsQuery.limit(1).maybeSingle();
+            }
+
+            tsQuery
               .then(({ data: tSettings }) => {
                 if (tSettings) {
                   if (tSettings.passing_score != null) updates.passingScore = tSettings.passing_score;
@@ -446,7 +455,14 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
               });
           });
 
-        return supabase.from('tenants').select('name, company_logo').eq('id', user.tenant_id).single();
+        let tQuery = supabase.from('tenants').select('name, company_logo');
+        if (tenantId) {
+          tQuery = tQuery.eq('id', tenantId).single();
+        } else {
+          tQuery = tQuery.limit(1).maybeSingle();
+        }
+        
+        return tQuery;
       })
       .then((res) => {
         if (!res?.data) return;
