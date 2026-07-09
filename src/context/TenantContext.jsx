@@ -435,6 +435,19 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     supabase.from('users').select('tenant_id').eq('id', authUser.id).single()
       .then(({ data: user }) => {
         if (!user?.tenant_id) return;
+        
+        // Load per-tenant settings to override defaults
+        supabase.from('tenant_settings').select('passing_score, validity_months').eq('tenant_id', user.tenant_id).single()
+          .then(({ data: tSettings }) => {
+            if (tSettings) {
+              const updates = {};
+              if (tSettings.passing_score != null) updates.passingScore = tSettings.passing_score;
+              if (tSettings.validity_months != null) updates.validityMonths = tSettings.validity_months;
+              if (Object.keys(updates).length > 0) setDb(prev => ({ ...prev, ...updates }));
+            }
+          })
+          .catch(() => {});
+
         return supabase.from('tenants').select('name, company_logo').eq('id', user.tenant_id).single();
       })
       .then((res) => {
