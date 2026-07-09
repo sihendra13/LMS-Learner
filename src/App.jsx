@@ -491,6 +491,7 @@ function App() {
       .from('employees')
       .select('*')
       .ilike('email', user.email)
+      .is('deleted_at', null)
       .maybeSingle();
       
     if (byEmail) {
