@@ -4,7 +4,7 @@ import { Dashboard } from './pages/Dashboard';
 import { SOPManager } from './pages/SOPManager';
 import { Certifications } from './pages/Certifications';
 import { LoginPage } from './pages/LoginPage';
-import { EmployeePicker } from './pages/EmployeePicker';
+import { Unauthorized } from './pages/Unauthorized';
 import { QuizModal } from './components/QuizModal';
 import MobileLayout from './components/mobile/MobileLayout';
 import { supabase } from './utils/supabase';
@@ -486,26 +486,22 @@ function App() {
   const autoSelectEmployee = async (user) => {
     if (!user?.email) return;
     setIsAutoSelecting(true);
-    // Coba cocokkan by email dulu
+    // Coba cocokkan by email dulu dengan case-insensitive (ilike)
     const { data: byEmail } = await supabase
       .from('employees')
       .select('*')
-      .eq('email', user.email)
+      .ilike('email', user.email)
       .maybeSingle();
+      
     if (byEmail) {
       localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(byEmail));
       setSelectedEmployee(byEmail);
       setIsAutoSelecting(false);
       return;
     }
-    // Kalau tidak ketemu by email, cek apakah hanya ada 1 karyawan di tenant — langsung pilih
-    const { data: all } = await supabase
-      .from('employees')
-      .select('*');
-    if (all && all.length === 1) {
-      localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(all[0]));
-      setSelectedEmployee(all[0]);
-    }
+    
+    // Jika tidak ditemukan, biarkan selectedEmployee = null
+    // (Akan menampilkan halaman Unauthorized)
     setIsAutoSelecting(false);
   };
 
@@ -565,7 +561,7 @@ function App() {
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       ) : !selectedEmployee ? (
-        <EmployeePicker onPick={handlePickEmployee} onLogout={handleLogout} />
+        <Unauthorized onLogout={handleLogout} />
       ) : (
         <TenantProvider selectedEmployee={selectedEmployee} authUser={authUser}>
           <AppContent onLogout={handleLogout} />
