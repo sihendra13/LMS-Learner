@@ -486,14 +486,25 @@ function App() {
   const autoSelectEmployee = async (user) => {
     if (!user?.email) return;
     setIsAutoSelecting(true);
-    const { data } = await supabase
+    // Coba cocokkan by email dulu
+    const { data: byEmail } = await supabase
       .from('employees')
       .select('*')
       .eq('email', user.email)
       .maybeSingle();
-    if (data) {
-      localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(data));
-      setSelectedEmployee(data);
+    if (byEmail) {
+      localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(byEmail));
+      setSelectedEmployee(byEmail);
+      setIsAutoSelecting(false);
+      return;
+    }
+    // Kalau tidak ketemu by email, cek apakah hanya ada 1 karyawan di tenant — langsung pilih
+    const { data: all } = await supabase
+      .from('employees')
+      .select('*');
+    if (all && all.length === 1) {
+      localStorage.setItem(EMPLOYEE_KEY, JSON.stringify(all[0]));
+      setSelectedEmployee(all[0]);
     }
     setIsAutoSelecting(false);
   };
