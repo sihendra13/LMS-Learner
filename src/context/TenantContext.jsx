@@ -285,7 +285,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         post_score: submission.postScore,
         submission_date: submission.date,
         status: submission.status,
-        cert_status: isPassed ? 'pending' : 'remedial',
+        cert_status: 'pending',
         acknowledged: submission.acknowledged ?? true,
       }).eq('id', existing.id);
     } else {
@@ -297,7 +297,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         post_score: submission.postScore,
         submission_date: submission.date,
         status: submission.status,
-        cert_status: isPassed ? 'pending' : 'remedial',
+        cert_status: 'pending',
         retake_count: 0,
         acknowledged: submission.acknowledged ?? true,
       });

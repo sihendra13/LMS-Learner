@@ -317,7 +317,7 @@ export const QuizModal = ({ video, onClose }) => {
         postScore: calculatedScore,
         date: new Date().toISOString(),
         acknowledged: true,
-        status: isPassed ? 'Lulus' : 'Remedi (Butuh Ujian Ulang)'
+        status: 'Menunggu Review'
       };
 
       addSubmission(newSubmission);
