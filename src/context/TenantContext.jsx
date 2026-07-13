@@ -311,6 +311,26 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       type: isPassed ? 'green' : 'amber'
     };
     setDb(prev => ({ ...prev, activities: [newAct, ...prev.activities] }));
+
+    // Trigger SPV Notification Email via Backend
+    try {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://axara-lms-backend.onrender.com';
+      const token = localStorage.getItem('axara_token') || '';
+      await fetch(`${BACKEND_URL}/api/v1/notifications/email-spv`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          dept: submission.dept || db.currentUser?.dept,
+          learnerName: submission.employeeName,
+          videoTitle: submission.videoTitle
+        })
+      });
+    } catch (err) {
+      console.error('Failed to trigger SPV email notification:', err);
+    }
   };
 
   const submitEssay = (essaySubmission) => {
@@ -345,6 +365,26 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         activities: [newAct, ...prev.activities]
       };
     });
+
+    // Trigger SPV Notification Email via Backend
+    try {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://axara-lms-backend.onrender.com';
+      const token = localStorage.getItem('axara_token') || '';
+      fetch(`${BACKEND_URL}/api/v1/notifications/email-spv`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          dept: essaySubmission.dept || db.currentUser?.dept,
+          learnerName: essaySubmission.employeeName,
+          videoTitle: essaySubmission.videoTitle
+        })
+      });
+    } catch (err) {
+      console.error('Failed to trigger SPV email notification for essay:', err);
+    }
   };
 
   const MAX_RETAKES = 3;
