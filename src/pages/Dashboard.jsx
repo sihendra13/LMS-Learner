@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Dashboard = ({ onSelectVideo }) => {
-  const { currentUser, videos, quizSubmissions, activities, passingScore, MAX_RETAKES } = useTenant();
+  const { currentUser, videos, quizSubmissions, activities, passingScore, MAX_RETAKES, enableSpvRole } = useTenant();
   const [detailVideo, setDetailVideo] = useState(null);
 
   const handleVideoClick = (video) => {
@@ -203,9 +203,9 @@ export const Dashboard = ({ onSelectVideo }) => {
                     if (sub.certStatus === 'remedial')      return (sub.retakeCount || 0) >= MAX_RETAKES
                       ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
                       : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
-                    if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                    if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
                     if ((sub.retakeCount || 0) >= MAX_RETAKES) return { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-                    return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
+                    return { label: enableSpvRole ? 'Menunggu Review Supervisor' : 'Menunggu Review HRD', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
                   }
                   if (isCompleted) return {
                     label: 'Lulus',
