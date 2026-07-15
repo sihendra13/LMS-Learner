@@ -317,7 +317,7 @@ export const QuizModal = ({ video, onClose }) => {
         postScore: calculatedScore,
         date: new Date().toISOString(),
         acknowledged: true,
-        status: 'Menunggu Review'
+        status: isPassed ? 'Lulus' : 'Remedial'
       };
 
       addSubmission(newSubmission);
@@ -1521,30 +1521,50 @@ export const QuizModal = ({ video, onClose }) => {
                 {postScore === null ? 'Jawaban Berhasil Dikirim!' : `Kuis Selesai — Skor Anda: ${postScore}%`}
               </h3>
 
-              {/* Pending verification notice */}
+              {/* Result Notice */}
               <div style={{
-                background: 'linear-gradient(to bottom right, #fffdf5, #fffbeb)',
-                border: '1px solid #fde68a',
+                background: postScore === null || postScore >= passingScore 
+                  ? 'linear-gradient(to bottom right, #f0fdf4, #dcfce7)' 
+                  : 'linear-gradient(to bottom right, #fff5f5, #fee2e2)',
+                border: `1px solid ${postScore === null || postScore >= passingScore ? '#bbf7d0' : '#fecaca'}`,
                 borderRadius: '12px',
                 padding: '18px 22px',
                 maxWidth: '440px',
                 marginBottom: '24px',
                 textAlign: 'left',
-                boxShadow: '0 2px 8px rgba(245, 158, 11, 0.05)'
+                boxShadow: postScore === null || postScore >= passingScore 
+                  ? '0 2px 8px rgba(34, 197, 94, 0.05)' 
+                  : '0 2px 8px rgba(239, 68, 68, 0.05)'
               }}>
-                <div style={{ fontWeight: '700', fontSize: '13px', color: '#92400e', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b45309" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                  Menunggu Verifikasi HRD
+                <div style={{ 
+                  fontWeight: '700', fontSize: '13px', 
+                  color: postScore === null || postScore >= passingScore ? '#166534' : '#991b1b', 
+                  marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' 
+                }}>
+                  {postScore === null || postScore >= passingScore ? (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                  )}
+                  {postScore === null 
+                    ? 'Menunggu Penilaian Esai'
+                    : postScore >= passingScore ? 'Kuis Lulus!' : 'Perlu Remedial'}
                 </div>
-                <p style={{ fontSize: '12px', color: '#78350f', lineHeight: '1.6', margin: 0 }}>
+                <p style={{ 
+                  fontSize: '12px', 
+                  color: postScore === null || postScore >= passingScore ? '#14532d' : '#7f1d1d', 
+                  lineHeight: '1.6', margin: 0 
+                }}>
                   {postScore === null
-                    ? 'Jawaban esai Anda sedang dalam antrean penilaian oleh HRD/Supervisor.'
-                    : 'Hasil kuis Anda sudah tercatat. Sertifikat akan diterbitkan setelah HRD memverifikasi dan menyetujuinya.'
+                    ? 'Jawaban esai Anda sedang dinilai oleh HRD. Anda akan menerima notifikasi email saat hasilnya keluar.'
+                    : postScore >= passingScore 
+                      ? 'Selamat! Anda mencapai standar kelulusan. Sertifikat Anda sedang dalam antrean verifikasi HRD dan akan segera diterbitkan.'
+                      : 'Skor Anda belum mencapai standar kelulusan. Silakan pelajari ulang materi dan ulangi kuis (Remedial).'
                   }
-                  {' '}Anda akan dapat melihat status di halaman <strong>Sertifikat</strong>.
                 </p>
               </div>
 

@@ -312,11 +312,11 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     };
     setDb(prev => ({ ...prev, activities: [newAct, ...prev.activities] }));
 
-    // Trigger SPV Notification Email via Backend
+    // Trigger HRD Notification Email via Backend
     try {
       const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://axara-lms-backend.onrender.com';
       const token = localStorage.getItem('axara_token') || '';
-      await fetch(`${BACKEND_URL}/api/v1/notifications/email-spv`, {
+      await fetch(`${BACKEND_URL}/api/v1/notifications/email-hrd`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -329,7 +329,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         })
       });
     } catch (err) {
-      console.error('Failed to trigger SPV email notification:', err);
+      console.error('Failed to trigger HRD email notification:', err);
     }
   };
 
