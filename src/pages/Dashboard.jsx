@@ -374,7 +374,7 @@ export const Dashboard = ({ onSelectVideo }) => {
 
                     {/* Action button row */}
                     {!isCompleted && !isBlocked && !isMaxReached && (() => {
-                      if (cs === 'remedial') return (
+                      if (cs === 'remedial' || isLegacyRemedial) return (
                         <button onClick={() => handleVideoClick(video)} style={{ marginLeft: '86px', marginTop: '6px', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', cursor: 'pointer' }}>
                           ↩ Mulai SOP Ulang
                         </button>
