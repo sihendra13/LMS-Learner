@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
+import { PLANS } from '../utils/featureGates';
 
 export const Certifications = () => {
   const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole } = useTenant();
@@ -64,6 +65,28 @@ export const Certifications = () => {
     retakeQuiz(video.id, sub.id);
     setActivePage('dashboard');
   };
+
+  if (tenant?.plan === PLANS.STARTER) {
+    return (
+      <div className="content">
+        <div style={{ marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text1)', marginBottom: '6px' }}>Sertifikat & Riwayat Kuis</h2>
+          <p style={{ color: 'var(--text3)', fontSize: '13px' }}>
+            Pantau status sertifikat dan lihat riwayat kuis SOP yang sudah Anda kerjakan.
+          </p>
+        </div>
+        <div style={{ padding: '60px 20px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid var(--border)' }}>
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block', margin: '0 auto 16px' }}>
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--text2)', marginBottom: '8px' }}>Fitur Tidak Tersedia</h3>
+          <p style={{ fontSize: '13px', color: 'var(--text3)', maxWidth: '350px', margin: '0 auto' }}>
+            Sertifikat kelulusan tidak tersedia untuk akun perusahaan Anda saat ini.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="content">
@@ -425,9 +448,9 @@ export const Certifications = () => {
               position: 'relative', overflow: 'hidden'
             }}>
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '150px', height: '150px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
-              {(companyLogo || tenant?.logo) ? (
+              {tenant?.plan === PLANS.ENTERPRISE && tenant?.logo ? (
                 <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                  <img src={companyLogo || tenant.logo} alt={tenant?.name} style={{ maxHeight: '52px', maxWidth: '180px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
+                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '52px', maxWidth: '180px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
                 </div>
               ) : (
                 <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '20px', textAlign: 'center' }}>
@@ -456,6 +479,7 @@ export const Certifications = () => {
                   <div style={{ marginBottom: '4px' }}><strong>Tanggal Terbit:</strong> {previewCert.issueDate}</div>
                   <div style={{ marginBottom: '4px' }}><strong>Masa Berlaku:</strong> {previewCert.expiryDate}</div>
                   <div><strong>Skor Kuis:</strong> <span style={{ color: 'var(--green)', fontWeight: '600' }}>{previewCert.score}%</span></div>
+                  <div style={{ marginTop: '6px', fontSize: '8px', color: '#cbd5e1' }}>Sertifikat ini diterbitkan melalui platform myAxara</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'cursive', fontSize: '20px', color: '#1e3a8a', height: '35px', lineHeight: '35px' }}>

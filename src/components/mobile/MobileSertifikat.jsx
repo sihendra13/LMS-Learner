@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
+import { PLANS } from '../../utils/featureGates';
 
 const MobileSertifikat = () => {
   const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo } = useTenant();
@@ -308,9 +309,9 @@ const MobileSertifikat = () => {
               position: 'relative', overflow: 'hidden'
             }}>
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
-              {(companyLogo || tenant?.logo) ? (
+              {tenant?.plan === PLANS.ENTERPRISE && tenant?.logo ? (
                 <div style={{ marginBottom: '12px' }}>
-                  <img src={companyLogo || tenant.logo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
+                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
                 </div>
               ) : (
                 <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text3)', marginBottom: '12px' }}>
@@ -339,6 +340,7 @@ const MobileSertifikat = () => {
                   <div style={{ marginBottom: '3px' }}><strong>Tanggal Terbit:</strong> {previewCert.issueDate}</div>
                   <div style={{ marginBottom: '3px' }}><strong>Masa Berlaku:</strong> {previewCert.expiryDate}</div>
                   <div><strong>Skor Kuis:</strong> <span style={{ color: 'var(--green)', fontWeight: '600' }}>{previewCert.score}%</span></div>
+                  <div style={{ marginTop: '6px', fontSize: '7px', color: '#cbd5e1' }}>Sertifikat ini diterbitkan melalui platform myAxara</div>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: '10px', borderTop: '1px dashed var(--border)', paddingTop: '10px' }}>
                   <div style={{ fontFamily: 'cursive', fontSize: '16px', color: '#1e3a8a', height: '25px', lineHeight: '25px' }}>
