@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Certifications = () => {
-  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo } = useTenant();
+  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole } = useTenant();
   const [previewCert, setPreviewCert] = useState(null);
   const [activeTab, setActiveTab] = useState('sertifikat');
 
@@ -38,6 +38,8 @@ export const Certifications = () => {
     });
 
   const certStatusLabel = (sub) => {
+    const isLegacyRemedial = !enableSpvRole && sub.certStatus === 'pending' && sub.postScore != null && sub.postScore < passingScore;
+
     if (sub.certStatus === 'approved') return {
       label: 'Sertifikat Aktif',
       color: '#15803d',
@@ -51,9 +53,9 @@ export const Certifications = () => {
       )
     };
     if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-    if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
-    if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
-    return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
+    if (sub.certStatus === 'remedial' || isLegacyRemedial)      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+    if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+    return { label: enableSpvRole ? 'Menunggu Review Supervisor' : 'Menunggu Review HRD', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
   };
 
   const handleRetake = (sub) => {
