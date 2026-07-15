@@ -59,6 +59,8 @@ const mapRow = (row) => ({
 });
 
 export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
+  const enableSpvRole = false;
+
   const [db, setDb] = useState(() => {
     const stored = getDB();
     // Override currentUser dari selectedEmployee jika tersedia
@@ -689,7 +691,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       readIds,
       markNotificationsAsRead,
       toast,
-      setToast
+      setToast,
+      enableSpvRole
     }}>
       {children}
     </TenantContext.Provider>

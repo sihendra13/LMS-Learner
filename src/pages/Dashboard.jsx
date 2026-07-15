@@ -8,7 +8,9 @@ export const Dashboard = ({ onSelectVideo }) => {
   const handleVideoClick = (video) => {
     const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
     const cs = submission?.certStatus;
-    if (cs === 'pending') {
+    const isLegacyRemedial = !enableSpvRole && cs === 'pending' && submission?.postScore != null && submission?.postScore < passingScore;
+
+    if (cs === 'pending' && !isLegacyRemedial) {
       if ((submission?.retakeCount || 0) >= MAX_RETAKES) setDetailVideo({ video, submission });
       return;
     }
@@ -174,15 +176,16 @@ export const Dashboard = ({ onSelectVideo }) => {
                 const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
                 const cs = submission?.certStatus;
                 const hasNote = (cs === 'supervisor_ok' && submission?.supervisorNote) || (cs === 'approved' && (submission?.approvalNote || submission?.supervisorNote));
+                const isLegacyRemedial = !enableSpvRole && cs === 'pending' && submission?.postScore != null && submission?.postScore < passingScore;
                 const isPendingMaxed = cs === 'pending' && (submission?.retakeCount || 0) >= MAX_RETAKES;
-                const isBlocked = (cs === 'pending' && !isPendingMaxed) || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
+                const isBlocked = (cs === 'pending' && !isPendingMaxed && !isLegacyRemedial) || (!hasNote && (cs === 'supervisor_ok' || cs === 'approved'));
                 const isMaxReached = (cs === 'remedial' || cs === 'pending') && (submission?.retakeCount || 0) >= MAX_RETAKES;
                 const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
                 const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
                 const isNew = !isCompleted && !isOngoing;
                 const displayProgress =
-                  (cs === 'approved' || cs === 'pending' || cs === 'supervisor_ok') ? 100
-                  : (cs === 'remedial' || cs === 'rejected') ? 0
+                  (cs === 'approved' || (cs === 'pending' && !isLegacyRemedial) || cs === 'supervisor_ok') ? 100
+                  : (cs === 'remedial' || cs === 'rejected' || isLegacyRemedial) ? 0
                   : video.progress;
   
                 const getStatusBadge = (sub) => {
@@ -200,7 +203,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                       )
                     };
                     if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-                    if (sub.certStatus === 'remedial')      return (sub.retakeCount || 0) >= MAX_RETAKES
+                    if (sub.certStatus === 'remedial' || isLegacyRemedial) return (sub.retakeCount || 0) >= MAX_RETAKES
                       ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
                       : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                     if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
