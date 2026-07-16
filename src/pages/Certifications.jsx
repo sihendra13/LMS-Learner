@@ -448,9 +448,9 @@ export const Certifications = () => {
               position: 'relative', overflow: 'hidden'
             }}>
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '150px', height: '150px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
-              {tenant?.plan === PLANS.ENTERPRISE && tenant?.logo ? (
+              {tenant?.plan === PLANS.ENTERPRISE && companyLogo ? (
                 <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '52px', maxWidth: '180px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
+                  <img src={companyLogo} alt={tenant?.name} style={{ maxHeight: '52px', maxWidth: '180px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
                 </div>
               ) : (
                 <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '20px', textAlign: 'center' }}>
@@ -479,7 +479,7 @@ export const Certifications = () => {
                   <div style={{ marginBottom: '4px' }}><strong>Tanggal Terbit:</strong> {previewCert.issueDate}</div>
                   <div style={{ marginBottom: '4px' }}><strong>Masa Berlaku:</strong> {previewCert.expiryDate}</div>
                   <div><strong>Skor Kuis:</strong> <span style={{ color: 'var(--green)', fontWeight: '600' }}>{previewCert.score}%</span></div>
-                  <div style={{ marginTop: '6px', fontSize: '8px', color: '#cbd5e1' }}>Sertifikat ini diterbitkan melalui platform myAxara</div>
+                  <div style={{ marginTop: '6px', fontSize: '7.5px', color: '#cbd5e1' }}>Dikeluarkan oleh myAxara</div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'cursive', fontSize: '20px', color: '#1e3a8a', height: '35px', lineHeight: '35px' }}>
