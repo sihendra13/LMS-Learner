@@ -515,9 +515,14 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         if (res.data.company_logo) setCompanyLogo(res.data.company_logo);
         // Only set name from tenants table. Plan is handled by app_settings (demo_plan)
         // to bypass RLS restrictions on the tenants table during demo.
-        if (res.data.name) {
-          setTenant(prev => ({ ...prev, name: res.data.name }));
-        } else {
+        if (res.data.name || res.data.company_logo) {
+          setTenant(prev => ({
+            ...prev,
+            ...(res.data.name && { name: res.data.name }),
+            ...(res.data.company_logo && { logo: res.data.company_logo }),
+          }));
+        }
+        if (!res.data.name) {
           console.warn('Tenant name is empty or null in Supabase');
         }
       })
