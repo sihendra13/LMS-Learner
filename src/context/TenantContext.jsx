@@ -461,9 +461,9 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   // Fetch tenant name + company_logo via authUser → users table → tenants table
   useEffect(() => {
     if (!authUser?.id) return;
-    supabase.from('users').select('tenant_id').eq('id', authUser.id).single()
-      .then(({ data: user }) => {
-        const tenantId = user?.tenant_id;
+    supabase.from('employees').select('tenant_id').ilike('email', authUser.email).is('deleted_at', null).maybeSingle()
+      .then(({ data: employee }) => {
+        const tenantId = employee?.tenant_id;
         
         // Load global settings first, then override with per-tenant settings
         const demoPlanKey = `demo_plan_${tenantId}`;
