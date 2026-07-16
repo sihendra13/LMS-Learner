@@ -494,7 +494,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
             }
           });
 
-        let tQuery = supabase.from('tenants').select('name, company_logo');
+        let tQuery = supabase.from('tenants').select('name, plan, company_logo');
         if (tenantId) {
           tQuery = tQuery.eq('id', tenantId).single();
         } else {
@@ -506,7 +506,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       .then((res) => {
         if (!res?.data) return;
         if (res.data.company_logo) setCompanyLogo(res.data.company_logo);
-        if (res.data.name) setTenant(prev => ({ ...prev, name: res.data.name }));
+        if (res.data.name) setTenant(prev => ({ ...prev, name: res.data.name, plan: res.data.plan }));
       })
       .catch(() => {});
   }, [authUser?.id]);
