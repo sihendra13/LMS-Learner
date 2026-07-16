@@ -511,11 +511,12 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       .catch(() => {});
   }, [authUser?.id]);
 
-  // Keep tenant state synced when db changes
+  // Keep tenant state synced when db changes, without overwriting Supabase fetched data
   useEffect(() => {
-    if (db.tenant) {
-      setTenant({ ...db.tenant, logo: localStorage.getItem('axara_lms_logo') || db.tenant?.logo || null });
-    }
+    setTenant(prev => {
+      const merged = { ...db.tenant, ...prev };
+      return { ...merged, logo: localStorage.getItem('axara_lms_logo') || merged.logo || null };
+    });
   }, [db]);
 
   // --- BUILD NOTIFICATIONS DYNAMICALLY ---
