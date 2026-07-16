@@ -509,7 +509,9 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       .then((res) => {
         if (!res?.data) return;
         if (res.data.company_logo) setCompanyLogo(res.data.company_logo);
-        if (res.data.name) setTenant(prev => ({ ...prev, name: res.data.name, plan: res.data.plan }));
+        // Only set name from tenants table. Plan is handled by app_settings (demo_plan)
+        // to bypass RLS restrictions on the tenants table during demo.
+        if (res.data.name) setTenant(prev => ({ ...prev, name: res.data.name }));
       })
       .catch(() => {});
   }, [authUser?.id]);
