@@ -651,6 +651,15 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     });
 
     prevNotificationsRef.current = notifications;
+
+    // Update App Badge if supported
+    if ('setAppBadge' in navigator && 'clearAppBadge' in navigator) {
+      if (currentUnread.length > 0) {
+        navigator.setAppBadge(currentUnread.length).catch(() => {});
+      } else {
+        navigator.clearAppBadge().catch(() => {});
+      }
+    }
   }, [notifications, readIds]);
 
   const markNotificationsAsRead = async (idsToMark) => {

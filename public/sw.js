@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axara-lms-cache-v3';
+const CACHE_NAME = 'axara-lms-cache-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -40,9 +40,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Force network fetch for index.html to bypass HTTP cache
+  const fetchRequest = event.request.mode === 'navigate' || event.request.url.endsWith('index.html') 
+    ? new Request(event.request.url, { cache: 'no-cache', mode: 'cors' }) 
+    : event.request;
+
   // Implement a Network-First strategy so that users always get the latest build from production
   event.respondWith(
-    fetch(event.request)
+    fetch(fetchRequest)
       .then((response) => {
         // Cache new static assets dynamically
         if (response.status === 200 && response.type === 'basic') {
@@ -85,6 +90,12 @@ self.addEventListener('push', (event) => {
       url: self.location.origin + (data.page === 'sertifikasi' ? '/#sertifikasi' : '/#sop')
     }
   };
+
+  if ('setAppBadge' in navigator) {
+    // Attempt to parse a count if sent, otherwise just show a dot (by calling without args or with 1)
+    const badgeCount = data.unreadCount ? parseInt(data.unreadCount) : 1;
+    navigator.setAppBadge(badgeCount).catch(() => {});
+  }
 
   event.waitUntil(
     self.registration.showNotification(data.title, options)

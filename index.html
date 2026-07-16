@@ -37,9 +37,32 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+          navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' })
+            .then(reg => {
+              console.log('Service Worker registered successfully:', reg.scope);
+              
+              // Detect if there's a waiting service worker (an update was found in the background)
+              reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('New update available. It will apply on next reload.');
+                    // In a more complex app we'd show a toast here. 
+                    // Since sw.js calls skipWaiting(), controllerchange will fire immediately.
+                  }
+                });
+              });
+            })
             .catch(err => console.log('Service Worker registration failed:', err));
+            
+          // When skipWaiting() forces the new SW to take control, reload the page to apply new assets
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) {
+              refreshing = true;
+              window.location.reload();
+            }
+          });
         });
       }
     </script>

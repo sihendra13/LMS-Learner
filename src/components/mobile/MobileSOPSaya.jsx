@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 const MobileSOPSaya = ({ onSelectVideo }) => {
-  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES } = useTenant();
+  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES, enableSpvRole } = useTenant();
   const [selectedProgress, setSelectedProgress] = useState('all');
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
   const [detailVideo, setDetailVideo] = useState(null);
@@ -91,12 +91,13 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
             {filteredVideos.map(video => {
               const submission = quizSubmissions.find(s => s.videoTitle === video.title && s.employeeName === currentUser.name);
               const cs = submission?.certStatus;
+              const isLegacyRemedial = !enableSpvRole && cs === 'pending' && submission?.postScore != null && submission?.postScore < passingScore;
               const isMaxReached = submission && (submission.retakeCount || 0) >= MAX_RETAKES && submission.postScore < passingScore;
               const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
               const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
               const displayProgress =
-                (cs === 'approved' || cs === 'pending' || cs === 'supervisor_ok') ? 100
-                : (cs === 'remedial' || cs === 'rejected') ? 0
+                (cs === 'approved' || (cs === 'pending' && !isLegacyRemedial) || cs === 'supervisor_ok') ? 100
+                : (cs === 'remedial' || cs === 'rejected' || isLegacyRemedial) ? 0
                 : video.progress;
 
               const getStatusBadge = (sub) => {
@@ -114,12 +115,12 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                     )
                   };
                   if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-                  if (sub.certStatus === 'remedial')      return (sub.retakeCount || 0) >= MAX_RETAKES
+                  if (sub.certStatus === 'remedial' || isLegacyRemedial)      return (sub.retakeCount || 0) >= MAX_RETAKES
                     ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
                     : { label: 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
-                  if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+                  if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
                   if ((sub.retakeCount || 0) >= MAX_RETAKES) return { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-                  return { label: 'Menunggu Review Supervisor', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
+                  return { label: enableSpvRole ? 'Menunggu Review Supervisor' : 'Menunggu Review HRD', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
                 }
                 if (isCompleted) return {
                   label: 'Lulus',
@@ -138,7 +139,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
               const statusBadge = getStatusBadge(submission);
 
               const handleItemClick = () => {
-                if (cs === 'pending') {
+                if (cs === 'pending' && !isLegacyRemedial) {
                   if ((submission?.retakeCount || 0) >= MAX_RETAKES) {
                     setDetailVideo({ video, submission });
                   }
@@ -226,7 +227,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                               Tidak Lulus
                             </span>
                           )}
-                          {!isMaxReached && cs === 'remedial' && (
+                          {!isMaxReached && (cs === 'remedial' || isLegacyRemedial) && (
                             <span style={{
                               fontSize: '9px',
                               fontWeight: '700',
@@ -301,11 +302,11 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                       >
                         Selesai
                       </div>
-                    ) : cs === 'pending' ? (
+                    ) : cs === 'pending' && !isLegacyRemedial ? (
                       <div 
                         style={{ width: '100%', background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', textAlign: 'center', boxSizing: 'border-box' }}
                       >
-                        Menunggu Supervisor
+                        {enableSpvRole ? 'Menunggu Supervisor' : 'Menunggu HRD'}
                       </div>
                     ) : cs === 'supervisor_ok' ? (
                       <div 
@@ -313,7 +314,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                       >
                         Menunggu HRD
                       </div>
-                    ) : (cs === 'remedial' || cs === 'rejected') ? (
+                    ) : (cs === 'remedial' || cs === 'rejected' || isLegacyRemedial) ? (
                       <button 
                         onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} 
                         style={{ width: '100%', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
