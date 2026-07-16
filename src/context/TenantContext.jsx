@@ -508,13 +508,22 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         return tQuery;
       })
       .then((res) => {
-        if (!res?.data) return;
+        if (!res?.data) {
+          console.warn('Tenant data not found from Supabase');
+          return;
+        }
         if (res.data.company_logo) setCompanyLogo(res.data.company_logo);
         // Only set name from tenants table. Plan is handled by app_settings (demo_plan)
         // to bypass RLS restrictions on the tenants table during demo.
-        if (res.data.name) setTenant(prev => ({ ...prev, name: res.data.name }));
+        if (res.data.name) {
+          setTenant(prev => ({ ...prev, name: res.data.name }));
+        } else {
+          console.warn('Tenant name is empty or null in Supabase');
+        }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error('Error fetching tenant data:', err);
+      });
   }, [authUser?.id]);
 
   // Keep tenant state synced when db changes, without overwriting Supabase fetched data
