@@ -454,7 +454,7 @@ export const Certifications = () => {
                 </div>
               ) : (
                 <div style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '20px', textAlign: 'center' }}>
-                  {tenant?.name} · CORPORATE LMS
+                  {tenant?.name}
                 </div>
               )}
               <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: '700', color: '#0f172a', margin: '0 0 10px 0', letterSpacing: '1px' }}>
