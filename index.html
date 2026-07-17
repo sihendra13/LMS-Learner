@@ -55,18 +55,9 @@
             })
             .catch(err => console.log('Service Worker registration failed:', err));
             
-          // Only reload when a NEW SW takes over an EXISTING one (update), not on first install.
-          // On Android PWA, reloading during first install causes blank white screen
-          // because React is still hydrating when the reload fires.
-          let refreshing = false;
-          let hadController = !!navigator.serviceWorker.controller;
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing && hadController) {
-              refreshing = true;
-              window.location.reload();
-            }
-            hadController = true;
-          });
+          // No reload on controllerchange. For a SPA, the new SW takes effect immediately
+          // for all future fetches. Forcing a reload mid-session causes blank white screen
+          // on Android PWA — the user loses their current state for no real benefit.
         });
       }
     </script>
