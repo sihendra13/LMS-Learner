@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
 export const Dashboard = ({ onSelectVideo }) => {
-  const { currentUser, videos, quizSubmissions, activities, passingScore, MAX_RETAKES, enableSpvRole } = useTenant();
+  const { currentUser, videos, quizSubmissions, activities, passingScore, MAX_RETAKES, enableSpvRole, retakeQuiz } = useTenant();
   const [detailVideo, setDetailVideo] = useState(null);
 
   const handleVideoClick = (video) => {
@@ -26,9 +26,12 @@ export const Dashboard = ({ onSelectVideo }) => {
       setDetailVideo({ video, submission });
       return;
     }
-    if (cs === 'remedial' && submission?.supervisorNote) {
-      setDetailVideo({ video, submission });
-      return;
+    if (cs === 'remedial' || isLegacyRemedial) {
+      if (submission?.supervisorNote) {
+        setDetailVideo({ video, submission });
+        return;
+      }
+      retakeQuiz(video.id, submission.id);
     }
     onSelectVideo(video);
   };

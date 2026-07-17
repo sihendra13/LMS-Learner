@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
-  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES, enableSpvRole } = useTenant();
+  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES, enableSpvRole, retakeQuiz } = useTenant();
   const [detailVideo, setDetailVideo] = useState(null);
 
   // Filter videos for user's department
@@ -217,6 +217,13 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
                   setDetailVideo({ video, submission });
                 }
                 return;
+              }
+              if (cs === 'remedial' || isLegacyRemedial) {
+                if (submission?.supervisorNote) {
+                  setDetailVideo({ video, submission });
+                  return;
+                }
+                retakeQuiz(video.id, submission.id);
               }
               onSelectVideo(video);
             };

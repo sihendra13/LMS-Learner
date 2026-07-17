@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 const MobileSOPSaya = ({ onSelectVideo }) => {
-  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES, enableSpvRole } = useTenant();
+  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES, enableSpvRole, retakeQuiz } = useTenant();
   const [selectedProgress, setSelectedProgress] = useState('all');
   const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
   const [detailVideo, setDetailVideo] = useState(null);
@@ -159,6 +159,13 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                     setDetailVideo({ video, submission });
                   }
                   return;
+                }
+                if (cs === 'remedial' || isLegacyRemedial) {
+                  if (submission?.supervisorNote) {
+                    setDetailVideo({ video, submission });
+                    return;
+                  }
+                  retakeQuiz(video.id, submission.id);
                 }
                 onSelectVideo(video);
               };
