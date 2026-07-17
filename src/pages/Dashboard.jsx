@@ -629,7 +629,7 @@ export const Dashboard = ({ onSelectVideo }) => {
             noteBorder: '#e2e8f0',
             noteColor: '#475569',
             note: detailVideo.submission.rejectionNote,
-            canRetake: true
+            canRetake: false
           }
         : (detailVideo.submission.retakeCount || 0) >= MAX_RETAKES
         ? {
