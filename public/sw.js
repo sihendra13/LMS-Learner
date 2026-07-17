@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axara-lms-cache-v4';
+const CACHE_NAME = 'axara-lms-cache-v5';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -40,14 +40,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Force network fetch for index.html to bypass HTTP cache
-  const fetchRequest = event.request.mode === 'navigate' || event.request.url.endsWith('index.html') 
-    ? new Request(event.request.url, { cache: 'no-cache', mode: 'cors' }) 
-    : event.request;
-
   // Implement a Network-First strategy so that users always get the latest build from production
   event.respondWith(
-    fetch(fetchRequest)
+    fetch(event.request)
       .then((response) => {
         // Cache new static assets dynamically
         if (response.status === 200 && response.type === 'basic') {
