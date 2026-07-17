@@ -656,10 +656,18 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         setTimeout(() => setToast(null), 5000);
 
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-          new Notification(n.title, {
-            body: n.message,
-            icon: '/myaxara-logo.svg'
-          });
+          // Android PWA does not allow new Notification() — must use SW registration
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+              reg.showNotification(n.title, {
+                body: n.message,
+                icon: '/myaxara-logo.svg',
+                badge: '/favicon.svg',
+              });
+            }).catch(() => {});
+          } else {
+            try { new Notification(n.title, { body: n.message, icon: '/myaxara-logo.svg' }); } catch (_) {}
+          }
         }
       }
     });
