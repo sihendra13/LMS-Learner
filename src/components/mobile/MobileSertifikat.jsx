@@ -29,7 +29,7 @@ const MobileSertifikat = () => {
 
   const certStatusLabel = (sub) => {
     if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
-    if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+    if (sub.certStatus === 'rejected')      return { label: 'Tidak Lulus',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
     if (sub.certStatus === 'remedial') {
       const rCount = sub.retakeCount || 0;
       return rCount >= 3 

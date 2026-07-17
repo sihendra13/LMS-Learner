@@ -114,7 +114,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                       </svg>
                     )
                   };
-                  if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+                  if (sub.certStatus === 'rejected')      return { label: 'Tidak Lulus',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
                   if (sub.certStatus === 'remedial' || isLegacyRemedial) {
                     const rCount = sub.retakeCount || 0;
                     return rCount >= MAX_RETAKES
@@ -336,7 +336,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
                       >
                         Menunggu HRD
                       </div>
-                    ) : (cs === 'remedial' || cs === 'rejected' || isLegacyRemedial) ? (
+                    ) : cs === 'rejected' ? null : (cs === 'remedial' || isLegacyRemedial) ? (
                       <button 
                         onClick={(e) => { e.stopPropagation(); onSelectVideo(video); }} 
                         style={{ width: '100%', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', textAlign: 'center', boxSizing: 'border-box' }}
@@ -442,7 +442,7 @@ const MobileSOPSaya = ({ onSelectVideo }) => {
             }
           : cs === 'rejected'
           ? { 
-              badge: 'Ditolak Final', 
+              badge: 'Tidak Lulus', 
               badgeBg: '#fef2f2', 
               badgeColor: '#b91c1c', 
               badgeBorder: '#fecaca', 

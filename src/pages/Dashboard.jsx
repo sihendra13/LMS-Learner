@@ -205,7 +205,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                         </svg>
                       )
                     };
-                    if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
+                    if (sub.certStatus === 'rejected')      return { label: 'Tidak Lulus',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
                     if (sub.certStatus === 'remedial' || isLegacyRemedial) {
                       const rCount = sub.retakeCount || 0;
                       return rCount >= MAX_RETAKES
@@ -404,7 +404,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                     </div>
 
                     {/* Action button row */}
-                    {!isCompleted && !isBlocked && !isMaxReached && (() => {
+                    {!isCompleted && !isBlocked && !isMaxReached && cs !== 'rejected' && (() => {
                       if (cs === 'remedial' || isLegacyRemedial) return (
                         <button onClick={() => handleVideoClick(video)} style={{ marginLeft: '86px', marginTop: '6px', padding: '6px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: '700', background: '#fff7ed', color: '#b45309', border: '1px solid #fed7aa', cursor: 'pointer' }}>
                           ↩ Mulai SOP Ulang
@@ -613,7 +613,7 @@ export const Dashboard = ({ onSelectVideo }) => {
           }
         : cs === 'rejected'
         ? {
-            badge: 'Ditolak Final',
+            badge: 'Tidak Lulus',
             badgeBg: '#fef2f2',
             badgeColor: '#b91c1c',
             badgeBorder: '#fecaca',
