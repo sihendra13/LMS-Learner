@@ -283,7 +283,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                               Tidak Lulus
                             </span>
                           )}
-                          {!isMaxReached && (cs === 'remedial' || isLegacyRemedial) && (
+                          {!isMaxReached && (cs === 'remedial' || isLegacyRemedial) && (submission?.retakeCount > 0) && (
                             <span style={{
                               fontSize: '11px',
                               fontWeight: '700',
@@ -301,7 +301,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                                 <path d="M9 14l2 2 4-4"></path>
                               </svg>
-                              Remedial ke-{submission?.retakeCount || 0} dari {MAX_RETAKES}
+                              Remedial ke-{submission?.retakeCount} dari {MAX_RETAKES}
                             </span>
                           )}
                         </div>
