@@ -9,7 +9,7 @@ export const QuizModal = ({ video, onClose }) => {
 
   // Use Number() to handle both numeric 0 and string "0" from older saved data
   const isMidTrigger = (q) => { const t = Number(q.triggerTime); return !isNaN(t) && t > 0; };
-  const midVideoTriggers = isPpt ? [] : (video.triggerQuizzes || []).filter(isMidTrigger);
+  const midVideoTriggers = isPpt ? [] : (video.preQuizzes || []).filter(isMidTrigger);
   const shuffleArray = (arr) => {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
