@@ -54,7 +54,12 @@ export const Certifications = () => {
       )
     };
     if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-    if (sub.certStatus === 'remedial' || isLegacyRemedial)      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+    if (sub.certStatus === 'remedial' || isLegacyRemedial) {
+      const rCount = sub.retakeCount || 0;
+      return rCount >= 3 
+        ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
+        : { label: rCount > 0 ? `Perlu Remedial (Ke-${rCount + 1})` : 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+    }
     if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
     return { label: enableSpvRole ? 'Menunggu Review Supervisor' : 'Menunggu Review HRD', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
   };

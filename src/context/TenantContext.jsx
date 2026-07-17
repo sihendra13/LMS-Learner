@@ -105,12 +105,23 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') return;
 
-        const registration = await navigator.serviceWorker.ready;
-        const existingSub = await registration.pushManager.getSubscription();
-        if (existingSub) return;
-
         const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
         if (!vapidKey) return;
+
+        const registration = await navigator.serviceWorker.ready;
+        const existingSub = await registration.pushManager.getSubscription();
+
+        // If subscription exists but was made with a different VAPID key, unsubscribe first.
+        // We detect key change by comparing stored key with current key.
+        const storedVapidKey = localStorage.getItem('axara_push_vapid_key');
+        if (existingSub && storedVapidKey === vapidKey) {
+          // Subscription is still valid for current VAPID key — nothing to do
+          return;
+        }
+        if (existingSub) {
+          // VAPID key changed or unknown — unsubscribe old so we can re-subscribe fresh
+          await existingSub.unsubscribe();
+        }
 
         const urlBase64ToUint8Array = (base64String) => {
           const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -133,6 +144,9 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
           keys_p256dh: subJson.keys.p256dh,
           keys_auth: subJson.keys.auth,
         }, { onConflict: 'endpoint' });
+
+        // Remember which VAPID key this subscription was made with
+        localStorage.setItem('axara_push_vapid_key', vapidKey);
       } catch (err) {
         console.warn('Push subscription failed:', err);
       }

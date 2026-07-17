@@ -30,7 +30,12 @@ const MobileSertifikat = () => {
   const certStatusLabel = (sub) => {
     if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
     if (sub.certStatus === 'rejected')      return { label: 'Ditolak Final',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-    if (sub.certStatus === 'remedial')      return { label: 'Perlu Remedial',               color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+    if (sub.certStatus === 'remedial') {
+      const rCount = sub.retakeCount || 0;
+      return rCount >= 3 
+        ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
+        : { label: rCount > 0 ? `Perlu Remedial (Ke-${rCount + 1})` : 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+    }
     if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
     return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
   };

@@ -55,13 +55,17 @@
             })
             .catch(err => console.log('Service Worker registration failed:', err));
             
-          // When skipWaiting() forces the new SW to take control, reload the page to apply new assets
+          // Only reload when a NEW SW takes over an EXISTING one (update), not on first install.
+          // On Android PWA, reloading during first install causes blank white screen
+          // because React is still hydrating when the reload fires.
           let refreshing = false;
+          let hadController = !!navigator.serviceWorker.controller;
           navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!refreshing) {
+            if (!refreshing && hadController) {
               refreshing = true;
               window.location.reload();
             }
+            hadController = true;
           });
         });
       }

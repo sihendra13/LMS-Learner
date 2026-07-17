@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axara-lms-cache-v6';
+const CACHE_NAME = 'axara-lms-cache-v7';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -71,33 +71,45 @@ self.addEventListener('fetch', (event) => {
 
 // Handle background Push Notifications
 self.addEventListener('push', (event) => {
-  let data = { title: 'Axara LMS', body: 'Ada notifikasi baru untuk Anda.' };
+  let data = { title: 'Axara LMS', body: 'Ada notifikasi baru untuk Anda.', type: 'sop' };
   if (event.data) {
     try {
       data = event.data.json();
     } catch {
-      data = { title: 'Axara LMS', body: event.data.text() };
+      data = { title: 'Axara LMS', body: event.data.text(), type: 'sop' };
     }
   }
+
+  // Map notification type to icon and destination page
+  const typeMap = {
+    'sop':         { icon: '/icon-sop.png',   page: 'sop' },
+    'sertifikasi': { icon: '/icon-cert.png',  page: 'sertifikasi' },
+    'remedial':    { icon: '/icon-warn.png',  page: 'sertifikasi' },
+  };
+  const pageOverride = data.page === 'sertifikasi' ? 'sertifikasi' : (data.page || 'sop');
+  const mapped = typeMap[data.type] || typeMap[pageOverride] || typeMap['sop'];
 
   const options = {
     body: data.body || data.message || '',
     icon: '/favicon.svg',
     badge: '/favicon.svg',
     vibrate: [100, 50, 100],
+    tag: data.type || 'general',       // group same-type notifs so they don't stack
+    renotify: true,
     data: {
-      url: self.location.origin + (data.page === 'sertifikasi' ? '/#sertifikasi' : '/#sop')
+      url: self.location.origin + '/#' + mapped.page,
+      type: data.type,
     }
   };
 
-  if ('setAppBadge' in navigator) {
-    // Attempt to parse a count if sent, otherwise just show a dot (by calling without args or with 1)
+  // Badge update (Android Chrome supports this; iOS ignores it in background — known limitation)
+  if ('setAppBadge' in self) {
     const badgeCount = data.unreadCount ? parseInt(data.unreadCount) : 1;
-    navigator.setAppBadge(badgeCount).catch(() => {});
+    self.navigator && self.navigator.setAppBadge && self.navigator.setAppBadge(badgeCount).catch(() => {});
   }
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title || 'myAxara LMS', options)
   );
 });
 

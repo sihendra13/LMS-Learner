@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { title, body, page, target_emails, queue_id } = await req.json();
+    const { title, body, page, type, target_emails, queue_id } = await req.json();
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -187,11 +187,15 @@ Deno.serve(async (req) => {
       });
     }
 
-    const payload = { 
-      title: title || "Axara LMS", 
-      body: body || "", 
+    // Derive notification type from page if not explicitly set
+    // type: 'sop' | 'sertifikasi' | 'remedial'
+    const derivedType = type || (page === 'sertifikasi' ? 'sertifikasi' : 'sop');
+    const payload = {
+      title: title || "myAxara LMS",
+      body: body || "",
       page: page || "sop",
-      unreadCount: 1 // Trigger app icon badge
+      type: derivedType,
+      unreadCount: 1,
     };
 
     const results = await Promise.allSettled(
