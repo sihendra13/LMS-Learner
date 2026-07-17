@@ -296,12 +296,14 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     const isPassed = submission.status === 'Lulus';
 
     if (existing) {
+      const newRetakeCount = (existing.retakeCount || 0) + 1;
       await supabase.from('quiz_submissions').update({
         pre_score: submission.preScore,
         post_score: submission.postScore,
         submission_date: submission.date,
         status: submission.status,
         cert_status: 'pending',
+        retake_count: newRetakeCount,
         acknowledged: submission.acknowledged ?? true,
       }).eq('id', existing.id);
     } else {
@@ -408,16 +410,9 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   const MAX_RETAKES = 3;
 
   const retakeQuiz = async (videoId, submissionId) => {
-    const sub = quizSubmissions.find(s => s.id === submissionId);
-    if (!sub) return;
-    if ((sub.retakeCount || 0) >= MAX_RETAKES) return;
-    const newRetakeCount = (sub.retakeCount || 0) + 1;
-
-    await supabase.from('quiz_submissions').update({
-      retake_count: newRetakeCount,
-    }).eq('id', submissionId);
-
-    // Reset video progress per-user (Bug 1 fix)
+    // We only reset the video progress so they can watch again.
+    // The actual retake_count is incremented ONLY upon quiz submission (in addSubmission).
+    
     const userName = db.currentUser?.name;
     setUserProgress(prev => ({ ...prev, [videoId]: 0 }));
     if (userName) {
@@ -428,11 +423,6 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         updated_at: new Date().toISOString(),
       });
     }
-
-    // Optimistic update (realtime will also sync)
-    setQuizSubmissions(prev => prev.map(s =>
-      s.id === submissionId ? { ...s, retakeCount: newRetakeCount } : s
-    ));
   };
 
   // Sync state between Admin and Learner
