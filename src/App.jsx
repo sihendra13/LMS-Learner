@@ -8,6 +8,7 @@ import { Unauthorized } from './pages/Unauthorized';
 import { QuizModal } from './components/QuizModal';
 import MobileLayout from './components/mobile/MobileLayout';
 import { supabase } from './utils/supabase';
+import { ErrorBoundary } from './components/ErrorBoundary.jsx';
 
 const PLAN_ENTERPRISE = 'enterprise';
 
@@ -565,9 +566,11 @@ function App() {
       ) : !selectedEmployee ? (
         <Unauthorized onLogout={handleLogout} />
       ) : (
-        <TenantProvider selectedEmployee={selectedEmployee} authUser={authUser}>
-          <AppContent onLogout={handleLogout} />
-        </TenantProvider>
+        <ErrorBoundary>
+          <TenantProvider selectedEmployee={selectedEmployee} authUser={authUser}>
+            <AppContent onLogout={handleLogout} />
+          </TenantProvider>
+        </ErrorBoundary>
       )}
     </>
   );

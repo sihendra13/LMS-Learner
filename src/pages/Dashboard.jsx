@@ -283,7 +283,7 @@ export const Dashboard = ({ onSelectVideo }) => {
                               Tidak Lulus
                             </span>
                           )}
-                          {!isMaxReached && (cs === 'remedial' || isLegacyRemedial) && (submission?.retakeCount > 0) && (
+                          {!isMaxReached && (cs === 'remedial' || isLegacyRemedial) && (
                             <span style={{
                               fontSize: '11px',
                               fontWeight: '700',
@@ -296,12 +296,16 @@ export const Dashboard = ({ onSelectVideo }) => {
                               alignItems: 'center',
                               gap: '4px'
                             }}>
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                                <path d="M9 14l2 2 4-4"></path>
-                              </svg>
-                              Remedial ke-{submission?.retakeCount} dari {MAX_RETAKES}
+                              {(submission?.retakeCount > 0) ? (
+                                <>
+                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                    <path d="M9 14l2 2 4-4"></path>
+                                  </svg>
+                                  Remedial ke-{submission?.retakeCount} dari {MAX_RETAKES}
+                                </>
+                              ) : 'Perlu Remedial'}
                             </span>
                           )}
                         </div>
