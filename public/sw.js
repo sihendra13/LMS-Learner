@@ -1,4 +1,4 @@
-const CACHE_NAME = 'axara-lms-cache-v5';
+const CACHE_NAME = 'axara-lms-cache-v6';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -36,7 +36,11 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Only handle GET requests and exclude Supabase database API calls or external dynamic resources
-  if (event.request.method !== 'GET' || event.request.url.includes('supabase.co')) {
+  if (event.request.method !== 'GET' || 
+      event.request.url.includes('supabase.co') || 
+      event.request.destination === 'video' || 
+      event.request.destination === 'audio' ||
+      event.request.headers.has('range')) {
     return;
   }
   
