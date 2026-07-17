@@ -328,24 +328,26 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     };
     setDb(prev => ({ ...prev, activities: [newAct, ...prev.activities] }));
 
-    // Trigger HRD Notification Email via Backend
+    // Kirim email notifikasi hasil kuis ke admin via Supabase Edge Function
     try {
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://axara-lms-backend.onrender.com';
-      const token = localStorage.getItem('axara_token') || '';
-      await fetch(`${BACKEND_URL}/api/v1/notifications/email-hrd`, {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      fetch(`${supabaseUrl}/functions/v1/notify-quiz-result`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${anonKey}` },
         body: JSON.stringify({
-          dept: submission.dept || db.currentUser?.dept,
           learnerName: submission.employeeName,
-          videoTitle: submission.videoTitle
-        })
-      });
+          learnerEmail: db.currentUser?.email || '',
+          dept: submission.dept || db.currentUser?.dept || '',
+          videoTitle: submission.videoTitle,
+          postScore: submission.postScore,
+          status: submission.status,
+          retakeCount: existing ? (existing.retakeCount || 0) + 1 : 0,
+          maxRetakes: 3,
+        }),
+      }).catch(() => {});
     } catch (err) {
-      console.error('Failed to trigger HRD email notification:', err);
+      console.error('Failed to notify admin of quiz result:', err);
     }
   };
 
