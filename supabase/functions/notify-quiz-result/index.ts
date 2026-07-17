@@ -5,7 +5,6 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const SENDER_EMAIL = "noreply@myaxara.com";
 const SENDER_NAME = "Axara LMS";
-const ADMIN_URL = "https://axara-lms.pages.dev";
 
 async function sendEmail(to: { email: string; name: string }, subject: string, html: string) {
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -23,6 +22,8 @@ async function sendEmail(to: { email: string; name: string }, subject: string, h
 
 function buildEmailHtml(
   learnerName: string,
+  nik: string,
+  jabatan: string,
   dept: string,
   videoTitle: string,
   postScore: number,
@@ -33,77 +34,89 @@ function buildEmailHtml(
 ) {
   const isPassed = status === "Lulus";
   const isTidakLulus = !isPassed && retakeCount >= maxRetakes;
-  const isRemedial = !isPassed && !isTidakLulus;
 
-  const statusColor = isPassed ? "#16a34a" : isTidakLulus ? "#dc2626" : "#ea580c";
-  const statusBg = isPassed ? "#f0fdf4" : isTidakLulus ? "#fef2f2" : "#fff7ed";
-  const statusBorder = isPassed ? "#86efac" : isTidakLulus ? "#fecaca" : "#fed7aa";
-  const statusLabel = isPassed
-    ? "✅ LULUS"
+  const statusColor  = isPassed ? "#16a34a" : isTidakLulus ? "#dc2626" : "#ea580c";
+  const statusBg     = isPassed ? "#f0fdf4"  : isTidakLulus ? "#fef2f2"  : "#fff7ed";
+  const statusBorder = isPassed ? "#86efac"  : isTidakLulus ? "#fecaca"  : "#fed7aa";
+  const statusLabel  = isPassed
+    ? "LULUS ✅"
     : isTidakLulus
-    ? "❌ TIDAK LULUS (Batas remedial tercapai)"
-    : `⚠️ REMEDIAL ke-${retakeCount} dari ${maxRetakes}`;
-  const statusDesc = isPassed
-    ? "Karyawan berhasil menyelesaikan pelatihan. Silakan terbitkan sertifikatnya."
+    ? "TIDAK LULUS ❌  —  Batas remedial tercapai"
+    : `REMEDIAL ke-${retakeCount} dari ${maxRetakes} ⚠️`;
+  const statusNote = isPassed
+    ? "Karyawan telah memenuhi standar kompetensi yang ditetapkan."
     : isTidakLulus
-    ? "Karyawan telah mencapai batas maksimal remedial. Diperlukan tindak lanjut dari HRD."
-    : `Karyawan perlu mengulang kuis. Sisa kesempatan: ${maxRetakes - retakeCount}x.`;
+    ? "Karyawan telah menggunakan seluruh kesempatan remedial. Diperlukan evaluasi dan tindak lanjut lebih lanjut."
+    : `Karyawan perlu mengulang kuis. Sisa kesempatan remedial: ${maxRetakes - retakeCount}x.`;
+
+  const percobaan = retakeCount === 0
+    ? "1 (pertama)"
+    : `${retakeCount + 1} (remedial ke-${retakeCount})`;
+
+  const now = new Date().toLocaleString("id-ID", {
+    timeZone: "Asia/Jakarta",
+    day: "2-digit", month: "long", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+
+  const row = (label: string, value: string, bold = false) => `
+    <tr>
+      <td style="padding: 6px 0; font-size: 13px; color: #64748b; width: 150px; vertical-align: top;">${label}</td>
+      <td style="padding: 6px 0; font-size: 13px; color: ${bold ? "#0f172a" : "#374151"}; font-weight: ${bold ? "700" : "400"}; vertical-align: top;">: ${value}</td>
+    </tr>`;
 
   return `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9fafb;">
+
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #1e3a5f 0%, #002D72 100%); color: white; padding: 28px 32px; border-radius: 12px 12px 0 0;">
-        <div style="font-size: 12px; opacity: 0.65; margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase;">Axara LMS · Notifikasi Admin</div>
-        <h2 style="margin: 0; font-size: 20px; font-weight: 700;">📋 Hasil Kuis Training Karyawan</h2>
+        <div style="font-size: 11px; opacity: 0.6; margin-bottom: 6px; letter-spacing: 1.2px; text-transform: uppercase;">Laporan Hasil Training · Axara LMS</div>
+        <h2 style="margin: 0; font-size: 20px; font-weight: 700; line-height: 1.3;">📋 Hasil Kuis SOP Karyawan</h2>
+        <div style="font-size: 12px; opacity: 0.55; margin-top: 8px;">${now} WIB</div>
       </div>
 
       <!-- Body -->
       <div style="padding: 28px 32px; background: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
-        <p style="margin: 0 0 20px; font-size: 15px; color: #374151;">
-          Karyawan berikut telah menyelesaikan kuis SOP dan membutuhkan tindak lanjut Anda:
+
+        <p style="margin: 0 0 20px; font-size: 14px; color: #374151; line-height: 1.6;">
+          Berikut adalah laporan hasil kuis pelatihan SOP. Email ini dapat diteruskan kepada atasan atau pihak terkait.
         </p>
 
-        <!-- Karyawan Info -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 20px; margin-bottom: 20px;">
+        <!-- Data Peserta -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 22px; margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Data Peserta</div>
           <table style="width: 100%; border-collapse: collapse;">
+            ${row("Nama", learnerName, true)}
+            ${row("NIK", nik || "-")}
+            ${row("Email", employeeEmail || "-")}
+            ${row("Jabatan", jabatan || "-")}
+            ${row("Departemen", dept || "-")}
+          </table>
+        </div>
+
+        <!-- Data Training -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px 22px; margin-bottom: 16px;">
+          <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">Data Training</div>
+          <table style="width: 100%; border-collapse: collapse;">
+            ${row("Modul SOP", videoTitle, true)}
+            ${row("Percobaan ke-", percobaan)}
             <tr>
-              <td style="padding: 6px 0; font-size: 12px; color: #9ca3af; text-transform: uppercase; font-weight: 600; width: 140px;">Nama Karyawan</td>
-              <td style="padding: 6px 0; font-size: 14px; color: #0f172a; font-weight: 700;">${learnerName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 12px; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Email</td>
-              <td style="padding: 6px 0; font-size: 14px; color: #374151;">${employeeEmail || "-"}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 12px; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Divisi</td>
-              <td style="padding: 6px 0; font-size: 14px; color: #374151;">${dept}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 12px; color: #9ca3af; text-transform: uppercase; font-weight: 600;">SOP / Training</td>
-              <td style="padding: 6px 0; font-size: 14px; color: #374151; font-weight: 600;">${videoTitle}</td>
-            </tr>
-            <tr>
-              <td style="padding: 6px 0; font-size: 12px; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Skor</td>
-              <td style="padding: 6px 0; font-size: 22px; font-weight: 800; color: ${statusColor};">${postScore}%</td>
+              <td style="padding: 6px 0; font-size: 13px; color: #64748b; width: 150px;">Skor Akhir</td>
+              <td style="padding: 6px 0; font-size: 22px; font-weight: 800; color: ${statusColor};">: ${postScore}%</td>
             </tr>
           </table>
         </div>
 
-        <!-- Status Badge -->
-        <div style="background: ${statusBg}; border: 1.5px solid ${statusBorder}; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px;">
-          <div style="font-size: 15px; font-weight: 700; color: ${statusColor}; margin-bottom: 6px;">${statusLabel}</div>
-          <div style="font-size: 13px; color: #374151;">${statusDesc}</div>
+        <!-- Status -->
+        <div style="background: ${statusBg}; border: 1.5px solid ${statusBorder}; border-radius: 10px; padding: 18px 22px; margin-bottom: 24px;">
+          <div style="font-size: 15px; font-weight: 800; color: ${statusColor}; margin-bottom: 6px;">${statusLabel}</div>
+          <div style="font-size: 13px; color: #374151; line-height: 1.5;">${statusNote}</div>
         </div>
 
-        <!-- CTA -->
-        <div style="text-align: center; margin-top: 8px;">
-          <a href="${ADMIN_URL}" style="background: #002D72; color: white; padding: 13px 28px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 14px; display: inline-block;">
-            Buka LMS Admin →
-          </a>
-        </div>
-
-        <p style="margin: 24px 0 0; font-size: 12px; color: #9ca3af; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 16px;">
-          Email ini dikirim otomatis oleh Axara LMS · <a href="${ADMIN_URL}" style="color: #3b82f6;">axara-lms.pages.dev</a>
+        <!-- Footer -->
+        <p style="margin: 0; font-size: 12px; color: #94a3b8; line-height: 1.6; border-top: 1px solid #f1f5f9; padding-top: 16px;">
+          Email ini dikirim otomatis oleh sistem <strong>Axara LMS</strong> saat karyawan menyelesaikan kuis pelatihan.
+          Dapat diteruskan kepada atasan, GM, atau Direksi sebagai dokumen laporan resmi.
         </p>
       </div>
     </div>
@@ -125,6 +138,8 @@ Deno.serve(async (req) => {
     const {
       learnerName,
       learnerEmail,
+      nik,
+      jabatan,
       dept,
       videoTitle,
       postScore,
@@ -152,14 +167,17 @@ Deno.serve(async (req) => {
 
     const targets = admins && admins.length > 0
       ? admins
-      : [{ email: "kontesku1374@gmail.com", name: "Admin" }]; // fallback hardcoded
+      : [{ email: "kontesku1374@gmail.com", name: "Admin" }];
 
     const isPassed = status === "Lulus";
     const isTidakLulus = !isPassed && retakeCount >= maxRetakes;
     const subjectStatus = isPassed ? "✅ LULUS" : isTidakLulus ? "❌ TIDAK LULUS" : `⚠️ Remedial ke-${retakeCount}`;
     const subject = `[LMS] ${learnerName} — ${subjectStatus} · ${videoTitle}`;
 
-    const html = buildEmailHtml(learnerName, dept, videoTitle, postScore, status, retakeCount, maxRetakes, learnerEmail || "");
+    const html = buildEmailHtml(
+      learnerName, nik || "", jabatan || "", dept, videoTitle,
+      postScore, status, retakeCount, maxRetakes, learnerEmail || ""
+    );
 
     let sent = 0;
     for (const admin of targets) {

@@ -71,6 +71,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         name: selectedEmployee.name,
         email: selectedEmployee.email,
         dept: selectedEmployee.dept,
+        jabatan: selectedEmployee.jabatan || '',
+        nik: selectedEmployee.nik || '',
         city: selectedEmployee.city || '',
         role: 'employee',
         avatar,
@@ -340,6 +342,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         body: JSON.stringify({
           learnerName: submission.employeeName,
           learnerEmail: db.currentUser?.email || '',
+          nik: db.currentUser?.nik || '',
+          jabatan: db.currentUser?.jabatan || '',
           dept: submission.dept || db.currentUser?.dept || '',
           videoTitle: submission.videoTitle,
           postScore: submission.postScore,
