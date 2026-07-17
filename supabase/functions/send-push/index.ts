@@ -187,7 +187,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    const payload = { title: title || "Axara LMS", body: body || "", page: page || "sop" };
+    const payload = { 
+      title: title || "Axara LMS", 
+      body: body || "", 
+      page: page || "sop",
+      unreadCount: 1 // Trigger app icon badge
+    };
 
     const results = await Promise.allSettled(
       subscriptions.map((sub) => sendPushToSubscription(sub, payload))
