@@ -490,6 +490,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
                 }
                 if (row.key === logoKey && row.value) {
                   setCompanyLogo(row.value);
+                  setTenant(prev => ({ ...prev, logo: row.value }));
                 }
               });
             }
