@@ -477,15 +477,19 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         
         // Load global settings first, then override with per-tenant settings
         const demoPlanKey = `demo_plan_${tenantId}`;
-        supabase.from('app_settings').select('key, value').in('key', ['passing_score', 'validity_months', demoPlanKey])
+        const logoKey = `company_logo_${tenantId}`;
+        supabase.from('app_settings').select('key, value').in('key', ['passing_score', 'validity_months', demoPlanKey, logoKey])
           .then(({ data: appData }) => {
             const updates = {};
             if (appData) {
               appData.forEach(row => {
                 if (row.key === 'passing_score')   updates.passingScore   = Number(row.value);
                 if (row.key === 'validity_months') updates.validityMonths = Number(row.value);
-                if (row.key === demoPlanKey) {
+                if (row.key === demoPlanKey && row.value) {
                   setTenant(prev => ({ ...prev, plan: row.value }));
+                }
+                if (row.key === logoKey && row.value) {
+                  setCompanyLogo(row.value);
                 }
               });
             }
