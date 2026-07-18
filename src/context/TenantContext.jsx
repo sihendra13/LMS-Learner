@@ -56,6 +56,7 @@ const mapRow = (row) => ({
   essayGradedBy: row.essay_graded_by || '',
   essayGradedDate: row.essay_graded_date || '',
   acknowledged: row.acknowledged ?? false,
+  acknowledgedAt: row.acknowledged_at || null,
 });
 
 export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
@@ -711,7 +712,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
 
     if (subIdsToAck.length > 0) {
       await supabase.from('quiz_submissions').update({
-        acknowledged: true
+        acknowledged: true,
+        acknowledged_at: new Date().toISOString(),
       }).in('id', subIdsToAck);
     }
   };
