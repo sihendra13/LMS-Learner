@@ -319,13 +319,13 @@ const MobileSertifikat = () => {
               position: 'relative', overflow: 'hidden'
             }}>
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
-              {tenant?.plan === PLANS.ENTERPRISE && tenant?.logo ? (
+              {tenant?.plan === PLANS.ENTERPRISE && companyLogo ? (
                 <div style={{ marginBottom: '12px' }}>
-                  <img src={tenant.logo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
+                  <img src={companyLogo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
                 </div>
               ) : (
                 <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text3)', marginBottom: '12px' }}>
-                  🏢 {tenant?.name} · Corporate LMS
+                  {tenant?.name}
                 </div>
               )}
               <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '18px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '0.5px' }}>
