@@ -367,7 +367,7 @@ const MobileSertifikat = () => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '16px' }}>
               <button className="btn-sec" style={{ fontSize: '11px', padding: '6px 12px' }} onClick={() => setPreviewCert(null)}>Tutup</button>
               <button className="btn-primary" style={{ background: '#002D72', fontSize: '11px', padding: '6px 12px' }} onClick={() => window.print()}>
-                🖨️ Cetak / Simpan PDF
+                Download Sertifikat
               </button>
             </div>
           </div>
