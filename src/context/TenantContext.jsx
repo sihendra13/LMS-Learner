@@ -565,8 +565,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     notifications.push({
       id: `cert-approved-${s.id}`,
       type: 'approved',
-      title: `Sertifikat Terbit! 🎉`,
-      message: `Selamat, kuis untuk SOP "${s.videoTitle}" telah disetujui Admin.`,
+      title: `Sertifikat Diterbitkan! 🎓`,
+      message: `Sertifikat SOP "${s.videoTitle}" telah resmi diterbitkan. Selamat!`,
       date: s.approvedDate || s.date || new Date().toISOString(),
       sub: `Disetujui oleh ${s.approvedBy || 'Admin'}`,
       page: 'sertifikasi',
