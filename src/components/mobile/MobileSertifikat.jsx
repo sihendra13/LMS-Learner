@@ -320,8 +320,9 @@ const MobileSertifikat = () => {
             }}>
               <div style={{ position: 'absolute', bottom: '-20px', right: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: '#eff6ff', opacity: 0.5, zIndex: 1 }} />
               {tenant?.plan === PLANS.ENTERPRISE && companyLogo ? (
-                <div style={{ marginBottom: '12px' }}>
-                  <img src={companyLogo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain' }} />
+                <div style={{ marginBottom: '12px', textAlign: 'center' }}>
+                  <img src={companyLogo} alt={tenant?.name} style={{ maxHeight: '38px', maxWidth: '140px', objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
+                  <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text3)' }}>{tenant?.name}</div>
                 </div>
               ) : (
                 <div style={{ fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text3)', marginBottom: '12px' }}>
