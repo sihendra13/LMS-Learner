@@ -71,16 +71,21 @@ function buildEmailHtml(
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9fafb;">
 
       <!-- Header -->
+      ${companyLogo ? `
+      <div style="background: #ffffff; padding: 24px 32px 20px; border-radius: 12px 12px 0 0; border: 1px solid #e5e7eb; border-bottom: none;">
+        <img src="${companyLogo}" alt="${companyName || ''}" style="max-height: 44px; max-width: 160px; object-fit: contain; display: block; margin-bottom: 4px;" />
+        ${companyName ? `<div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">${companyName}</div>` : ''}
+        <div style="padding-top: 16px; border-top: 1px solid #f1f5f9;">
+          <div style="font-size: 11px; color: #94a3b8; margin-bottom: 4px; letter-spacing: 1.2px; text-transform: uppercase;">Laporan Hasil Training · Axara LMS</div>
+          <h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #0f172a; line-height: 1.3;">📋 Hasil Kuis SOP Karyawan</h2>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 6px;">${now} WIB</div>
+        </div>
+      </div>` : `
       <div style="background: linear-gradient(135deg, #1e3a5f 0%, #002D72 100%); color: white; padding: 28px 32px; border-radius: 12px 12px 0 0;">
-        ${companyLogo ? `
-        <div style="margin-bottom: 14px;">
-          <img src="${companyLogo}" alt="${companyName || ''}" style="max-height: 44px; max-width: 160px; object-fit: contain; display: block; background: white; padding: 4px 8px; border-radius: 6px;" />
-          ${companyName ? `<div style="font-size: 10px; opacity: 0.7; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px;">${companyName}</div>` : ''}
-        </div>` : ''}
         <div style="font-size: 11px; opacity: 0.6; margin-bottom: 6px; letter-spacing: 1.2px; text-transform: uppercase;">Laporan Hasil Training · Axara LMS</div>
         <h2 style="margin: 0; font-size: 20px; font-weight: 700; line-height: 1.3;">📋 Hasil Kuis SOP Karyawan</h2>
         <div style="font-size: 12px; opacity: 0.55; margin-top: 8px;">${now} WIB</div>
-      </div>
+      </div>`}
 
       <!-- Body -->
       <div style="padding: 28px 32px; background: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
