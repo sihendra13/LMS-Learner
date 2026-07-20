@@ -351,7 +351,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
           status: submission.status,
           retakeCount: existing ? (existing.retakeCount || 0) + 1 : 0,
           maxRetakes: 3,
-          tenantId: db.currentUser?.tenant_id || '',
+          tenantId: tenant?.tenantId || '',
         }),
       }).catch(() => {});
     } catch (err) {
@@ -476,6 +476,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     supabase.from('employees').select('tenant_id').ilike('email', authUser.email).is('deleted_at', null).maybeSingle()
       .then(({ data: employee }) => {
         const tenantId = employee?.tenant_id;
+        if (tenantId) setTenant(prev => ({ ...prev, tenantId }));
         
         // Load global settings first, then override with per-tenant settings
         const demoPlanKey = `demo_plan_${tenantId}`;
