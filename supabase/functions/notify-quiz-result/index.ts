@@ -31,6 +31,8 @@ function buildEmailHtml(
   retakeCount: number,
   maxRetakes: number,
   employeeEmail: string,
+  companyLogo?: string,
+  companyName?: string,
 ) {
   const isPassed = status === "Lulus";
   const isTidakLulus = !isPassed && retakeCount >= maxRetakes;
@@ -70,6 +72,11 @@ function buildEmailHtml(
 
       <!-- Header -->
       <div style="background: linear-gradient(135deg, #1e3a5f 0%, #002D72 100%); color: white; padding: 28px 32px; border-radius: 12px 12px 0 0;">
+        ${companyLogo ? `
+        <div style="margin-bottom: 14px;">
+          <img src="${companyLogo}" alt="${companyName || ''}" style="max-height: 44px; max-width: 160px; object-fit: contain; display: block; background: white; padding: 4px 8px; border-radius: 6px;" />
+          ${companyName ? `<div style="font-size: 10px; opacity: 0.7; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px;">${companyName}</div>` : ''}
+        </div>` : ''}
         <div style="font-size: 11px; opacity: 0.6; margin-bottom: 6px; letter-spacing: 1.2px; text-transform: uppercase;">Laporan Hasil Training · Axara LMS</div>
         <h2 style="margin: 0; font-size: 20px; font-weight: 700; line-height: 1.3;">📋 Hasil Kuis SOP Karyawan</h2>
         <div style="font-size: 12px; opacity: 0.55; margin-top: 8px;">${now} WIB</div>
@@ -146,6 +153,7 @@ Deno.serve(async (req) => {
       status,
       retakeCount = 0,
       maxRetakes = 3,
+      tenantId = "",
     } = await req.json();
 
     if (!learnerName || !videoTitle || postScore === undefined || !status) {
@@ -156,6 +164,31 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Ambil plan dan logo untuk Enterprise branding
+    let companyLogo: string | undefined;
+    let companyName: string | undefined;
+    if (tenantId) {
+      const { data: settings } = await supabase
+        .from("app_settings")
+        .select("key, value")
+        .in("key", [`demo_plan_${tenantId}`, `company_logo_${tenantId}`]);
+
+      if (settings) {
+        const plan = settings.find(r => r.key === `demo_plan_${tenantId}`)?.value;
+        const logo = settings.find(r => r.key === `company_logo_${tenantId}`)?.value;
+        if (plan === "enterprise" && logo) {
+          companyLogo = logo;
+          // Ambil nama perusahaan dari tabel tenants
+          const { data: tenantRow } = await supabase
+            .from("tenants")
+            .select("name")
+            .eq("id", tenantId)
+            .single();
+          companyName = tenantRow?.name;
+        }
+      }
+    }
 
     // Ambil semua admin dari tabel users
     const { data: admins, error } = await supabase
@@ -176,7 +209,8 @@ Deno.serve(async (req) => {
 
     const html = buildEmailHtml(
       learnerName, nik || "", jabatan || "", dept, videoTitle,
-      postScore, status, retakeCount, maxRetakes, learnerEmail || ""
+      postScore, status, retakeCount, maxRetakes, learnerEmail || "",
+      companyLogo, companyName,
     );
 
     let sent = 0;

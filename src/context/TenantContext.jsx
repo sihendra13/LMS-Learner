@@ -351,6 +351,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
           status: submission.status,
           retakeCount: existing ? (existing.retakeCount || 0) + 1 : 0,
           maxRetakes: 3,
+          tenantId: db.currentUser?.tenant_id || '',
         }),
       }).catch(() => {});
     } catch (err) {
