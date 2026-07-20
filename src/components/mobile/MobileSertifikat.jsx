@@ -34,7 +34,7 @@ const MobileSertifikat = () => {
       const rCount = sub.retakeCount || 0;
       return rCount >= 3 
         ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
-        : { label: rCount > 0 ? `Perlu Remedial (Ke-${rCount + 1})` : 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+        : { label: `Perlu Remedial (Ke-${rCount} dari ${MAX_RETAKES})`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
     }
     if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
     return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
@@ -226,9 +226,9 @@ const MobileSertifikat = () => {
                       <span style={{ fontSize: '11px', color: 'var(--text3)' }}>
                         Post-Test: <strong style={{ color: sub.postScore >= passingScore ? '#16a34a' : '#dc2626' }}>{sub.postScore ?? '—'}%</strong>
                       </span>
-                      {isRemedial && retakeCount > 0 && (
-                        <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      {isRemedial && (
+                        <span style={{ fontSize: '10px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '1px 7px', borderRadius: '10px', display: 'inline-flex', alignItems: 'center' }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '4px' }}>
                             <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                             <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                             <path d="M9 14l2 2 4-4"></path>

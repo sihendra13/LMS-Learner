@@ -123,7 +123,7 @@ export const SOPManager = ({ onSelectVideo }) => {
                     const rCount = sub.retakeCount || 0;
                     return rCount >= MAX_RETAKES
                       ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
-                      : { label: rCount > 0 ? `Perlu Remedial (Ke-${rCount + 1})` : 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                      : { label: `Perlu Remedial (Ke-${rCount} dari ${MAX_RETAKES})`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                   }
                   if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
                   if ((sub.retakeCount || 0) >= MAX_RETAKES) return { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
@@ -419,7 +419,7 @@ export const SOPManager = ({ onSelectVideo }) => {
             canRetake: false
           }
         : {
-            badge: 'Perlu Remedial',
+            badge: `Perlu Remedial (Ke-${detailVideo.submission?.retakeCount || 0} dari ${MAX_RETAKES})`,
             badgeBg: '#fff7ed',
             badgeColor: '#b45309',
             badgeBorder: '#fed7aa',

@@ -58,7 +58,7 @@ export const Certifications = () => {
       const rCount = sub.retakeCount || 0;
       return rCount >= 3 
         ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
-        : { label: rCount > 0 ? `Perlu Remedial (Ke-${rCount + 1})` : 'Perlu Remedial', color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+        : { label: `Perlu Remedial (Ke-${rCount} dari ${MAX_RETAKES})`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
     }
     if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
     return { label: enableSpvRole ? 'Menunggu Review Supervisor' : 'Menunggu Review HRD', color: '#b45309', bg: '#fffbeb', border: '#fde68a' };
@@ -341,9 +341,9 @@ export const Certifications = () => {
                                 })()
                               : '—'}
                           </span>
-                          {isRemedial && retakeCount > 0 && (
+                          {isRemedial && (
                             <span style={{ fontSize: '11px', fontWeight: '700', color: '#b45309', background: '#fff7ed', border: '1px solid #fed7aa', padding: '2px 8px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: '4px' }}>
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                                 <path d="M9 14l2 2 4-4"></path>
