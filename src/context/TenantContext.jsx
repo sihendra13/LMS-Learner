@@ -321,6 +321,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         cert_status: 'pending',
         retake_count: 0,
         acknowledged: submission.acknowledged ?? true,
+        tenant_id: tenant?.tenantId || null,
       });
     }
 
