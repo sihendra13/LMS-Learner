@@ -497,9 +497,6 @@ export const QuizModal = ({ video, onClose }) => {
                       if (e.target.videoWidth && e.target.videoHeight) {
                         setVideoAspectRatio(e.target.videoWidth / e.target.videoHeight);
                       }
-                      if (video.progress && e.target.duration) {
-                        maxWatchedTime.current = (video.progress / 100) * e.target.duration;
-                      }
                     }}
                     controls={!activeTrigger}
                     controlsList="nodownload nofullscreen"
