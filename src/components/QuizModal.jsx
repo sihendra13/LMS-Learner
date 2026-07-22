@@ -217,8 +217,14 @@ export const QuizModal = ({ video, onClose }) => {
   const handleTimeUpdate = () => {
     const el = videoRef.current;
     if (!el || !el.duration) return;
-    if (el.currentTime > maxWatchedTime.current) {
-      maxWatchedTime.current = el.currentTime;
+    // Fix for mobile native players skipping: only allow natural progression
+    if (!el.seeking) {
+      if (el.currentTime > maxWatchedTime.current + 2) {
+        // User skipped ahead significantly, force it back
+        el.currentTime = maxWatchedTime.current;
+      } else if (el.currentTime > maxWatchedTime.current) {
+        maxWatchedTime.current = el.currentTime;
+      }
     }
     const pct = Math.round((el.currentTime / el.duration) * 100);
     setPlayProgress(pct);
@@ -239,8 +245,8 @@ export const QuizModal = ({ video, onClose }) => {
   const handleSeeking = () => {
     const el = videoRef.current;
     if (!el) return;
-    // Block seeking beyond max watched time
-    if (el.currentTime > maxWatchedTime.current + 1) {
+    // Block seeking beyond max watched time (some browsers fire this, some don't)
+    if (el.currentTime > maxWatchedTime.current + 2) {
       el.currentTime = maxWatchedTime.current;
     }
   };
