@@ -302,7 +302,6 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
                             gap: '4px'
                           }}>
                                 Remedial ke-{submission?.retakeCount || 0} dari {MAX_RETAKES}
-                              </>
                           </span>
                         )}
                       </div>

@@ -25,7 +25,8 @@ const AppContent = ({ onLogout }) => {
     readIds,
     markNotificationsAsRead,
     toast,
-    setToast
+    setToast,
+    trialExpired
   } = useTenant();
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [showNotif, setShowNotif] = useState(false);
@@ -80,6 +81,20 @@ const AppContent = ({ onLogout }) => {
         return <Dashboard onSelectVideo={handleSelectVideo} />;
     }
   };
+
+  if (trialExpired) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: '#f8fafc' }}>
+        <div style={{ maxWidth: '400px', width: '100%', background: '#fff', borderRadius: '16px', padding: '28px', textAlign: 'center', boxShadow: '0 10px 30px rgba(15,23,42,0.08)' }}>
+          <div style={{ fontSize: '17px', fontWeight: 700, color: '#0f172a', marginBottom: '8px' }}>Akses training belum tersedia</div>
+          <div style={{ fontSize: '14px', color: '#475569', lineHeight: 1.6, marginBottom: '20px' }}>
+            Masa trial perusahaan Anda telah berakhir. Silakan hubungi HRD perusahaan Anda.
+          </div>
+          <button onClick={onLogout} style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer', fontWeight: 600 }}>Keluar</button>
+        </div>
+      </div>
+    );
+  }
 
   if (isMobile) {
     return (

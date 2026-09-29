@@ -85,6 +85,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'sop' | 'sertifikasi' | 'peringkat'
   const [quizSubmissions, setQuizSubmissions] = useState([]);
   const [videos, setVideos] = useState([]);
+  // Tenant karyawan ini — semua data (SOP, rekan kerja, hasil kuis) dibatasi ke tenant ini
+  const [tenantId, setTenantId] = useState(selectedEmployee?.tenant_id || null);
   const [userProgress, setUserProgress] = useState({});
   const [readIds, setReadIds] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem('axara_learner_notif_read') || '[]')); }
@@ -189,12 +191,13 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   // Supabase: fetch quiz submissions for current user + realtime sync
   useEffect(() => {
     const userName = db.currentUser?.name;
-    if (!userName) return;
+    if (!userName || !tenantId) return;
 
     const fetchSubmissions = async () => {
       const { data } = await supabase
         .from('quiz_submissions')
         .select('*')
+        .eq('tenant_id', tenantId)
         .eq('employee_name', userName)
         .order('created_at', { ascending: false });
       if (data) setQuizSubmissions(data.map(mapRow));
@@ -204,18 +207,20 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
 
     const channel = supabase
       .channel('learner_quiz_submissions')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_submissions' }, fetchSubmissions)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'quiz_submissions', filter: `tenant_id=eq.${tenantId}` }, fetchSubmissions)
       .subscribe();
 
     return () => supabase.removeChannel(channel);
-  }, [db.currentUser?.name]);
+  }, [db.currentUser?.name, tenantId]);
 
   // Supabase: fetch SOP videos (video & PPT) + realtime sync
   useEffect(() => {
+    if (!tenantId) return;
     const fetchVideos = async () => {
       const { data } = await supabase
         .from('sop_videos')
         .select('*')
+        .eq('tenant_id', tenantId)
         .eq('is_draft', false)
         .order('created_at', { ascending: false });
       if (data) setVideos(data.map(fromDbRow));
@@ -225,16 +230,17 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
 
     const channel = supabase
       .channel('learner_sop_videos')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sop_videos' }, fetchVideos)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sop_videos', filter: `tenant_id=eq.${tenantId}` }, fetchVideos)
       .subscribe();
 
     return () => supabase.removeChannel(channel);
-  }, []);
+  }, [tenantId]);
 
   // Sync employees dari Supabase (supaya Learner selalu lihat data terbaru dari Admin)
   useEffect(() => {
+    if (!tenantId) return;
     const fetchEmployees = async () => {
-      const { data } = await supabase.from('employees').select('*').order('created_at', { ascending: true });
+      const { data } = await supabase.from('employees').select('*').eq('tenant_id', tenantId).is('deleted_at', null).order('created_at', { ascending: true });
       if (!data || data.length === 0) return;
       const mapped = data.map((row, i) => ({
         id: i + 1,
@@ -249,12 +255,12 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
 
     const channel = supabase
       .channel('learner_employees')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'employees' }, fetchEmployees)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'employees', filter: `tenant_id=eq.${tenantId}` }, fetchEmployees)
       .subscribe();
 
     fetchEmployees();
     return () => supabase.removeChannel(channel);
-  }, []);
+  }, [tenantId]);
 
   // Sync passingScore & validityMonths dari Supabase dipindahkan ke dalam efek authUser
   // untuk mencegah race condition.
@@ -321,7 +327,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         cert_status: 'pending',
         retake_count: 0,
         acknowledged: submission.acknowledged ?? true,
-        tenant_id: tenant?.tenantId || null,
+        tenant_id: tenantId,
       });
     }
 
@@ -470,6 +476,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   });
 
   const [companyLogo, setCompanyLogo] = useState(null);
+  const [trialExpired, setTrialExpired] = useState(false);
 
   // Fetch tenant name + company_logo via authUser → users table → tenants table
   useEffect(() => {
@@ -477,7 +484,10 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     supabase.from('employees').select('tenant_id').ilike('email', authUser.email).is('deleted_at', null).maybeSingle()
       .then(({ data: employee }) => {
         const tenantId = employee?.tenant_id;
-        if (tenantId) setTenant(prev => ({ ...prev, tenantId }));
+        if (tenantId) {
+          setTenantId(tenantId);
+          setTenant(prev => ({ ...prev, tenantId }));
+        }
         
         // Load global settings first, then override with per-tenant settings
         const demoPlanKey = `demo_plan_${tenantId}`;
@@ -517,14 +527,9 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
             }
           });
 
-        let tQuery = supabase.from('tenants').select('name, plan, company_logo');
-        if (tenantId) {
-          tQuery = tQuery.eq('id', tenantId).single();
-        } else {
-          tQuery = tQuery.order('updated_at', { ascending: false }).limit(1).maybeSingle();
-        }
-        
-        return tQuery;
+        // Tanpa tenant_id jangan tebak tenant lain — bisa menampilkan nama perusahaan yang salah
+        if (!tenantId) return null;
+        return supabase.from('tenants').select('name, plan, company_logo, trial_ends_at').eq('id', tenantId).single();
       })
       .then((res) => {
         if (!res?.data) {
@@ -532,6 +537,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
           return;
         }
         if (res.data.company_logo) setCompanyLogo(res.data.company_logo);
+        setTrialExpired(!!res.data.trial_ends_at && new Date(res.data.trial_ends_at) <= new Date());
         // Only set name from tenants table. Plan is handled by app_settings (demo_plan)
         // to bypass RLS restrictions on the tenants table during demo.
         if (res.data.name || res.data.company_logo) {
@@ -725,6 +731,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
 
   return (
     <TenantContext.Provider value={{
+      trialExpired,
       currentUser: db.currentUser,
       employees: db.employees,
       videos: videosWithProgress,
