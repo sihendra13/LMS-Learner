@@ -337,10 +337,11 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       sub => sub.employeeName === submission.employeeName && sub.videoTitle === submission.videoTitle
     );
     const isPassed = submission.status === 'Lulus';
+    let saveError = null;
 
     if (existing) {
       const newRetakeCount = (existing.retakeCount || 0) + 1;
-      await supabase.from('quiz_submissions').update({
+      saveError = (await supabase.from('quiz_submissions').update({
         pre_score: submission.preScore,
         post_score: submission.postScore,
         submission_date: submission.date,
@@ -348,9 +349,9 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         cert_status: 'pending',
         retake_count: newRetakeCount,
         acknowledged: submission.acknowledged ?? true,
-      }).eq('id', existing.id);
+      }).eq('id', existing.id)).error;
     } else {
-      await supabase.from('quiz_submissions').insert({
+      saveError = (await supabase.from('quiz_submissions').insert({
         employee_name: submission.employeeName,
         dept: submission.dept || db.currentUser?.dept,
         video_title: submission.videoTitle,
@@ -362,7 +363,13 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         retake_count: 0,
         acknowledged: submission.acknowledged ?? true,
         tenant_id: tenantId,
-      });
+      })).error;
+    }
+    if (saveError) {
+      // Jangan gagal diam-diam — karyawan perlu tahu hasil kuisnya belum tercatat
+      console.error('Gagal menyimpan hasil kuis:', saveError);
+      window.alert(`Hasil kuis belum tersimpan: ${saveError.message}\n\nPeriksa koneksi internet lalu kerjakan ulang kuis, atau hubungi HRD.`);
+      return;
     }
 
     // Add activity to local db
