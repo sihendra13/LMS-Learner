@@ -803,7 +803,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       trialExpired,
       pushStatus,
       pushError,
-      enablePush: () => setupPush({ ask: true }),
+      enablePush: () => { setPushStatus('checking'); setPushError(''); setupPush({ ask: true }); },
       currentUser: db.currentUser,
       employees: db.employees,
       videos: videosWithProgress,

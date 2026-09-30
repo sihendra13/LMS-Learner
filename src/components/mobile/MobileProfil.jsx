@@ -70,7 +70,7 @@ const MobileProfil = ({ onLogout }) => {
         <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase' }}>Notifikasi SOP Baru</div>
         <div style={{ fontSize: '12px', color: pushStatus === 'active' ? 'var(--green)' : 'var(--text2)', lineHeight: '1.5' }}>
           {{
-            checking: 'Memeriksa status notifikasi...',
+            checking: '⏳ Menghubungkan ke layanan notifikasi...',
             active: '✅ Aktif — Anda akan menerima notifikasi SOP baru di perangkat ini.',
             default: 'Belum aktif. Aktifkan agar Anda tahu saat ada SOP baru.',
             denied: 'Notifikasi diblokir. Buka Pengaturan HP → Aplikasi → myAxara → Notifikasi, lalu izinkan.',
