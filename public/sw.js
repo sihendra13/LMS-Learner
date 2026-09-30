@@ -94,7 +94,9 @@ self.addEventListener('push', (event) => {
     icon: '/favicon.svg',
     badge: '/favicon.svg',
     vibrate: [100, 50, 100],
-    tag: data.type || 'general',       // group same-type notifs so they don't stack
+    // Tag unik per notifikasi: tag yang sama membuat notifikasi baru MENGGANTIKAN yang lama
+    // di panel notifikasi (mis. "SOP Selesai" tertimpa "SOP Baru"), sehingga karyawan melewatkannya
+    tag: `${data.type || 'general'}-${Date.now()}`,
     renotify: true,
     data: {
       url: self.location.origin + '/#' + mapped.page,
