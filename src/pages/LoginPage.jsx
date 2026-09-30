@@ -19,7 +19,11 @@ const translateAuthError = (err) => {
 };
 
 export const LoginPage = ({ onLogin, setPasswordFor }) => {
-  const [form, setForm] = useState({ email: setPasswordFor?.email || sessionStorage.getItem('axara_login_email') || '', password: '' });
+  const [form, setForm] = useState(() => {
+    let lastEmail = '';
+    try { lastEmail = localStorage.getItem('axara_last_email') || ''; } catch { /* storage diblokir */ }
+    return { email: setPasswordFor?.email || sessionStorage.getItem('axara_login_email') || lastEmail, password: '' };
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   // Pesan dari App (mis. sesi berakhir) — ditampilkan sekali di halaman login

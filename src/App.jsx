@@ -584,6 +584,12 @@ function App() {
     setAuthUser(null);
   };
 
+  // Ingat email terakhir di perangkat ini agar form login terisi otomatis berikutnya
+  useEffect(() => {
+    if (!authUser?.email) return;
+    try { localStorage.setItem('axara_last_email', authUser.email); } catch { /* storage diblokir */ }
+  }, [authUser?.email]);
+
   // Karyawan yang masuk lewat link undangan wajib membuat password dulu
   const needsPassword = !!authUser?.invited_at && !authUser?.user_metadata?.password_set;
 
