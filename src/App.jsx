@@ -6,6 +6,7 @@ import { Certifications } from './pages/Certifications';
 import { LoginPage } from './pages/LoginPage';
 import { Unauthorized } from './pages/Unauthorized';
 import { QuizModal } from './components/QuizModal';
+import { PushPromptBanner } from './components/PushPromptBanner';
 import MobileLayout from './components/mobile/MobileLayout';
 import { supabase } from './utils/supabase';
 import { ErrorBoundary } from './components/ErrorBoundary.jsx';
@@ -101,6 +102,8 @@ const AppContent = ({ onLogout }) => {
     return (
       <>
         <MobileLayout onSelectVideo={handleSelectVideo} onLogout={onLogout} />
+        {/* Di atas bottom navigation */}
+        {!selectedVideo && <PushPromptBanner bottomOffset={96} />}
 
         {/* SOP INTERACTIVE MODAL WIZARD */}
         {selectedVideo && (
@@ -115,6 +118,7 @@ const AppContent = ({ onLogout }) => {
 
   return (
     <>
+      {!selectedVideo && <PushPromptBanner />}
       {/* SIDEBAR */}
       <aside className="sidebar">
         {/* BRANDING TOP: FULL WHITE HEADER CONTAINER FOR LOGO */}
