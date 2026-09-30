@@ -57,7 +57,21 @@ const mapRow = (row) => ({
   essayGradedDate: row.essay_graded_date || '',
   acknowledged: row.acknowledged ?? false,
   acknowledgedAt: row.acknowledged_at || null,
+  createdAt: row.created_at || null,
 });
+
+const MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+const timeAgo = (iso) => {
+  if (!iso) return '';
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return 'Baru saja';
+  if (mins < 60) return `${mins} menit lalu`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours} jam lalu`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? 'Kemarin' : `${days} hari lalu`;
+};
 
 export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   const enableSpvRole = false;
@@ -77,7 +91,6 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         city: selectedEmployee.city || '',
         role: 'employee',
         avatar,
-        streak: 7,
       };
     }
     return stored;
@@ -87,6 +100,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   const [videos, setVideos] = useState([]);
   // Tenant karyawan ini — semua data (SOP, rekan kerja, hasil kuis) dibatasi ke tenant ini
   const [tenantId, setTenantId] = useState(selectedEmployee?.tenant_id || null);
+  // Kelulusan kuis seluruh karyawan tenant — untuk peringkat tim
+  const [teamPasses, setTeamPasses] = useState([]);
   const [userProgress, setUserProgress] = useState({});
   const [readIds, setReadIds] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem('axara_learner_notif_read') || '[]')); }
@@ -180,7 +195,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   // Listener to sync across tabs if hosted on same port/origin
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'axara_lms_db') {
+      if (e.key === 'axara_lms_db_v2') {
         setDb(getDB());
       }
     };
@@ -213,6 +228,15 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     return () => supabase.removeChannel(channel);
   }, [db.currentUser?.name, tenantId]);
 
+  useEffect(() => {
+    if (!tenantId) return;
+    supabase.from('quiz_submissions')
+      .select('employee_name, video_title')
+      .eq('tenant_id', tenantId)
+      .eq('status', 'Lulus')
+      .then(({ data }) => { if (data) setTeamPasses(data); });
+  }, [tenantId, quizSubmissions.length]);
+
   // Supabase: fetch SOP videos (video & PPT) + realtime sync
   useEffect(() => {
     if (!tenantId) return;
@@ -241,7 +265,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     if (!tenantId) return;
     const fetchEmployees = async () => {
       const { data } = await supabase.from('employees').select('*').eq('tenant_id', tenantId).is('deleted_at', null).order('created_at', { ascending: true });
-      if (!data || data.length === 0) return;
+      if (!data) return;
       const mapped = data.map((row, i) => ({
         id: i + 1,
         name: row.name,
@@ -729,6 +753,42 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
 
   const videosWithProgress = videos.map(v => ({ ...v, progress: userProgress[v.id] ?? 0 }));
 
+  // ── Widget dashboard dari data asli tenant ─────────────────────────────────
+  const me = db.currentUser || {};
+  const passedTitlesOf = (name) => new Set(teamPasses.filter(p => p.employee_name === name).map(p => p.video_title));
+
+  const teamLeaderboard = (db.employees || [])
+    .filter(e => e.dept === me.dept)
+    .map(e => ({ name: e.name, email: e.email, score: passedTitlesOf(e.name).size, isMe: e.email === me.email || e.name === me.name }))
+    .sort((a, b) => b.score - a.score || (b.isMe ? 1 : 0) - (a.isMe ? 1 : 0));
+  const myRank = teamLeaderboard.findIndex(e => e.isMe) + 1 || null;
+
+  const myPassedTitles = passedTitlesOf(me.name);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcomingDeadlines = videosWithProgress
+    .filter(v => v.deadline && !v.archived && (v.dept === me.dept || v.dept === 'Semua') && !myPassedTitles.has(v.title))
+    .map(v => {
+      const d = new Date(v.deadline);
+      d.setHours(0, 0, 0, 0);
+      const diff = Math.round((d - today) / 86400000);
+      return { id: v.id, title: v.title, diff, label: diff < 0 ? 'Terlewat' : diff === 0 ? 'Hari ini' : diff === 1 ? 'Besok' : `${d.getDate()} ${MONTHS_ID[d.getMonth()]}` };
+    })
+    .filter(d => d.diff <= 7)
+    .sort((a, b) => a.diff - b.diff)
+    .slice(0, 3);
+
+  const recentActivities = quizSubmissions
+    .filter(s => s.employeeName === me.name)
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .slice(0, 5)
+    .map(s => ({
+      id: s.id,
+      text: `<strong>${s.employeeName}</strong> menyelesaikan ${s.videoTitle} dengan skor <strong>${s.postScore ?? 0}%</strong> (${s.status})`,
+      time: timeAgo(s.createdAt) || s.date || '',
+      type: s.status === 'Lulus' ? 'green' : 'amber',
+    }));
+
   return (
     <TenantContext.Provider value={{
       trialExpired,
@@ -752,6 +812,10 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       companyLogo,
       retakeQuiz,
       MAX_RETAKES,
+      teamLeaderboard,
+      myRank,
+      upcomingDeadlines,
+      recentActivities,
       notifications,
       readIds,
       markNotificationsAsRead,

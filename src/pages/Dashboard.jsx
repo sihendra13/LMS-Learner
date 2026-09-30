@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 
+const RANK_COLORS = ['#2F7BFF', '#0891b2', '#7c3aed', '#d97706', '#64748b'];
+const initials = (name = '') => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
 export const Dashboard = ({ onSelectVideo }) => {
-  const { currentUser, videos, quizSubmissions, activities, passingScore, MAX_RETAKES, enableSpvRole, retakeQuiz } = useTenant();
+  const { currentUser, videos, quizSubmissions, passingScore, MAX_RETAKES, enableSpvRole, retakeQuiz, teamLeaderboard, myRank, upcomingDeadlines, recentActivities } = useTenant();
   const [detailVideo, setDetailVideo] = useState(null);
 
   const handleVideoClick = (video) => {
@@ -73,7 +76,6 @@ export const Dashboard = ({ onSelectVideo }) => {
   const ringOffset = 220 - (220 * completionPercent) / 100;
 
   // Activities related to current user
-  const recentActivities = activities.slice(0, 5);
 
   return (
     <>
@@ -106,7 +108,7 @@ export const Dashboard = ({ onSelectVideo }) => {
               ⭐ <strong>{averageScore}%</strong> avg. skor
             </div>
             <div className="h-pill">
-              🔥 <strong>{currentUser.streak} hari</strong> streak belajar
+              🏅 Peringkat <strong>#{myRank || '-'}</strong> di tim
             </div>
           </div>
         </div>
@@ -427,24 +429,16 @@ export const Dashboard = ({ onSelectVideo }) => {
                 <div className="card-title">Peringkat Tim {currentUser.dept}</div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <div className="rank-item me">
-                  <div className="rank-num">🥇</div>
-                  <div className="rank-av" style={{ background: '#2F7BFF' }}>RW</div>
-                  <div className="rank-name">Rini Wulandari <span className="rank-you">Kamu</span></div>
-                  <div className="rank-score">18</div>
-                </div>
-                <div className="rank-item">
-                  <div className="rank-num">2</div>
-                  <div className="rank-av" style={{ background: '#0891b2' }}>AH</div>
-                  <div className="rank-name">Agus Hermawan</div>
-                  <div className="rank-score">15</div>
-                </div>
-                <div className="rank-item">
-                  <div className="rank-num">3</div>
-                  <div className="rank-av" style={{ background: '#7c3aed' }}>DP</div>
-                  <div className="rank-name">Dini Puspita</div>
-                  <div className="rank-score">13</div>
-                </div>
+                {teamLeaderboard.length === 0 ? (
+                  <div style={{ padding: '16px 20px', fontSize: '12px', color: 'var(--text3)' }}>Belum ada data peringkat.</div>
+                ) : teamLeaderboard.slice(0, 5).map((emp, i) => (
+                  <div key={emp.email || emp.name} className={`rank-item${emp.isMe ? ' me' : ''}`}>
+                    <div className="rank-num">{i === 0 && emp.score > 0 ? '🥇' : i + 1}</div>
+                    <div className="rank-av" style={{ background: RANK_COLORS[i % RANK_COLORS.length] }}>{initials(emp.name)}</div>
+                    <div className="rank-name">{emp.name} {emp.isMe && <span className="rank-you">Kamu</span>}</div>
+                    <div className="rank-score">{emp.score}</div>
+                  </div>
+                ))}
               </div>
             </div>
   
@@ -475,17 +469,17 @@ export const Dashboard = ({ onSelectVideo }) => {
               </div>
               <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🔥</div>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>✅</div>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text1)' }}>{currentUser.streak} Hari Streak</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Belajar terus setiap hari</div>
+                    <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text1)' }}>{completedMandatory} SOP Selesai</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text3)' }}>dari {totalMandatory} SOP wajib divisi</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🏆</div>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text1)' }}>Top Sales Learner</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Peringkat #1 di tim Sales</div>
+                    <div style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text1)' }}>Peringkat #{myRank || '-'}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text3)' }}>di tim {currentUser.dept}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -509,21 +503,15 @@ export const Dashboard = ({ onSelectVideo }) => {
               <div className="card-title">Deadline Minggu Ini</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div className="deadline-item">
-                <div className="dl-dot" style={{ background: 'var(--red)' }}></div>
-                <div className="dl-title">SOP CS: Handling Komplain</div>
-                <div className="dl-date dl-urgent">Besok</div>
-              </div>
-              <div className="deadline-item">
-                <div className="dl-dot" style={{ background: 'var(--amber)' }}></div>
-                <div className="dl-title">SOP Sales: Presentasi Produk</div>
-                <div className="dl-date dl-soon">4 Jun</div>
-              </div>
-              <div className="deadline-item">
-                <div className="dl-dot" style={{ background: 'var(--green)' }}></div>
-                <div className="dl-title">SOP HRD: Peraturan Cuti</div>
-                <div className="dl-date dl-ok">7 Jun</div>
-              </div>
+              {upcomingDeadlines.length === 0 ? (
+                <div style={{ padding: '16px 20px', fontSize: '12px', color: 'var(--text3)' }}>Tidak ada deadline minggu ini.</div>
+              ) : upcomingDeadlines.map(d => (
+                <div key={d.id} className="deadline-item">
+                  <div className="dl-dot" style={{ background: d.diff <= 1 ? 'var(--red)' : d.diff <= 3 ? 'var(--amber)' : 'var(--green)' }}></div>
+                  <div className="dl-title">{d.title}</div>
+                  <div className={`dl-date ${d.diff <= 1 ? 'dl-urgent' : d.diff <= 3 ? 'dl-soon' : 'dl-ok'}`}>{d.label}</div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -533,6 +521,9 @@ export const Dashboard = ({ onSelectVideo }) => {
               <div className="card-title">Aktivitas Belajar Terbaru</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', padding: '10px 0' }}>
+              {recentActivities.length === 0 && (
+                <div style={{ padding: '6px 20px', fontSize: '12px', color: 'var(--text3)' }}>Belum ada aktivitas belajar.</div>
+              )}
               {recentActivities.map((act) => (
                 <div key={act.id} style={{ display: 'flex', gap: '10px', padding: '10px 20px', borderBottom: '1px solid var(--border)', alignItems: 'flex-start' }}>
                   <div style={{ 

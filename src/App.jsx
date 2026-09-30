@@ -500,9 +500,17 @@ function App() {
   });
   const [isAutoSelecting, setIsAutoSelecting] = useState(false);
 
+  // Selalu ambil ulang data karyawan dari Supabase agar tenant/departemen tidak basi.
+  // Spinner hanya ditampilkan jika belum ada data karyawan tersimpan.
   const autoSelectEmployee = async (user) => {
     if (!user?.email) return;
-    setIsAutoSelecting(true);
+    const cached = JSON.parse(localStorage.getItem(EMPLOYEE_KEY) || 'null');
+    const cacheMatches = cached?.email?.toLowerCase() === user.email.toLowerCase();
+    if (!cacheMatches) {
+      localStorage.removeItem(EMPLOYEE_KEY);
+      setSelectedEmployee(null);
+      setIsAutoSelecting(true);
+    }
     // Coba cocokkan by email dulu dengan case-insensitive (ilike)
     const { data: byEmail } = await supabase
       .from('employees')
@@ -518,15 +526,16 @@ function App() {
       return;
     }
     
-    // Jika tidak ditemukan, biarkan selectedEmployee = null
-    // (Akan menampilkan halaman Unauthorized)
+    // Jika tidak ditemukan (dihapus / belum terdaftar) → halaman Unauthorized
+    localStorage.removeItem(EMPLOYEE_KEY);
+    setSelectedEmployee(null);
     setIsAutoSelecting(false);
   };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setAuthUser(session?.user || null);
-      if (session?.user && !localStorage.getItem(EMPLOYEE_KEY)) {
+      if (session?.user) {
         autoSelectEmployee(session.user);
       }
       setCheckingAuth(false);
@@ -560,6 +569,9 @@ function App() {
     setAuthUser(null);
   };
 
+  // Karyawan yang masuk lewat link undangan wajib membuat password dulu
+  const needsPassword = !!authUser?.invited_at && !authUser?.user_metadata?.password_set;
+
   return (
     <>
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
@@ -573,6 +585,8 @@ function App() {
         <LoginPage onLogin={handleLogin} />
       ) : !authUser ? (
         <LoginPage onLogin={handleLogin} />
+      ) : needsPassword ? (
+        <LoginPage onLogin={handleLogin} setPasswordFor={authUser} />
       ) : isAutoSelecting ? (
         <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
           <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />

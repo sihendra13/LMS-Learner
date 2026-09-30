@@ -9,17 +9,17 @@ const mockSops = [
   { id: 5, title: 'SOP Manajemen Inventori Gudang', dept: 'Logistics', time: '15 Min', color: '#8b5cf6', videoUrl: '/videos/warehouse-inventory.mp4' },
 ];
 
-export const LoginPage = ({ onLogin }) => {
-  const [form, setForm] = useState({ email: '', password: '' });
+export const LoginPage = ({ onLogin, setPasswordFor }) => {
+  const [form, setForm] = useState({ email: setPasswordFor?.email || '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotSuccess, setForgotSuccess] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
-  const [inviteMode, setInviteMode] = useState(false);
+  const [inviteMode, setInviteMode] = useState(!!setPasswordFor);
   const [inviteConfirm, setInviteConfirm] = useState('');
-  const [inviteName, setInviteName] = useState('');
+  const [inviteName, setInviteName] = useState(setPasswordFor?.user_metadata?.name || '');
 
   useEffect(() => {
     const rawHash = sessionStorage.getItem('axara_invite_hash') || window.location.hash;
@@ -168,7 +168,7 @@ export const LoginPage = ({ onLogin }) => {
       if (form.password !== inviteConfirm) { setError('Konfirmasi password tidak sama.'); return; }
       setLoading(true); setError('');
       try {
-        const { data, error: err } = await supabase.auth.updateUser({ password: form.password });
+        const { data, error: err } = await supabase.auth.updateUser({ password: form.password, data: { password_set: true } });
         if (err) throw err;
         onLogin(data.user);
       } catch (err) {

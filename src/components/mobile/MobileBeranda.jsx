@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 
-export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
-  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES, enableSpvRole, retakeQuiz } = useTenant();
+export const RANK_COLORS = ['#2F7BFF', '#0891b2', '#7c3aed', '#d97706', '#64748b'];
+const initials = (name = '') => name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
+  const { videos, quizSubmissions, currentUser, passingScore, MAX_RETAKES, enableSpvRole, retakeQuiz, teamLeaderboard, myRank, upcomingDeadlines, recentActivities } = useTenant();
   const [detailVideo, setDetailVideo] = useState(null);
 
   // Filter videos for user's department
@@ -35,8 +38,6 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
   // Explore/recommend videos (videos not in user's dept)
   const recommendedVideos = videos.filter(v => v.dept !== currentUser.dept).slice(0, 3);
 
-  // Activities related to current user
-  const recentActivities = []; // Mock or fetch from context if available
 
   return (
     <div style={{ padding: '16px 16px 30px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -77,7 +78,7 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
               ⭐ <strong>{averageScore}%</strong> avg. skor
             </div>
             <div className="h-pill" style={{ padding: '4px 8px', fontSize: '11px' }}>
-              🔥 <strong>{currentUser.streak} hari</strong> streak
+              🏅 Peringkat <strong>#{myRank || '-'}</strong>
             </div>
           </div>
         </div>
@@ -406,21 +407,15 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
           <div className="card-title" style={{ fontSize: '13px' }}>Deadline Minggu Ini</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div className="deadline-item" style={{ padding: '10px 16px', gap: '10px' }}>
-            <div className="dl-dot" style={{ background: 'var(--red)', width: '7px', height: '7px' }}></div>
-            <div className="dl-title" style={{ fontSize: '12px' }}>SOP CS: Handling Komplain</div>
-            <div className="dl-date dl-urgent" style={{ fontSize: '10px', padding: '2px 6px' }}>Besok</div>
-          </div>
-          <div className="deadline-item" style={{ padding: '10px 16px', gap: '10px' }}>
-            <div className="dl-dot" style={{ background: 'var(--amber)', width: '7px', height: '7px' }}></div>
-            <div className="dl-title" style={{ fontSize: '12px' }}>SOP Sales: Presentasi Produk</div>
-            <div className="dl-date dl-soon" style={{ fontSize: '10px', padding: '2px 6px' }}>4 Jun</div>
-          </div>
-          <div className="deadline-item" style={{ padding: '10px 16px', gap: '10px' }}>
-            <div className="dl-dot" style={{ background: 'var(--green)', width: '7px', height: '7px' }}></div>
-            <div className="dl-title" style={{ fontSize: '12px' }}>SOP HRD: Peraturan Cuti</div>
-            <div className="dl-date dl-ok" style={{ fontSize: '10px', padding: '2px 6px' }}>7 Jun</div>
-          </div>
+          {upcomingDeadlines.length === 0 ? (
+            <div style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text3)' }}>Tidak ada deadline minggu ini.</div>
+          ) : upcomingDeadlines.map(d => (
+            <div key={d.id} className="deadline-item" style={{ padding: '10px 16px', gap: '10px' }}>
+              <div className="dl-dot" style={{ background: d.diff <= 1 ? 'var(--red)' : d.diff <= 3 ? 'var(--amber)' : 'var(--green)', width: '7px', height: '7px' }}></div>
+              <div className="dl-title" style={{ fontSize: '12px' }}>{d.title}</div>
+              <div className={`dl-date ${d.diff <= 1 ? 'dl-urgent' : d.diff <= 3 ? 'dl-soon' : 'dl-ok'}`} style={{ fontSize: '10px', padding: '2px 6px' }}>{d.label}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -430,6 +425,9 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
           <div className="card-title" style={{ fontSize: '13px' }}>Aktivitas Belajar Terbaru</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', padding: '6px 0' }}>
+          {recentActivities.length === 0 && (
+            <div style={{ padding: '6px 16px', fontSize: '11px', color: 'var(--text3)' }}>Belum ada aktivitas belajar.</div>
+          )}
           {recentActivities.map((act) => (
             <div key={act.id} style={{ display: 'flex', gap: '10px', padding: '10px 16px', borderBottom: '1px solid var(--border)', alignItems: 'flex-start' }}>
               <div style={{ 
@@ -455,24 +453,16 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
           <div className="card-title" style={{ fontSize: '13px' }}>Peringkat Tim {currentUser.dept}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div className="rank-item me" style={{ padding: '8px 16px', gap: '8px' }}>
-            <div className="rank-num" style={{ width: '16px', fontSize: '11px' }}>🥇</div>
-            <div className="rank-av" style={{ background: '#2F7BFF', width: '26px', height: '26px', fontSize: '10px' }}>RW</div>
-            <div className="rank-name" style={{ fontSize: '12px' }}>Rini Wulandari <span className="rank-you" style={{ fontSize: '9px', padding: '1px 5px' }}>Kamu</span></div>
-            <div className="rank-score" style={{ fontSize: '12px' }}>18</div>
-          </div>
-          <div className="rank-item" style={{ padding: '8px 16px', gap: '8px' }}>
-            <div className="rank-num" style={{ width: '16px', fontSize: '11px' }}>2</div>
-            <div className="rank-av" style={{ background: '#0891b2', width: '26px', height: '26px', fontSize: '10px' }}>AH</div>
-            <div className="rank-name" style={{ fontSize: '12px' }}>Agus Hermawan</div>
-            <div className="rank-score" style={{ fontSize: '12px' }}>15</div>
-          </div>
-          <div className="rank-item" style={{ padding: '8px 16px', gap: '8px' }}>
-            <div className="rank-num" style={{ width: '16px', fontSize: '11px' }}>3</div>
-            <div className="rank-av" style={{ background: '#7c3aed', width: '26px', height: '26px', fontSize: '10px' }}>DP</div>
-            <div className="rank-name" style={{ fontSize: '12px' }}>Dini Puspita</div>
-            <div className="rank-score" style={{ fontSize: '12px' }}>13</div>
-          </div>
+          {teamLeaderboard.length === 0 ? (
+            <div style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text3)' }}>Belum ada data peringkat.</div>
+          ) : teamLeaderboard.slice(0, 5).map((emp, i) => (
+            <div key={emp.email || emp.name} className={`rank-item${emp.isMe ? ' me' : ''}`} style={{ padding: '8px 16px', gap: '8px' }}>
+              <div className="rank-num" style={{ width: '16px', fontSize: '11px' }}>{i === 0 && emp.score > 0 ? '🥇' : i + 1}</div>
+              <div className="rank-av" style={{ background: RANK_COLORS[i % RANK_COLORS.length], width: '26px', height: '26px', fontSize: '10px' }}>{initials(emp.name)}</div>
+              <div className="rank-name" style={{ fontSize: '12px' }}>{emp.name} {emp.isMe && <span className="rank-you" style={{ fontSize: '9px', padding: '1px 5px' }}>Kamu</span>}</div>
+              <div className="rank-score" style={{ fontSize: '12px' }}>{emp.score}</div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -505,17 +495,17 @@ export const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
         </div>
         <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#fffbeb', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '16px', flexShrink: 0 }}>🔥</div>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#fffbeb', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>✅</div>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text1)' }}>{currentUser.streak} Hari Streak</div>
-              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>Belajar terus setiap hari</div>
+              <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text1)' }}>{completedMandatory} SOP Selesai</div>
+              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>dari {totalMandatory} SOP wajib divisi</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#dbeafe', display: 'flex', alignItems: 'center', justify: 'center', fontSize: '16px', flexShrink: 0 }}>🏆</div>
+            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>🏆</div>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text1)' }}>Top Sales Learner</div>
-              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>Peringkat #1 di tim Sales</div>
+              <div style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text1)' }}>Peringkat #{myRank || '-'}</div>
+              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>di tim {currentUser.dept}</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -2,7 +2,7 @@ import React from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 const MobileProfil = ({ onLogout }) => {
-  const { currentUser, quizSubmissions, passingScore } = useTenant();
+  const { currentUser, quizSubmissions, passingScore, myRank } = useTenant();
 
   const completedCount = quizSubmissions.filter(
     s => s.employeeName === currentUser.name && s.postScore >= passingScore
@@ -59,8 +59,8 @@ const MobileProfil = ({ onLogout }) => {
           </div>
           <div style={{ width: '1px', background: 'var(--border)' }}></div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent)' }}>{currentUser.streak}</div>
-            <div style={{ fontSize: '10px', color: 'var(--text3)' }}>Hari Streak</div>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent)' }}>#{myRank || '-'}</div>
+            <div style={{ fontSize: '10px', color: 'var(--text3)' }}>Peringkat Tim</div>
           </div>
         </div>
       </div>
