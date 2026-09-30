@@ -27,9 +27,10 @@ const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
   const totalCertificates = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.postScore >= passingScore).length;
 
   // Average score of passed quizzes
-  const passedSubmissions = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.postScore >= passingScore);
-  const averageScore = passedSubmissions.length > 0 
-    ? Math.round(passedSubmissions.reduce((sum, s) => sum + s.postScore, 0) / passedSubmissions.length) 
+  // Rata-rata skor post-test dari SEMUA kuis yang sudah dikerjakan (lulus maupun remedial)
+  const scoredSubmissions = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.postScore != null);
+  const averageScore = scoredSubmissions.length > 0 
+    ? Math.round(scoredSubmissions.reduce((sum, s) => sum + Number(s.postScore), 0) / scoredSubmissions.length) 
     : 0;
 
   // SVG ring calculations (stroke-dasharray is 220)
@@ -178,7 +179,7 @@ const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
                   const rCount = sub.retakeCount || 0;
                   return rCount >= MAX_RETAKES
                     ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
-                    : { label: `Perlu Remedial (Ke-${rCount} dari ${MAX_RETAKES})`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+                    : { label: `Perlu Remedial · sisa ${Math.max(0, MAX_RETAKES - (rCount))} kesempatan`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
                 }
                 if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
                 if ((sub.retakeCount || 0) >= MAX_RETAKES) return { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
@@ -302,7 +303,7 @@ const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
                             alignItems: 'center',
                             gap: '4px'
                           }}>
-                                Remedial ke-{submission?.retakeCount || 0} dari {MAX_RETAKES}
+                                Remedial · sisa {Math.max(0, MAX_RETAKES - (submission?.retakeCount || 0))} kesempatan
                           </span>
                         )}
                       </div>
@@ -598,7 +599,7 @@ const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
               canRetake: false
             }
           : { 
-              badge: `Perlu Remedial (Ke-${detailVideo.submission?.retakeCount || 0} dari ${MAX_RETAKES})`,
+              badge: `Perlu Remedial · sisa ${Math.max(0, MAX_RETAKES - (detailVideo.submission?.retakeCount || 0))} kesempatan`,
               badgeBg: '#fff7ed', 
               badgeColor: '#b45309', 
               badgeBorder: '#fed7aa', 

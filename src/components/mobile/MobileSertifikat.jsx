@@ -34,7 +34,7 @@ const MobileSertifikat = () => {
       const rCount = sub.retakeCount || 0;
       return rCount >= 3 
         ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
-        : { label: `Perlu Remedial (Ke-${rCount} dari ${MAX_RETAKES})`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
+        : { label: `Perlu Remedial · sisa ${Math.max(0, MAX_RETAKES - (rCount))} kesempatan`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
     }
     if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
     return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
@@ -233,7 +233,7 @@ const MobileSertifikat = () => {
                             <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                             <path d="M9 14l2 2 4-4"></path>
                           </svg>
-                          Remedial ke-{retakeCount} dari {MAX_RETAKES}
+                          Remedial · sisa {Math.max(0, MAX_RETAKES - (retakeCount))} kesempatan
                         </span>
                       )}
                     </div>

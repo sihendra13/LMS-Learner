@@ -113,6 +113,17 @@ export const QuizModal = ({ video, onClose }) => {
     };
   }, [currentSlide, step]);
 
+  // Progres SOP PPT = slide terjauh yang sudah dibuka (updateProgress hanya menyimpan nilai tertinggi)
+  useEffect(() => {
+    if (!isPpt || step !== 'presentation') return;
+    const totalSlides = video.slideImages?.length || 0;
+    if (!totalSlides) return;
+    updateProgress(video.id, Math.round(((currentSlide + 1) / totalSlides) * 100));
+    // updateProgress sengaja tidak dimasukkan: fungsinya dibuat ulang tiap render
+    // dan akan memicu penyimpanan berulang
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPpt, step, currentSlide, video.id, video.slideImages]);
+
   // Fullscreen change listener
   useEffect(() => {
     const onFsChange = () => {
