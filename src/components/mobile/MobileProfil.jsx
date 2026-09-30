@@ -75,7 +75,9 @@ const MobileProfil = ({ onLogout }) => {
             default: 'Belum aktif. Aktifkan agar Anda tahu saat ada SOP baru.',
             denied: 'Notifikasi diblokir. Buka Pengaturan HP → Aplikasi → myAxara → Notifikasi, lalu izinkan.',
             unsupported: 'Perangkat/browser ini belum mendukung notifikasi. Di iPhone, install aplikasi ke Home Screen terlebih dahulu.',
-            error: `Gagal mengaktifkan notifikasi: ${pushError}`,
+            error: /push service/i.test(pushError)
+              ? 'Gagal terhubung ke layanan notifikasi Google. Coba lagi; jika tetap gagal: izinkan Chrome berjalan di latar belakang (Pengaturan → Aplikasi → Chrome → Baterai: Tanpa batasan / Autostart), matikan Private DNS/VPN pemblokir iklan, lalu perbarui Google Play Services.'
+              : `Gagal mengaktifkan notifikasi: ${pushError}`,
           }[pushStatus]}
         </div>
         {(pushStatus === 'default' || pushStatus === 'error') && (

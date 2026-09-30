@@ -148,10 +148,15 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
       if (!subscription) {
         const padding = '='.repeat((4 - vapidKey.length % 4) % 4);
         const raw = window.atob((vapidKey + padding).replace(/-/g, '+').replace(/_/g, '/'));
-        subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: Uint8Array.from(raw, c => c.charCodeAt(0)),
-        });
+        const options = { userVisibleOnly: true, applicationServerKey: Uint8Array.from(raw, c => c.charCodeAt(0)) };
+        // Layanan push (FCM) kadang gagal sesaat ("push service error") — coba ulang sekali
+        try {
+          subscription = await registration.pushManager.subscribe(options);
+        } catch (firstErr) {
+          console.warn('Push subscribe gagal, mencoba ulang:', firstErr);
+          await new Promise(r => setTimeout(r, 2000));
+          subscription = await registration.pushManager.subscribe(options);
+        }
         localStorage.setItem('axara_push_vapid_key', vapidKey);
       }
 
