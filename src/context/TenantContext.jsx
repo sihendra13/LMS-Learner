@@ -178,10 +178,11 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     }
   }, [db.currentUser?.email]);
 
-  // Otomatis saat login; dialog izin juga diminta di sini (browser bisa mengabaikannya
-  // tanpa klik user — tombol "Aktifkan Notifikasi" di Profil sebagai cadangan)
+  // Saat login hanya daftarkan ulang jika izin SUDAH diberikan. Dialog izin hanya diminta
+  // dari klik tombol "Aktifkan Notifikasi" — permintaan otomatis tanpa klik bisa membuat
+  // browser memblokir izin permanen.
   useEffect(() => {
-    setupPush({ ask: true });
+    setupPush({ ask: false });
   }, [setupPush]);
 
   // Sync read status from Supabase for Learner
