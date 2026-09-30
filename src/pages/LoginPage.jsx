@@ -204,7 +204,6 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
     if (inviteMode) {
       if (form.password.length < 6) { setError('Password minimal 6 karakter.'); return; }
       if (form.password !== inviteConfirm) { setError('Konfirmasi password tidak sama.'); return; }
-      promptInstall();
       setLoading(true); setError('');
       try {
         // Batasi waktu tunggu agar karyawan tidak tertahan tanpa keterangan di koneksi lambat
@@ -225,7 +224,6 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
       }
       return;
     }
-    promptInstall();
     setLoading(true);
     setError('');
     try {
