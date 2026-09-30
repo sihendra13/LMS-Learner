@@ -9,6 +9,15 @@ const mockSops = [
   { id: 5, title: 'SOP Manajemen Inventori Gudang', dept: 'Logistics', time: '15 Min', color: '#8b5cf6', videoUrl: '/videos/warehouse-inventory.mp4' },
 ];
 
+// Pesan error Supabase Auth → bahasa Indonesia yang jelas untuk karyawan
+const translateAuthError = (err) => {
+  const msg = err?.message || '';
+  if (/session|jwt|expired/i.test(msg)) return 'Sesi undangan sudah berakhir. Minta HRD mengirim ulang undangan, lalu buka link terbaru dari email.';
+  if (/weak|should contain|at least|characters/i.test(msg)) return `Password belum memenuhi syarat keamanan: ${msg}`;
+  if (/different from the old/i.test(msg)) return 'Password baru harus berbeda dari password sebelumnya.';
+  return msg || 'Gagal menyimpan password. Silakan coba lagi.';
+};
+
 export const LoginPage = ({ onLogin, setPasswordFor }) => {
   const [form, setForm] = useState({ email: setPasswordFor?.email || '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -198,11 +207,19 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
       promptInstall();
       setLoading(true); setError('');
       try {
-        const { data, error: err } = await supabase.auth.updateUser({ password: form.password, data: { password_set: true } });
+        // Batasi waktu tunggu agar karyawan tidak tertahan tanpa keterangan di koneksi lambat
+        const timeout = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Koneksi lambat, password belum tersimpan. Periksa internet Anda lalu coba lagi.')), 20000)
+        );
+        const { data, error: err } = await Promise.race([
+          supabase.auth.updateUser({ password: form.password, data: { password_set: true } }),
+          timeout,
+        ]);
         if (err) throw err;
         onLogin(data.user);
       } catch (err) {
-        setError(err.message || 'Gagal menyimpan password.');
+        console.error('Gagal simpan password undangan:', err);
+        setError(translateAuthError(err));
       } finally {
         setLoading(false);
       }
