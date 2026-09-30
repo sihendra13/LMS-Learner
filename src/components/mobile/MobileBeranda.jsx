@@ -155,9 +155,9 @@ const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
             const isMaxReached = submission && (submission.retakeCount || 0) >= MAX_RETAKES && submission.postScore < passingScore;
             const isCompleted = cs === 'approved' || (video.progress === 100 && submission && submission.postScore >= passingScore);
             const isOngoing = !isCompleted && video.progress > 0 && video.progress < 100;
+            // Remedial / tidak lulus tetap menampilkan progres baca asli; statusnya terlihat dari label
             const displayProgress =
               (cs === 'approved' || (cs === 'pending' && !isLegacyRemedial) || cs === 'supervisor_ok') ? 100
-              : (cs === 'remedial' || cs === 'rejected' || isLegacyRemedial) ? 0
               : video.progress;
 
             const getStatusBadge = (sub) => {
