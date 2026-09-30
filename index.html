@@ -32,6 +32,14 @@
           sessionStorage.setItem('axara_invite_hash', h);
         }
       })();
+      // Simpan event install PWA (Android/Chrome) sedini mungkin — dipakai saat user klik
+      // "Simpan & Mulai Belajar" / "Masuk". Banner bawaan Chrome tetap dibiarkan muncul.
+      window.addEventListener('beforeinstallprompt', function (e) {
+        window.__axaraInstallPrompt = e;
+      });
+      window.addEventListener('appinstalled', function () {
+        window.__axaraInstallPrompt = null;
+      });
     </script>
     <script type="module" src="/src/main.jsx"></script>
     <script>

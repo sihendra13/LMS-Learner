@@ -157,6 +157,35 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
     };
   };
 
+  // ── Install aplikasi dulu sebelum buat password (Android, dibuka dari browser) ──
+  // Sesi login dari Chrome ikut terbawa ke aplikasi yang di-install, jadi halaman
+  // buat password akan muncul di dalam aplikasi (lihat needsPassword di App.jsx).
+  const isAndroid = /android/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  const [installStep, setInstallStep] = useState(isAndroid && !isStandalone ? 'install' : null); // 'install' | 'installed' | null
+  const [canInstall, setCanInstall] = useState(!!window.__axaraInstallPrompt);
+
+  useEffect(() => {
+    const onPrompt = (e) => { window.__axaraInstallPrompt = e; setCanInstall(true); };
+    const onInstalled = () => { window.__axaraInstallPrompt = null; setInstallStep('installed'); };
+    window.addEventListener('beforeinstallprompt', onPrompt);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onPrompt);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    const deferred = window.__axaraInstallPrompt;
+    if (!deferred) return;
+    deferred.prompt();
+    const { outcome } = await deferred.userChoice;
+    window.__axaraInstallPrompt = null; // event hanya bisa dipakai sekali
+    setCanInstall(false);
+    if (outcome === 'accepted') setInstallStep('installed');
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) {
@@ -166,6 +195,7 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
     if (inviteMode) {
       if (form.password.length < 6) { setError('Password minimal 6 karakter.'); return; }
       if (form.password !== inviteConfirm) { setError('Konfirmasi password tidak sama.'); return; }
+      promptInstall();
       setLoading(true); setError('');
       try {
         const { data, error: err } = await supabase.auth.updateUser({ password: form.password, data: { password_set: true } });
@@ -178,6 +208,7 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
       }
       return;
     }
+    promptInstall();
     setLoading(true);
     setError('');
     try {
@@ -321,7 +352,9 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
                 {inviteMode ? `Selamat Datang, ${inviteName || 'Karyawan Baru'}! 👋` : forgotMode ? 'Reset Password' : 'Mulai Belajar Hari Ini'}
               </h1>
               <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 32px 0', lineHeight: '1.5' }}>
-                {inviteMode
+                {inviteMode && installStep
+                  ? 'Satu langkah lagi sebelum mulai belajar.'
+                  : inviteMode
                   ? 'Buat password untuk mulai mengakses modul pelatihan Anda.'
                   : forgotMode
                   ? 'Masukkan email perusahaan Anda untuk menerima link reset password.'
@@ -406,6 +439,33 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
                     Kembali ke Login
                   </button>
                 </form>
+              ) : inviteMode && installStep ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {installStep === 'install' ? (
+                    <>
+                      <div style={{ background: '#eff6ff', border: '1px solid #dbeafe', borderRadius: '12px', padding: '16px', fontSize: '14px', color: '#1e3a8a', lineHeight: '1.6' }}>
+                        <strong>Langkah 1 dari 2 — Install aplikasi myAxara</strong><br />
+                        Install aplikasi di HP Anda, lalu buka aplikasinya untuk membuat password dan mulai belajar.
+                      </div>
+                      <button type="button" onClick={handleInstall} disabled={!canInstall} style={{ width: '100%', padding: '14px', borderRadius: '8px', background: canInstall ? '#0B1628' : '#94a3b8', color: '#ffffff', border: 'none', fontSize: '14px', fontWeight: '700', cursor: canInstall ? 'pointer' : 'not-allowed' }}>
+                        {canInstall ? 'Install Aplikasi myAxara' : 'Menyiapkan aplikasi...'}
+                      </button>
+                      <button type="button" onClick={() => setInstallStep(null)} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}>
+                        Aplikasi sudah terpasang / lanjut di browser
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px', fontSize: '14px', color: '#166534', lineHeight: '1.6' }}>
+                        <strong>Aplikasi berhasil di-install ✅</strong><br />
+                        <strong>Langkah 2 dari 2:</strong> buka aplikasi <strong>myAxara</strong> dari layar utama HP Anda. Halaman buat password akan muncul di dalam aplikasi.
+                      </div>
+                      <button type="button" onClick={() => setInstallStep(null)} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '13px', cursor: 'pointer', textAlign: 'center' }}>
+                        Buat password di browser saja
+                      </button>
+                    </>
+                  )}
+                </div>
               ) : inviteMode ? (
               <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
