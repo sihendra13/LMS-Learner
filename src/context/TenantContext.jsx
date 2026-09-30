@@ -326,7 +326,8 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
           video_id: videoId,
           progress: updated,
           updated_at: new Date().toISOString(),
-        });
+        // Query Supabase baru terkirim saat di-await / .then() — tanpa ini progres tidak pernah tersimpan
+        }).then(({ error }) => { if (error) console.error('Gagal simpan progres:', error.message); });
       }
       return { ...prev, [videoId]: updated };
     });
@@ -475,7 +476,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         video_id: videoId,
         progress: 0,
         updated_at: new Date().toISOString(),
-      });
+      }).then(({ error }) => { if (error) console.error('Gagal reset progres:', error.message); });
     }
   };
 

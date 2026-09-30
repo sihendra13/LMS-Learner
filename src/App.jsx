@@ -35,7 +35,8 @@ const AppContent = ({ onLogout }) => {
 
   const handleSelectVideo = (video) => {
     if (video?.id) {
-      supabase.rpc('increment_video_views', { video_id: video.id });
+      supabase.rpc('increment_video_views', { video_id: video.id })
+        .then(({ error }) => { if (error) console.error('Gagal menambah jumlah tayangan:', error.message); });
     }
     setSelectedVideo(video);
   };
