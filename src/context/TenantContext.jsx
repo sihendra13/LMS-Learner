@@ -120,6 +120,17 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     if (!userEmail) return;
     if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
+    // Daftarkan perangkat atas nama user yang login (email diambil dari sesi di sisi database)
+    const registerSubscription = async (sub) => {
+      const { endpoint, keys } = sub.toJSON();
+      const { error } = await supabase.rpc('register_push_subscription', {
+        p_endpoint: endpoint,
+        p_p256dh: keys.p256dh,
+        p_auth: keys.auth,
+      });
+      if (error) throw error;
+    };
+
     const subscribeToPush = async () => {
       try {
         const permission = await Notification.requestPermission();
@@ -135,7 +146,10 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
         // We detect key change by comparing stored key with current key.
         const storedVapidKey = localStorage.getItem('axara_push_vapid_key');
         if (existingSub && storedVapidKey === vapidKey) {
-          // Subscription is still valid for current VAPID key — nothing to do
+          // Subscription masih valid — tetap simpan ulang atas nama user yang sedang login.
+          // Satu perangkat hanya punya satu endpoint; tanpa ini notifikasi tetap terkirim
+          // ke user sebelumnya yang pernah login di perangkat yang sama.
+          await registerSubscription(existingSub);
           return;
         }
         if (existingSub) {
@@ -157,13 +171,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
           applicationServerKey: urlBase64ToUint8Array(vapidKey),
         });
 
-        const subJson = subscription.toJSON();
-        await supabase.from('push_subscriptions').upsert({
-          user_email: userEmail,
-          endpoint: subJson.endpoint,
-          keys_p256dh: subJson.keys.p256dh,
-          keys_auth: subJson.keys.auth,
-        }, { onConflict: 'endpoint' });
+        await registerSubscription(subscription);
 
         // Remember which VAPID key this subscription was made with
         localStorage.setItem('axara_push_vapid_key', vapidKey);

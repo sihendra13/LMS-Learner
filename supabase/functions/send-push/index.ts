@@ -174,11 +174,17 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    let query = supabase.from("push_subscriptions").select("endpoint, keys_p256dh, keys_auth");
-    if (target_emails && target_emails.length > 0) {
-      query = query.in("user_email", target_emails);
+    // Tanpa penerima eksplisit JANGAN kirim — dulu dianggap broadcast ke semua
+    // subscriber lintas perusahaan (bocor antar tenant)
+    if (!Array.isArray(target_emails) || target_emails.length === 0) {
+      return new Response(JSON.stringify({ sent: 0, message: "target_emails wajib diisi" }), {
+        headers: { "Content-Type": "application/json" },
+      });
     }
-    const { data: subscriptions, error } = await query;
+    const { data: subscriptions, error } = await supabase
+      .from("push_subscriptions")
+      .select("endpoint, keys_p256dh, keys_auth")
+      .in("user_email", target_emails.map((e: string) => e.toLowerCase()));
 
     if (error) throw error;
     if (!subscriptions || subscriptions.length === 0) {
