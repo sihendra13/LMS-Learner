@@ -2,7 +2,7 @@ import React from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 const MobileProfil = ({ onLogout }) => {
-  const { currentUser, quizSubmissions, passingScore, myRank } = useTenant();
+  const { currentUser, quizSubmissions, passingScore, myRank, pushStatus, pushError, enablePush } = useTenant();
 
   const completedCount = quizSubmissions.filter(
     s => s.employeeName === currentUser.name && s.postScore >= passingScore
@@ -63,6 +63,26 @@ const MobileProfil = ({ onLogout }) => {
             <div style={{ fontSize: '10px', color: 'var(--text3)' }}>Peringkat Tim</div>
           </div>
         </div>
+      </div>
+
+      {/* NOTIFICATION STATUS CARD */}
+      <div className="card" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text3)', textTransform: 'uppercase' }}>Notifikasi SOP Baru</div>
+        <div style={{ fontSize: '12px', color: pushStatus === 'active' ? 'var(--green)' : 'var(--text2)', lineHeight: '1.5' }}>
+          {{
+            checking: 'Memeriksa status notifikasi...',
+            active: '✅ Aktif — Anda akan menerima notifikasi SOP baru di perangkat ini.',
+            default: 'Belum aktif. Aktifkan agar Anda tahu saat ada SOP baru.',
+            denied: 'Notifikasi diblokir. Buka Pengaturan HP → Aplikasi → myAxara → Notifikasi, lalu izinkan.',
+            unsupported: 'Perangkat/browser ini belum mendukung notifikasi. Di iPhone, install aplikasi ke Home Screen terlebih dahulu.',
+            error: `Gagal mengaktifkan notifikasi: ${pushError}`,
+          }[pushStatus]}
+        </div>
+        {(pushStatus === 'default' || pushStatus === 'error') && (
+          <button onClick={enablePush} style={{ padding: '10px', borderRadius: '8px', background: '#0B1628', color: '#fff', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+            Aktifkan Notifikasi
+          </button>
+        )}
       </div>
 
       {/* ACCOUNT DETAILS CARD */}

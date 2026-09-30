@@ -114,74 +114,70 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
     saveDB(db);
   }, [db]);
 
-  // Subscribe to Web Push notifications after login
-  useEffect(() => {
+  // ── Web Push: daftarkan perangkat atas nama user yang login ────────────────
+  // pushStatus: 'checking' | 'unsupported' | 'default' | 'denied' | 'active' | 'error'
+  const [pushStatus, setPushStatus] = useState('checking');
+  const [pushError, setPushError] = useState('');
+
+  const setupPush = React.useCallback(async ({ ask }) => {
     const userEmail = db.currentUser?.email;
     if (!userEmail) return;
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+      setPushStatus('unsupported');
+      return;
+    }
+    try {
+      let permission = Notification.permission;
+      if (permission === 'default' && ask) permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        setPushStatus(permission === 'denied' ? 'denied' : 'default');
+        return;
+      }
 
-    // Daftarkan perangkat atas nama user yang login (email diambil dari sesi di sisi database)
-    const registerSubscription = async (sub) => {
-      const { endpoint, keys } = sub.toJSON();
+      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!vapidKey) throw new Error('Kunci notifikasi (VAPID) belum dikonfigurasi.');
+
+      const registration = await navigator.serviceWorker.ready;
+      let subscription = await registration.pushManager.getSubscription();
+
+      // Subscription lama dibuat dengan kunci VAPID lain → buat ulang
+      if (subscription && localStorage.getItem('axara_push_vapid_key') !== vapidKey) {
+        await subscription.unsubscribe();
+        subscription = null;
+      }
+      if (!subscription) {
+        const padding = '='.repeat((4 - vapidKey.length % 4) % 4);
+        const raw = window.atob((vapidKey + padding).replace(/-/g, '+').replace(/_/g, '/'));
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: Uint8Array.from(raw, c => c.charCodeAt(0)),
+        });
+        localStorage.setItem('axara_push_vapid_key', vapidKey);
+      }
+
+      // Satu perangkat = satu endpoint — selalu daftarkan ulang atas nama user yang login
+      // (email diambil dari sesi di sisi database)
+      const { endpoint, keys } = subscription.toJSON();
       const { error } = await supabase.rpc('register_push_subscription', {
         p_endpoint: endpoint,
         p_p256dh: keys.p256dh,
         p_auth: keys.auth,
       });
       if (error) throw error;
-    };
-
-    const subscribeToPush = async () => {
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') return;
-
-        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-        if (!vapidKey) return;
-
-        const registration = await navigator.serviceWorker.ready;
-        const existingSub = await registration.pushManager.getSubscription();
-
-        // If subscription exists but was made with a different VAPID key, unsubscribe first.
-        // We detect key change by comparing stored key with current key.
-        const storedVapidKey = localStorage.getItem('axara_push_vapid_key');
-        if (existingSub && storedVapidKey === vapidKey) {
-          // Subscription masih valid — tetap simpan ulang atas nama user yang sedang login.
-          // Satu perangkat hanya punya satu endpoint; tanpa ini notifikasi tetap terkirim
-          // ke user sebelumnya yang pernah login di perangkat yang sama.
-          await registerSubscription(existingSub);
-          return;
-        }
-        if (existingSub) {
-          // VAPID key changed or unknown — unsubscribe old so we can re-subscribe fresh
-          await existingSub.unsubscribe();
-        }
-
-        const urlBase64ToUint8Array = (base64String) => {
-          const padding = '='.repeat((4 - base64String.length % 4) % 4);
-          const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-          const rawData = window.atob(base64);
-          const outputArray = new Uint8Array(rawData.length);
-          for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-          return outputArray;
-        };
-
-        const subscription = await registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapidKey),
-        });
-
-        await registerSubscription(subscription);
-
-        // Remember which VAPID key this subscription was made with
-        localStorage.setItem('axara_push_vapid_key', vapidKey);
-      } catch (err) {
-        console.warn('Push subscription failed:', err);
-      }
-    };
-
-    subscribeToPush();
+      setPushStatus('active');
+      setPushError('');
+    } catch (err) {
+      console.warn('Push subscription failed:', err);
+      setPushStatus('error');
+      setPushError(err?.message || String(err));
+    }
   }, [db.currentUser?.email]);
+
+  // Otomatis saat login; dialog izin juga diminta di sini (browser bisa mengabaikannya
+  // tanpa klik user — tombol "Aktifkan Notifikasi" di Profil sebagai cadangan)
+  useEffect(() => {
+    setupPush({ ask: true });
+  }, [setupPush]);
 
   // Sync read status from Supabase for Learner
   useEffect(() => {
@@ -800,6 +796,9 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   return (
     <TenantContext.Provider value={{
       trialExpired,
+      pushStatus,
+      pushError,
+      enablePush: () => setupPush({ ask: true }),
       currentUser: db.currentUser,
       employees: db.employees,
       videos: videosWithProgress,
