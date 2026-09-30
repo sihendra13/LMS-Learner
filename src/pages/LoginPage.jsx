@@ -19,9 +19,15 @@ const translateAuthError = (err) => {
 };
 
 export const LoginPage = ({ onLogin, setPasswordFor }) => {
-  const [form, setForm] = useState({ email: setPasswordFor?.email || '', password: '' });
+  const [form, setForm] = useState({ email: setPasswordFor?.email || sessionStorage.getItem('axara_login_email') || '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Pesan dari App (mis. sesi berakhir) — ditampilkan sekali di halaman login
+  const [notice] = useState(() => sessionStorage.getItem('axara_login_notice'));
+  useEffect(() => {
+    sessionStorage.removeItem('axara_login_notice');
+    sessionStorage.removeItem('axara_login_email');
+  }, []);
   const [showPassword, setShowPassword] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotSuccess, setForgotSuccess] = useState(false);
@@ -218,6 +224,13 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
         onLogin(data.user);
       } catch (err) {
         console.error('Gagal simpan password undangan:', err);
+        if (/session|jwt|expired/i.test(err?.message || '')) {
+          // Sesi sudah dicabut — keluar dan arahkan ke login dengan email terisi
+          sessionStorage.setItem('axara_login_email', form.email);
+          sessionStorage.setItem('axara_login_notice', 'Sesi Anda sudah berakhir. Jika password sudah pernah dibuat, silakan masuk. Jika belum, minta HRD mengirim ulang undangan.');
+          await supabase.auth.signOut({ scope: 'local' });
+          return;
+        }
         setError(translateAuthError(err));
       } finally {
         setLoading(false);
@@ -375,6 +388,11 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
                   ? 'Masukkan email perusahaan Anda untuk menerima link reset password.'
                   : 'Silakan masuk menggunakan akun karyawan yang terdaftar untuk mengakses modul pembelajaran Anda.'}
               </p>
+              {notice && !inviteMode && !forgotMode && (
+                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '10px 14px', fontSize: '13px', color: '#1e40af', margin: '-16px 0 20px', lineHeight: '1.5' }}>
+                  {notice}
+                </div>
+              )}
 
               {forgotSuccess ? (
                 <div style={{ textAlign: 'center' }}>

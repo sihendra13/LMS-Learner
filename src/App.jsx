@@ -533,10 +533,25 @@ function App() {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthUser(session?.user || null);
-      if (session?.user) {
-        autoSelectEmployee(session.user);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      let user = session?.user || null;
+      if (user) {
+        // Validasi sesi ke server: sesi bisa sudah dicabut (mis. password diganti di perangkat lain)
+        // dan data user (password_set) di cache bisa basi
+        const { data, error } = await supabase.auth.getUser();
+        if (data?.user) {
+          user = data.user;
+        } else if (error && error.status >= 400 && error.status < 500) {
+          sessionStorage.setItem('axara_login_email', user.email || '');
+          sessionStorage.setItem('axara_login_notice', 'Sesi Anda sudah berakhir. Silakan masuk kembali dengan email dan password Anda.');
+          await supabase.auth.signOut({ scope: 'local' });
+          user = null;
+        }
+        // error jaringan (offline) → tetap pakai sesi tersimpan
+      }
+      setAuthUser(user);
+      if (user) {
+        autoSelectEmployee(user);
       }
       setCheckingAuth(false);
     });
@@ -584,9 +599,9 @@ function App() {
       ) : isInviteFlow ? (
         <LoginPage onLogin={handleLogin} />
       ) : !authUser ? (
-        <LoginPage onLogin={handleLogin} />
+        <LoginPage key="login" onLogin={handleLogin} />
       ) : needsPassword ? (
-        <LoginPage onLogin={handleLogin} setPasswordFor={authUser} />
+        <LoginPage key="set-password" onLogin={handleLogin} setPasswordFor={authUser} />
       ) : isAutoSelecting ? (
         <div style={{ minHeight: '100vh', background: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
           <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
