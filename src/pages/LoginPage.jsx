@@ -23,10 +23,20 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   // Pesan dari App (mis. sesi berakhir) — ditampilkan sekali di halaman login
-  const [notice] = useState(() => sessionStorage.getItem('axara_login_notice'));
+  const [notice] = useState(() => {
+    // Link undangan/magic link yang sudah dipakai atau kedaluwarsa → Supabase redirect dengan #error_code=otp_expired
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    if (hashParams.get('error_code') === 'otp_expired' || hashParams.get('error') === 'access_denied') {
+      return 'Link undangan ini sudah pernah dipakai atau sudah kedaluwarsa. Jika Anda sudah membuat password, silakan masuk dengan email dan password Anda. Jika belum, minta HRD mengirim ulang undangan.';
+    }
+    return sessionStorage.getItem('axara_login_notice');
+  });
   useEffect(() => {
     sessionStorage.removeItem('axara_login_notice');
     sessionStorage.removeItem('axara_login_email');
+    if (/error_code=|error=access_denied/.test(window.location.hash)) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   }, []);
   const [showPassword, setShowPassword] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
