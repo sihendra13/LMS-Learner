@@ -521,6 +521,20 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   const [companyLogo, setCompanyLogo] = useState(null);
   const [trialExpired, setTrialExpired] = useState(false);
 
+  // Penanda tangan sertifikat dari Pengaturan admin — sama dengan sertifikat yang diunduh HRD
+  const [certSigner, setCertSigner] = useState({ name: '', title: '', signatureUrl: '' });
+  useEffect(() => {
+    if (!tenantId) return;
+    supabase.from('tenant_settings')
+      .select('cert_signer_name, cert_signer_title, cert_signature_url')
+      .eq('tenant_id', tenantId)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) { console.error('Gagal memuat penanda tangan sertifikat:', error.message); return; }
+        if (data) setCertSigner({ name: data.cert_signer_name || '', title: data.cert_signer_title || '', signatureUrl: data.cert_signature_url || '' });
+      });
+  }, [tenantId]);
+
   // Fetch tenant name + company_logo via authUser → users table → tenants table
   useEffect(() => {
     if (!authUser?.id) return;
@@ -815,6 +829,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   return (
     <TenantContext.Provider value={{
       trialExpired,
+      certSigner,
       pushStatus,
       pushError,
       enablePush: () => { setPushStatus('checking'); setPushError(''); setupPush({ ask: true }); },

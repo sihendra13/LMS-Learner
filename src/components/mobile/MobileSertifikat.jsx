@@ -4,7 +4,7 @@ import { PLANS } from '../../utils/featureGates';
 import { formatDateTime, formatDateLong, certExpiry, certificateId } from '../../utils/dates';
 
 const MobileSertifikat = () => {
-  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole } = useTenant();
+  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole, certSigner } = useTenant();
   const [activeTab, setActiveTab] = useState('sertifikat');
   const [previewCert, setPreviewCert] = useState(null);
   const [downloading, setDownloading] = useState(false);
@@ -17,6 +17,7 @@ const MobileSertifikat = () => {
       await downloadCertificatePdf(previewCert, {
         tenantName: tenant?.name || '',
         logoUrl: tenant?.plan === PLANS.ENTERPRISE ? companyLogo : null,
+        signer: certSigner,
       });
     } catch (err) {
       console.error('Gagal membuat PDF sertifikat:', err);
@@ -377,12 +378,23 @@ const MobileSertifikat = () => {
                   <div style={{ marginTop: '6px', fontSize: '7px', color: '#cbd5e1' }}>Sertifikat ini diterbitkan melalui platform myAxara</div>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: '10px', borderTop: '1px dashed var(--border)', paddingTop: '10px' }}>
-                  <div style={{ fontFamily: 'cursive', fontSize: '16px', color: '#1e3a8a', height: '25px', lineHeight: '25px' }}>
-                    {previewCert.approvedBy}
-                  </div>
+                  {/* Penanda tangan dari Pengaturan admin — sama dengan PDF */}
+                  {certSigner.signatureUrl ? (
+                    <img src={certSigner.signatureUrl} alt="Tanda tangan" style={{ height: '25px', maxWidth: '140px', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
+                  ) : (
+                    <div style={{ fontFamily: 'cursive', fontSize: '16px', color: '#1e3a8a', height: '25px', lineHeight: '25px' }}>
+                      {certSigner.name || previewCert.approvedBy}
+                    </div>
+                  )}
                   <div style={{ width: '100px', height: '1px', background: 'var(--border)', margin: '4px auto' }} />
+                  {certSigner.signatureUrl && (
+                    <div style={{ fontSize: '9px', color: 'var(--text1)', fontWeight: '700' }}>{certSigner.name || previewCert.approvedBy}</div>
+                  )}
                   <div style={{ fontSize: '9px', color: 'var(--text3)', fontWeight: '600', textTransform: 'uppercase' }}>
-                    HR Manager, {tenant?.name}
+                    {certSigner.title || 'HR Manager'}
+                  </div>
+                  <div style={{ fontSize: '9px', color: 'var(--text3)', textTransform: 'uppercase' }}>
+                    {tenant?.name}
                   </div>
                 </div>
               </div>
