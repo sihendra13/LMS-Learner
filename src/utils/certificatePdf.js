@@ -160,7 +160,8 @@ export const downloadCertificatePdf = async (cert, options) => {
     const file = new File([doc.output('blob')], fileName, { type: 'application/pdf' });
     if (navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: fileName });
+        // Hanya file — menambahkan title/text membuat iPhone menyimpan file teks tambahan di Files
+        await navigator.share({ files: [file] });
         return;
       } catch (err) {
         if (err?.name === 'AbortError') return; // user menutup menu Share
