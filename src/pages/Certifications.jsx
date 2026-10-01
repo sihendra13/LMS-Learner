@@ -488,7 +488,7 @@ export const Certifications = () => {
                 {previewCert.employeeName}
               </h2>
               <p style={{ fontSize: '12px', color: 'var(--text3)', margin: '15px auto', maxWidth: '480px', lineHeight: '1.6' }}>
-                Atas kelulusan luar biasa dan kompetensi penuh yang ditunjukkan dalam menyelesaikan pelatihan materi video standar perusahaan:
+                Atas kelulusan dan kompetensi penuh yang ditunjukkan dalam menyelesaikan pelatihan SOP standar perusahaan:
               </p>
               <h3 style={{ fontSize: '15px', fontWeight: '700', color: 'var(--accent)', margin: '10px 0 30px 0' }}>
                 {previewCert.videoTitle}

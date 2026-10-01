@@ -363,7 +363,7 @@ const MobileSertifikat = () => {
                 {previewCert.employeeName}
               </h2>
               <p style={{ fontSize: '10px', color: 'var(--text3)', margin: '10px auto', maxWidth: '320px', lineHeight: '1.5' }}>
-                Atas kelulusan luar biasa dan kompetensi penuh yang ditunjukkan dalam menyelesaikan pelatihan materi video standar perusahaan:
+                Atas kelulusan dan kompetensi penuh yang ditunjukkan dalam menyelesaikan pelatihan SOP standar perusahaan:
               </p>
               <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--accent)', margin: '8px 0 20px 0' }}>
                 {previewCert.videoTitle}
