@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useTenant } from '../../context/TenantContext';
 import { PLANS } from '../../utils/featureGates';
+import { formatDateTime, formatDateLong, certExpiry } from '../../utils/dates';
 
 const MobileSertifikat = () => {
-  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo } = useTenant();
+  const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole } = useTenant();
   const [activeTab, setActiveTab] = useState('sertifikat');
   const [previewCert, setPreviewCert] = useState(null);
 
@@ -13,8 +14,9 @@ const MobileSertifikat = () => {
   const certificates = mySubmissions
     .filter(sub => sub.certStatus === 'approved')
     .map((sub, idx) => {
-      const issueDate = sub.approvedDate || sub.date || '09 Jun 2026';
-      const expiryDate = validityMonths === 999 ? 'Selamanya' : `09 Jun ${2026 + Math.floor(validityMonths / 12)}`;
+      const issued = sub.approvedDate || sub.date;
+      const issueDate = formatDateLong(issued);
+      const expiryDate = certExpiry(issued, validityMonths);
       return {
         id: `CERT-2026${100 + idx}`,
         employeeName: sub.employeeName,
@@ -27,17 +29,20 @@ const MobileSertifikat = () => {
       };
     });
 
+  const isFailedPending = (sub) => sub.certStatus === 'pending' && sub.postScore != null && Number(sub.postScore) < passingScore;
+
   const certStatusLabel = (sub) => {
     if (sub.certStatus === 'approved')      return { label: 'Sertifikat Aktif',             color: '#15803d', bg: '#f0fdf4', border: '#86efac' };
     if (sub.certStatus === 'rejected')      return { label: 'Tidak Lulus',                color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' };
-    if (sub.certStatus === 'remedial') {
+    // Kuis gagal otomatis tersimpan 'pending' — tampilkan sebagai remedial (sama dengan desktop)
+    if (sub.certStatus === 'remedial' || isFailedPending(sub)) {
       const rCount = sub.retakeCount || 0;
       return rCount >= 3 
         ? { label: 'Tidak Lulus', color: '#b91c1c', bg: '#fff5f5', border: '#fecaca' }
         : { label: `Perlu Remedial · sisa ${Math.max(0, MAX_RETAKES - (rCount))} kesempatan`, color: '#b45309', bg: '#fff7ed', border: '#fed7aa' };
     }
-    if (sub.certStatus === 'supervisor_ok') return { label: 'Direkomendasi — Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
-    return { label: 'Menunggu Review Supervisor', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
+    if (sub.certStatus === 'supervisor_ok') return { label: enableSpvRole ? 'Direkomendasi — Menunggu HRD' : 'Menunggu HRD', color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd' };
+    return { label: enableSpvRole ? 'Menunggu Review Supervisor' : 'Menunggu HRD', color: '#92400e', bg: '#fffbeb', border: '#fde68a' };
   };
 
   const handleRetake = (sub) => {
@@ -83,7 +88,7 @@ const MobileSertifikat = () => {
             </svg>
           </div>
           <div>
-            <div className="s-val" style={{ fontSize: '15px' }}>{mySubmissions.filter(s => !s.certStatus || s.certStatus === 'pending').length}</div>
+            <div className="s-val" style={{ fontSize: '15px' }}>{mySubmissions.filter(s => (!s.certStatus || s.certStatus === 'pending' || s.certStatus === 'supervisor_ok') && !isFailedPending(s)).length}</div>
             <div className="s-lbl" style={{ fontSize: '9px' }}>Menunggu</div>
           </div>
         </div>
@@ -204,7 +209,7 @@ const MobileSertifikat = () => {
                 return (
                   <div key={sub.id} style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '12px 16px', borderBottom: '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Tanggal: {sub.date || '09 Jun 2026'}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text3)' }}>Tanggal: {formatDateTime(sub.date)}</div>
                       <span style={{
                         fontSize: '9px',
                         fontWeight: '700',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 import { PLANS } from '../utils/featureGates';
+import { formatDateLong, certExpiry } from '../utils/dates';
 
 export const Certifications = () => {
   const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole } = useTenant();
@@ -13,19 +14,9 @@ export const Certifications = () => {
   const certificates = mySubmissions
     .filter(sub => sub.certStatus === 'approved')
     .map((sub, idx) => {
-      const rawDate = sub.approvedDate || sub.date;
-      const parsedDate = rawDate ? new Date(rawDate) : null;
-      const isValidDate = parsedDate && !isNaN(parsedDate.getTime());
-      const issueDate = isValidDate
-        ? parsedDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-        : rawDate || '-';
-      const expiryDate = (() => {
-        if (validityMonths === 999) return 'Selamanya';
-        if (!isValidDate) return '-';
-        const exp = new Date(parsedDate);
-        exp.setMonth(exp.getMonth() + validityMonths);
-        return exp.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-      })();
+      const issued = sub.approvedDate || sub.date;
+      const issueDate = formatDateLong(issued);
+      const expiryDate = certExpiry(issued, validityMonths);
       return {
         id: `CERT-2026${100 + idx}`,
         employeeName: sub.employeeName,
@@ -130,7 +121,7 @@ export const Certifications = () => {
             </svg>
           </div>
           <div>
-            <div className="s-val">{mySubmissions.filter(s => !s.certStatus || s.certStatus === 'pending' || s.certStatus === 'supervisor_ok').length}</div>
+            <div className="s-val">{mySubmissions.filter(s => (!s.certStatus || s.certStatus === 'pending' || s.certStatus === 'supervisor_ok') && !(s.certStatus === 'pending' && s.postScore != null && Number(s.postScore) < passingScore)).length}</div>
             <div className="s-lbl">Menunggu Verifikasi</div>
           </div>
         </div>
