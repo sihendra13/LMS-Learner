@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTenant } from '../context/TenantContext';
 import { PLANS } from '../utils/featureGates';
-import { formatDateLong, certExpiry } from '../utils/dates';
+import { formatDateLong, certExpiry, certificateId } from '../utils/dates';
 
 export const Certifications = () => {
   const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole } = useTenant();
@@ -36,7 +36,7 @@ export const Certifications = () => {
       const issueDate = formatDateLong(issued);
       const expiryDate = certExpiry(issued, validityMonths);
       return {
-        id: `CERT-2026${100 + idx}`,
+        id: certificateId(sub),
         employeeName: sub.employeeName,
         videoTitle: sub.videoTitle,
         score: sub.postScore,

@@ -42,3 +42,10 @@ export const certExpiry = (issued, validityMonths) => {
   exp.setMonth(exp.getMonth() + Number(validityMonths || 12));
   return exp.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 };
+
+// Nomor sertifikat unik & tetap, dari id hasil kuis (UUID) — sama dengan yang tampil di admin
+export const certificateId = (sub) => {
+  const year = (parseAnyDate(sub.approvedDate || sub.date) || new Date()).getFullYear();
+  const code = String(sub.id || '').replace(/-/g, '').slice(0, 8).toUpperCase();
+  return `CERT-${year}-${code || '00000000'}`;
+};

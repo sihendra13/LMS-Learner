@@ -47,14 +47,16 @@ const MobileLayout = ({ onSelectVideo, onLogout }) => {
   return (
     <div style={{
       width: '100%',
-      minHeight: '100vh',
+      height: '100dvh',
+      maxHeight: '-webkit-fill-available',
       background: 'var(--surface2)',
       color: 'var(--text1)',
       fontFamily: "'Plus Jakarta Sans', sans-serif",
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      position: 'relative'
+      position: 'relative',
+      overflow: 'hidden'
     }}>
       {/* MOBILE TOPBAR (Sticky at top) */}
       <header style={{
@@ -123,23 +125,23 @@ const MobileLayout = ({ onSelectVideo, onLogout }) => {
         </div>
       </header>
 
-      {/* Content wrapper with padding-bottom to prevent fixed bottom navbar from overlaying the last element */}
+      {/* Content wrapper with internal scrolling */}
       <main style={{
         flex: 1,
         width: '100%',
         boxSizing: 'border-box',
-        paddingBottom: '80px'
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        paddingBottom: '16px'
       }}>
         {renderContent()}
       </main>
 
-      {/* MOBILE BOTTOM NAVBAR (Fixed at bottom of mobile screen) */}
+      {/* MOBILE BOTTOM NAVBAR */}
       <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
         width: '100%',
-        height: '60px',
+        height: 'calc(60px + env(safe-area-inset-bottom, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         background: 'var(--surface)',
         borderTop: '1px solid var(--border)',
         display: 'flex',
@@ -147,7 +149,8 @@ const MobileLayout = ({ onSelectVideo, onLogout }) => {
         alignItems: 'center',
         boxSizing: 'border-box',
         zIndex: 1200,
-        boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'
+        boxShadow: '0 -2px 10px rgba(0,0,0,0.05)',
+        flexShrink: 0
       }}>
         <button
           onClick={() => setActiveTab('home')}
