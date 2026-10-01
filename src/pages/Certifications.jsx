@@ -6,6 +6,24 @@ import { formatDateLong, certExpiry } from '../utils/dates';
 export const Certifications = () => {
   const { quizSubmissions, videos, currentUser, passingScore, validityMonths, retakeQuiz, setActivePage, MAX_RETAKES, tenant, companyLogo, enableSpvRole } = useTenant();
   const [previewCert, setPreviewCert] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const handleDownload = async () => {
+    if (!previewCert || downloading) return;
+    setDownloading(true);
+    try {
+      // jsPDF dimuat hanya saat dibutuhkan agar aplikasi tetap ringan saat dibuka
+      const { downloadCertificatePdf } = await import('../utils/certificatePdf');
+      await downloadCertificatePdf(previewCert, {
+        tenantName: tenant?.name || '',
+        logoUrl: tenant?.plan === PLANS.ENTERPRISE ? companyLogo : null,
+      });
+    } catch (err) {
+      console.error('Gagal membuat PDF sertifikat:', err);
+      window.alert('Sertifikat gagal diunduh. Silakan coba lagi.');
+    } finally {
+      setDownloading(false);
+    }
+  };
   const [activeTab, setActiveTab] = useState('sertifikat');
 
   const mySubmissions = quizSubmissions.filter(s => s.employeeName === currentUser.name);
@@ -497,8 +515,8 @@ export const Certifications = () => {
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
               <button className="btn-sec" onClick={() => setPreviewCert(null)}>Tutup</button>
-              <button className="btn-primary" style={{ background: '#002D72' }} onClick={() => window.print()}>
-                Download Sertifikat
+              <button className="btn-primary" style={{ background: '#002D72', opacity: downloading ? 0.7 : 1 }} onClick={handleDownload} disabled={downloading}>
+                {downloading ? 'Membuat PDF...' : 'Download Sertifikat'}
               </button>
             </div>
           </div>
