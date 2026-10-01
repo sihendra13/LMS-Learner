@@ -442,6 +442,36 @@ const AppContent = ({ onLogout }) => {
 };
 
 const EMPLOYEE_KEY = 'axara_learner_employee';
+const PENDING_INVITE_KEY = 'axara_pending_invite';
+const PENDING_INVITE_MAX_AGE = 2 * 86400000; // link undangan berlaku 24 jam — simpan maksimal 2 hari
+
+// Link undangan berbentuk /?invite_token=...&email=...&name=... (lihat template email Supabase).
+// Token TIDAK langsung dipakai — baru diverifikasi saat karyawan menekan "Simpan & Mulai Belajar",
+// sehingga pemindai link email / tab lain tidak menghanguskan undangan.
+// Disimpan di localStorage: di Android, aplikasi yang di-install memakai penyimpanan yang sama
+// dengan Chrome, jadi form buat password tetap muncul setelah install.
+const readPendingInvite = () => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('invite_token');
+    if (token) {
+      const invite = {
+        token,
+        // '+' pada email bisa terbaca sebagai spasi di query string
+        email: (params.get('email') || '').replace(/ /g, '+').trim().toLowerCase(),
+        name: params.get('name') || '',
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(PENDING_INVITE_KEY, JSON.stringify(invite));
+      window.history.replaceState(null, '', window.location.pathname);
+      return invite;
+    }
+    const stored = JSON.parse(localStorage.getItem(PENDING_INVITE_KEY) || 'null');
+    if (stored && Date.now() - stored.savedAt < PENDING_INVITE_MAX_AGE) return stored;
+    localStorage.removeItem(PENDING_INVITE_KEY);
+  } catch { /* storage diblokir */ }
+  return null;
+};
 
 const SplashScreen = ({ onFinish }) => {
   useEffect(() => {
@@ -570,9 +600,16 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const [pendingInvite, setPendingInvite] = useState(readPendingInvite);
+  const clearPendingInvite = () => {
+    try { localStorage.removeItem(PENDING_INVITE_KEY); } catch { /* storage diblokir */ }
+    setPendingInvite(null);
+  };
+
   const handleLogin = (user) => {
     sessionStorage.removeItem('axara_invite_hash');
     setIsInviteFlow(false);
+    clearPendingInvite();
     setAuthUser(user);
     autoSelectEmployee(user);
   };
@@ -598,6 +635,13 @@ function App() {
   // Karyawan yang masuk lewat link undangan wajib membuat password dulu
   const needsPassword = !!authUser?.invited_at && !authUser?.user_metadata?.password_set;
 
+  // Undangan tertunda untuk akun yang sudah aktif di perangkat ini tidak diperlukan lagi
+  useEffect(() => {
+    if (pendingInvite && authUser?.email?.toLowerCase() === pendingInvite.email && authUser?.user_metadata?.password_set) {
+      clearPendingInvite();
+    }
+  }, [pendingInvite, authUser]);
+
   return (
     <>
       {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
@@ -607,6 +651,8 @@ function App() {
           <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#2f7bff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
+      ) : pendingInvite && (!authUser || needsPassword || authUser.email?.toLowerCase() !== pendingInvite.email) ? (
+        <LoginPage key="invite-token" onLogin={handleLogin} pendingInvite={pendingInvite} onInviteInvalid={clearPendingInvite} />
       ) : isInviteFlow ? (
         <LoginPage onLogin={handleLogin} />
       ) : !authUser ? (

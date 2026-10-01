@@ -18,11 +18,11 @@ const translateAuthError = (err) => {
   return msg || 'Gagal menyimpan password. Silakan coba lagi.';
 };
 
-export const LoginPage = ({ onLogin, setPasswordFor }) => {
+export const LoginPage = ({ onLogin, setPasswordFor, pendingInvite, onInviteInvalid }) => {
   const [form, setForm] = useState(() => {
     let lastEmail = '';
     try { lastEmail = localStorage.getItem('axara_last_email') || ''; } catch { /* storage diblokir */ }
-    return { email: setPasswordFor?.email || sessionStorage.getItem('axara_login_email') || lastEmail, password: '' };
+    return { email: pendingInvite?.email || setPasswordFor?.email || sessionStorage.getItem('axara_login_email') || lastEmail, password: '' };
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -46,9 +46,9 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotSuccess, setForgotSuccess] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
-  const [inviteMode, setInviteMode] = useState(!!setPasswordFor);
+  const [inviteMode, setInviteMode] = useState(!!setPasswordFor || !!pendingInvite);
   const [inviteConfirm, setInviteConfirm] = useState('');
-  const [inviteName, setInviteName] = useState(setPasswordFor?.user_metadata?.name || '');
+  const [inviteName, setInviteName] = useState(pendingInvite?.name || setPasswordFor?.user_metadata?.name || '');
 
   useEffect(() => {
     const rawHash = sessionStorage.getItem('axara_invite_hash') || window.location.hash;
@@ -230,10 +230,22 @@ export const LoginPage = ({ onLogin, setPasswordFor }) => {
         const timeout = new Promise((_, reject) =>
           setTimeout(() => reject(new Error('Koneksi lambat, password belum tersimpan. Periksa internet Anda lalu coba lagi.')), 20000)
         );
-        const { data, error: err } = await Promise.race([
-          supabase.auth.updateUser({ password: form.password, data: { password_set: true } }),
-          timeout,
-        ]);
+        const savePassword = async () => {
+          // Link undangan versi baru: token baru diverifikasi sekarang (bukan saat link dibuka)
+          if (pendingInvite) {
+            const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash: pendingInvite.token, type: 'invite' });
+            if (verifyError) return { inviteInvalid: true, error: verifyError };
+          }
+          return supabase.auth.updateUser({ password: form.password, data: { password_set: true } });
+        };
+        const { data, error: err, inviteInvalid } = await Promise.race([savePassword(), timeout]);
+        if (inviteInvalid) {
+          console.error('Token undangan tidak valid:', err);
+          sessionStorage.setItem('axara_login_email', form.email);
+          sessionStorage.setItem('axara_login_notice', 'Link undangan ini sudah kedaluwarsa atau sudah dipakai. Jika Anda sudah membuat password, silakan masuk. Jika belum, minta HRD mengirim ulang undangan.');
+          onInviteInvalid?.();
+          return;
+        }
         if (err) throw err;
         onLogin(data.user);
       } catch (err) {
