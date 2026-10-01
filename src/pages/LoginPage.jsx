@@ -247,6 +247,8 @@ export const LoginPage = ({ onLogin, setPasswordFor, pendingInvite, onInviteInva
           return;
         }
         if (err) throw err;
+        // Tanda untuk banner install iPhone di dashboard: "Password tersimpan, sekarang install"
+        try { sessionStorage.setItem('axara_just_set_password', '1'); } catch { /* storage diblokir */ }
         onLogin(data.user);
       } catch (err) {
         console.error('Gagal simpan password undangan:', err);
@@ -778,7 +780,8 @@ export const LoginPage = ({ onLogin, setPasswordFor, pendingInvite, onInviteInva
       </div>
 
       {/* iOS Install Prompt */}
-      {isIosPromptVisible && (
+      {/* Di iPhone, install HARUS setelah password dibuat (penyimpanan aplikasi Home Screen terpisah dari Safari) */}
+      {isIosPromptVisible && !inviteMode && (
         <div style={{
           position: 'fixed', bottom: '20px', left: '20px', right: '20px',
           background: '#0B1628', border: '1px solid #1e293b', borderRadius: '16px',
