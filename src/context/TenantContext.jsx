@@ -22,6 +22,7 @@ const fromDbRow = (row) => ({
   narasiMode: row.narasi_mode || null,
   slideNarasi: row.slide_narasi || null,
   archived: row.archived || false,
+  createdAt: row.created_at || null,
 });
 
 const TenantContext = createContext();
@@ -627,7 +628,11 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
   });
 
   // 2. Perlu Remedial atau Tidak Lulus (certStatus === 'remedial')
-  const remedialSubs = quizSubmissions.filter(s => s.certStatus === 'remedial');
+  // Kuis gagal otomatis tersimpan dengan cert_status 'pending' — tetap dianggap remedial
+  const remedialSubs = quizSubmissions.filter(s =>
+    s.certStatus === 'remedial' ||
+    (s.certStatus === 'pending' && s.postScore != null && Number(s.postScore) < (db.passingScore || 80))
+  );
   remedialSubs.forEach(s => {
     const isTidakLulus = (s.retakeCount || 0) >= MAX_RETAKES;
     notifications.push({
@@ -659,7 +664,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
 
     if (progress < 100 && !hasPassed) {
       // New SOP check (created in last 7 days)
-      const createdTime = v.created_at ? new Date(v.created_at) : now;
+      const createdTime = v.createdAt ? new Date(v.createdAt) : now;
       const isNew = (now - createdTime) / 86400000 <= 7;
       if (isNew) {
         notifications.push({
@@ -667,7 +672,7 @@ export const TenantProvider = ({ children, selectedEmployee, authUser }) => {
           type: 'new-sop',
           title: `SOP Baru Ditugaskan 📚`,
           message: `SOP baru "${v.title}" wajib Anda pelajari.`,
-          date: v.created_at || new Date().toISOString(),
+          date: v.createdAt || new Date().toISOString(),
           sub: v.deadline ? `Batas waktu: ${new Date(v.deadline).toLocaleDateString('id-ID')}` : 'Tidak ada tenggat waktu',
           page: 'sop',
           color: '#3b82f6',

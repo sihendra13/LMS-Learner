@@ -2,10 +2,10 @@ import React from 'react';
 import { useTenant } from '../../context/TenantContext';
 
 const MobileProfil = ({ onLogout }) => {
-  const { currentUser, quizSubmissions, passingScore, myRank, pushStatus, pushError, enablePush } = useTenant();
+  const { currentUser, quizSubmissions, myRank, pushStatus, pushError, enablePush } = useTenant();
 
   const completedCount = quizSubmissions.filter(
-    s => s.employeeName === currentUser.name && s.postScore >= passingScore
+    s => s.employeeName === currentUser.name && s.certStatus === 'approved'
   ).length;
 
   const handleLogout = () => {

@@ -24,7 +24,8 @@ const MobileBeranda = ({ onNavigateToSOP, onSelectVideo }) => {
   const completionPercent = totalMandatory > 0 ? Math.round((completedMandatory / totalMandatory) * 100) : 0;
   
   // Total certificates for current user
-  const totalCertificates = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.postScore >= passingScore).length;
+  // Sertifikat hanya dihitung setelah disetujui HRD (sama dengan tampilan desktop)
+  const totalCertificates = quizSubmissions.filter(s => s.employeeName === currentUser.name && s.certStatus === 'approved').length;
 
   // Average score of passed quizzes
   // Rata-rata skor post-test dari SEMUA kuis yang sudah dikerjakan (lulus maupun remedial)
